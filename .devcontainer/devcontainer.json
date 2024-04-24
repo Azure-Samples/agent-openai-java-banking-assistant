@@ -1,0 +1,42 @@
+{
+    "name": "Java 17 and maven 3.8.8 DevContainer to build Java RAG example with Azure AI",
+    "image": "mcr.microsoft.com/devcontainers/java:1-17-bullseye",
+    "features": {
+        "azure-cli": "latest",
+        "ghcr.io/azure/azure-dev/azd:latest": {
+            "version": "1.7.0"
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "none",
+            "installMaven": true,
+            "mavenVersion": "3.8.8"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20.5.0"
+        },
+        
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "2.39.1"
+        },
+        "ghcr.io/devcontainers-contrib/features/typescript:2": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+            "version": "1.1.8"
+        },
+        "docker-in-docker": {
+            "version": "latest",
+            "moby": true,
+            "dockerDashComposeVersion": "v1"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.vscode-github-actions",
+                "ms-azuretools.azure-dev",
+                "ms-azuretools.vscode-bicep",
+                "vscjava.vscode-java-pack",
+                "amodio.tsl-problem-matcher"
+            ]
+        }
+    }
+}

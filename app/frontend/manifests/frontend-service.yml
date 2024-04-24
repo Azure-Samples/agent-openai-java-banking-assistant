@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: frontend-service
+    namespace: azure-open-ai
+spec:
+    type: ClusterIP
+    ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 80
+    selector:
+        app: frontend

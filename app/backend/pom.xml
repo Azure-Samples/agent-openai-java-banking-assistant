@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.13</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.microsoft.openai.samples.assistant</groupId>
+	<artifactId>personal-finance-assistant-java</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>personal-finance-assistant-java</name>
+	<description>This sample demonstrate how to create a generative ai multi-agent solution for a banking personal assistant </description>
+	<properties>
+		<java.version>17</java.version>
+
+		<spring-cloud-azure.version>4.9.0</spring-cloud-azure.version>
+		<azure-search.version>11.6.0-beta.8</azure-search.version>
+		<semantic-kernel.version>1.0.1</semantic-kernel.version>
+		<mockito-inline.version>4.5.1</mockito-inline.version>
+		<maven.compiler-plugin.version>3.11.0</maven.compiler-plugin.version>
+
+		<maven.spotless-plugin.version>2.40.0</maven.spotless-plugin.version>
+		<google.java.format.version>1.18.1</google.java.format.version>
+		<com.uber.nullaway.version>0.10.14</com.uber.nullaway.version>
+		<google.errorprone.core.version>2.22.0</google.errorprone.core.version>
+		<maven.spotbugs-plugin.version>4.7.3.6</maven.spotbugs-plugin.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.azure.spring</groupId>
+				<artifactId>spring-cloud-azure-dependencies</artifactId>
+				<version>${spring-cloud-azure.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.microsoft.semantic-kernel</groupId>
+				<artifactId>semantickernel-bom</artifactId>
+				<version>${semantic-kernel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+
+			<!-- Not sure why the build seems to pick the wrong version for this  -->
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.13.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>${mockito-inline.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-identity</artifactId>
+			<version>1.11.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-core</artifactId>
+			<version>1.45.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-ai-documentintelligence</artifactId>
+			<version>1.0.0-beta.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20240303</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-search-documents</artifactId>
+			<version>${azure-search.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.azure</groupId>
+					<artifactId>azure-core-serializer-json-jackson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-blob</artifactId>
+		</dependency>
+
+		<!-- Semantic Kernel start-->
+		<dependency>
+			<groupId>com.microsoft.semantic-kernel</groupId>
+			<artifactId>semantickernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.semantic-kernel</groupId>
+			<artifactId>semantickernel-aiservices-openai</artifactId>
+		</dependency>
+		<!-- Semantic Kernel end -->
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>bug-check</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>${maven.compiler-plugin.version}</version>
+						<configuration>
+							<source>${java.version}</source>
+							<target>${java.version}</target>
+							<release>${java.version}</release>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<showWarnings>true</showWarnings>
+							<compilerArgs>
+								<arg>-XDcompilePolicy=simple</arg>
+								<arg>-Xplugin:ErrorProne
+									-XepOpt:NullAway:AnnotatedPackages=com.microsoft.openai.samples.rag
+									-Xep:AlmostJavadoc:OFF -Xep:MissingSummary:OFF
+									-Xep:UnusedVariable:OFF -Xep:EmptyBlockTag:OFF
+								</arg>
+							</compilerArgs>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>com.google.errorprone</groupId>
+									<artifactId>error_prone_core</artifactId>
+									<version>${google.errorprone.core.version}</version>
+								</path>
+								<path>
+									<groupId>com.uber.nullaway</groupId>
+									<artifactId>nullaway</artifactId>
+									<version>${com.uber.nullaway.version}</version>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.diffplug.spotless</groupId>
+						<artifactId>spotless-maven-plugin</artifactId>
+						<version>${maven.spotless-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>check</id>
+								<goals>
+									<goal>check</goal>
+								</goals>
+								<phase>compile</phase>
+							</execution>
+							<execution>
+								<id>apply</id>
+								<goals>
+									<goal>apply</goal>
+								</goals>
+								<phase>process-sources</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<java>
+								<googleJavaFormat>
+									<version>${google.java.format.version}</version>
+									<style>AOSP</style>
+									<reflowLongStrings>true</reflowLongStrings>
+								</googleJavaFormat>
+								<licenseHeader>
+									<content>// Copyright (c) Microsoft. All rights reserved.</content>
+								</licenseHeader>
+								<toggleOffOn />
+							</java>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs-maven-plugin</artifactId>
+						<version>${maven.spotbugs-plugin.version}</version>
+						<configuration>
+							<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+							<effort>Max</effort>
+							<!-- Lower when more project is stable -->
+							<threshold>Normal</threshold>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>spotbugs</goal>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- Check compatibility with Android API -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>animal-sniffer-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
