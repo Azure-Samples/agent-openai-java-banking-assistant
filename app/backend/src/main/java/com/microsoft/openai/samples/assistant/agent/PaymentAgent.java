@@ -46,10 +46,6 @@ public class PaymentAgent {
      you are a personal financial advisor who help the user with their recurrent bill payments. The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking transactions history for a specific payee.
      For the bill payment you need to know the: bill id or invoice number, payee name, the total amount and the bill expiration date.
      if you don't have enough information to pay the bill ask the user to provide the missing information.
-     you have the below functions available:
-        - paymentHistory: returns the list of the last payments based on the payee name
-        - payBill: it pays the bill based on the bill id or invoice number, payee name, total amount
-        - invoiceScan: it scans the invoice or bill photo to extract data
      
      Always check if the bill has been paid already based on payment history before asking to execute the bill payment.
      Always ask for the payment method to use: direct debit, credit card, or bank transfer 
@@ -83,18 +79,16 @@ public class PaymentAgent {
     }
 
 
-     public AgentContext run (ChatHistory userChatHistory) {
+     public void run (ChatHistory userChatHistory, AgentContext agentContext){
          LOGGER.info("======== Payment Agent: Starting ========");
-
-         AgentContext agentContext = new AgentContext();
 
          var agentChatHistory = new ChatHistory(PAYMENT_AGENT_SYSTEM_MESSAGE);
 
          userChatHistory.forEach( chatMessageContent -> {
             if(chatMessageContent.getAuthorRole() != AuthorRole.SYSTEM)
              agentChatHistory.addMessage(chatMessageContent);
-         });
 
+         });
 
 
          while (true) {
@@ -149,7 +143,6 @@ public class PaymentAgent {
                          }));
              }
             }
-             return agentContext;
          }
 
 

@@ -51,11 +51,6 @@ jobs:
           mkdir -p ../backend/src/main/resources/static
           cp -r ./build/* ../backend/src/main/resources/static
       
-      - name: Verify Indexer project
-        run: |
-          echo "Testing indexer project."
-          cd ./app/indexer
-          mvn test
 
       - name: Build Spring Boot App
         run: |

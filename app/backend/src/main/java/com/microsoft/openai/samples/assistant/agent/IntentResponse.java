@@ -8,20 +8,20 @@ public class IntentResponse {
 
     private IntentType intentType;
 
-    private JSONObject jsonData;
+    private String message;
 
 
 
-    public IntentResponse(IntentType intentType, JSONObject jsonData) {
+    public IntentResponse(IntentType intentType, String message) {
         this.intentType = intentType;
-        this.jsonData = jsonData;
+        this.message = message;
     }
 
     public IntentType getIntentType() {
         return intentType;
     }
 
-    public JSONObject getJsonData() {
-        return jsonData;
+    public String getMessage() {
+        return this.message;
     }
 }

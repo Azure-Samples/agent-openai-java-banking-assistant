@@ -16,9 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class ContentController {
@@ -57,4 +56,25 @@ public class ContentController {
                 .contentType(contentType)
                 .body(new InputStreamResource(fileInputStream));
     }
+
+    @PostMapping("/api/content")
+    public ResponseEntity<String> uploadContent(@RequestParam("file") MultipartFile file) {
+        LOGGER.info("Received request to upload a file [{}}", file.getOriginalFilename());
+
+        if (file.isEmpty()) {
+            LOGGER.warn("Uploaded file is empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Uploaded file is empty");
+        }
+
+        try {
+            byte[] bytes = file.getBytes();
+            blobStorageProxy.storeFile(bytes, file.getOriginalFilename());
+        } catch (IOException ex) {
+            LOGGER.error("Cannot store file [{}] to blob.{}", file.getOriginalFilename(), ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while storing file");
+        }
+
+        return ResponseEntity.ok(file.getOriginalFilename());
+    }
+
 }

@@ -1,30 +1,49 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Stack, TextField } from "@fluentui/react";
 import { Button, Tooltip, Field, Textarea } from "@fluentui/react-components";
-import { Send28Filled } from "@fluentui/react-icons";
+import { Send28Filled, Attach24Filled, Delete16Filled } from "@fluentui/react-icons";
+import { QuestionContextType } from "./QuestionContext";
+import { uploadAttachment } from "../../api";
 
 import styles from "./QuestionInput.module.css";
 
 interface Props {
-    onSend: (question: string) => void;
+    onSend: (questionContext: QuestionContextType) => void;
     disabled: boolean;
     placeholder?: string;
     clearOnSend?: boolean;
 }
 
-export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: Props) => {
+export const  QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: Props) => {
     const [question, setQuestion] = useState<string>("");
+    const inputFile = useRef<HTMLInputElement | null>(null);
+    const [attachmentRef, setAttachmentRef] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const sendQuestion = () => {
+    const sendQuestion = async() => {
         if (disabled || !question.trim()) {
             return;
         }
 
-        onSend(question);
+        if( attachmentRef != null){
+           
+            console.log("Uploading file... "+ attachmentRef.name);
+           await uploadAttachment(attachmentRef);
+        }
+        
+        const questionContext = {
+            question: question,
+            attachments: attachmentRef != null ? [attachmentRef.name] : []
+        };
+
+        onSend(questionContext);
 
         if (clearOnSend) {
             setQuestion("");
         }
+
+        setAttachmentRef(null);
+        setPreviewImage(null);
     };
 
     const onEnterPress = (ev: React.KeyboardEvent<Element>) => {
@@ -42,10 +61,33 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: Pr
         }
     };
 
+    const onAttach = (_ev : React.MouseEvent<HTMLButtonElement>) => {
+        inputFile.current?.click();
+    }
+
+    const onFileSelected = (_ev : React.ChangeEvent<HTMLInputElement>) => {
+        if (_ev.target.files) {
+            setAttachmentRef(_ev.target.files[0]);
+            setPreviewImage(URL.createObjectURL(_ev.target.files[0]));
+        }
+
+    }
+    
+    const onAttachDelete = (_ev : React.MouseEvent<HTMLButtonElement>) => {
+       setAttachmentRef(null);
+       setPreviewImage(null);
+    }
     const sendQuestionDisabled = disabled || !question.trim();
 
     return (
         <Stack horizontal className={styles.questionInputContainer}>
+             {previewImage && (
+                    
+                    <div className={styles.attachmentContainer}>
+                    <img className={styles.imagePreview} src={previewImage} alt="" />
+                    <Button size="small" icon={<Delete16Filled primaryFill="rgba(115, 118, 225, 1)" />} onClick={onAttachDelete}  />
+                   </div>
+                )}
             <TextField
                 className={styles.questionInputTextArea}
                 placeholder={placeholder}
@@ -56,11 +98,18 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: Pr
                 onChange={onQuestionChange}
                 onKeyDown={onEnterPress}
             />
+             <div className={styles.questionInputButtonsContainer}>
+                <Tooltip content="Attachement" relationship="label">
+                    <Button size="large" icon={<Attach24Filled primaryFill="rgba(115, 118, 225, 1)" />}  onClick={onAttach} />
+                </Tooltip>
+                <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onFileSelected} accept="image/png, image/jpeg"/>
+            </div>
             <div className={styles.questionInputButtonsContainer}>
                 <Tooltip content="Ask question button" relationship="label">
                     <Button size="large" icon={<Send28Filled primaryFill="rgba(115, 118, 225, 1)" />} disabled={sendQuestionDisabled} onClick={sendQuestion} />
                 </Tooltip>
             </div>
+           
         </Stack>
     );
 };

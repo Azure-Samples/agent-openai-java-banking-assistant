@@ -78,10 +78,8 @@ public class HistoryReportingAgent {
                 .build();
     }
 
-     public AgentContext run (ChatHistory userChatHistory) {
+     public AgentContext run (ChatHistory userChatHistory, AgentContext agentContext){
          LOGGER.info("======== HistoryAndTransaction Agent: Starting ========");
-
-         AgentContext agentContext = new AgentContext();
 
          var agentChatHistory = new ChatHistory(HISTORY_AGENT_SYSTEM_MESSAGE);
          userChatHistory.forEach( chatMessageContent -> {
@@ -155,7 +153,7 @@ public class HistoryReportingAgent {
 
         HistoryReportingAgent agent = new HistoryReportingAgent(AZURE_CLIENT_KEY, CLIENT_ENDPOINT, MODEL_ID);
 
-        agent.run(new ChatHistory());
+        agent.run(new ChatHistory(), new AgentContext());
 
 
 

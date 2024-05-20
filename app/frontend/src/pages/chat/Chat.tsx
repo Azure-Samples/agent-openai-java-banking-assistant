@@ -3,6 +3,7 @@ import { Checkbox, ChoiceGroup, Panel, DefaultButton, TextField, SpinButton, Dro
 import { SparkleFilled } from "@fluentui/react-icons";
 import readNDJSONStream from "ndjson-readablestream";
 
+
 import styles from "./Chat.module.css";
 
 import {
@@ -17,6 +18,7 @@ import {
 } from "../../api";
 import { Answer, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
+import { QuestionContextType } from "../../components/QuestionInput/QuestionContext";
 import { ExampleList } from "../../components/Example";
 import { UserChatMessage } from "../../components/UserChatMessage";
 import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel";
@@ -25,6 +27,8 @@ import { ClearChatButton } from "../../components/ClearChatButton";
 import { useLogin, getToken } from "../../authConfig";
 import { useMsal } from "@azure/msal-react";
 import { TokenClaimsDisplay } from "../../components/TokenClaimsDisplay";
+import { AttachmentType } from "../../components/AttachmentType";
+
 
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
@@ -43,6 +47,7 @@ const Chat = () => {
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
 
     const lastQuestionRef = useRef<string>("");
+    const lastAttachementsRef = useRef<string[] | null>([]);
     const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -53,10 +58,10 @@ const Chat = () => {
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
 
     const [selectedAnswer, setSelectedAnswer] = useState<number>(0);
-    const [answers, setAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
-    const [streamedAnswers, setStreamedAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
+    const [answers, setAnswers] = useState<[user: string, attachments: string[], response: ChatAppResponse][]>([]);
+    const [streamedAnswers, setStreamedAnswers] = useState<[user: string, attachments: string[], response: ChatAppResponse][]>([]);
 
-    const handleAsyncRequest = async (question: string, answers: [string, ChatAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
+    const handleAsyncRequest = async (question: string, attachments: string[], answers: [string, string[],ChatAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
         let answer: string = "";
         let askResponse: ChatAppResponse = {} as ChatAppResponse;
 
@@ -68,7 +73,7 @@ const Chat = () => {
                         ...askResponse,
                         choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
                     };
-                    setStreamedAnswers([...answers, [question, latestResponse]]);
+                    setStreamedAnswers([...answers, [question,attachments, latestResponse]]);
                     resolve(null);
                 }, 33);
             });
@@ -97,8 +102,9 @@ const Chat = () => {
 
     const client = useLogin ? useMsal().instance : undefined;
 
-    const makeApiRequest = async (question: string) => {
-        lastQuestionRef.current = question;
+    const makeApiRequest = async (questionContext: QuestionContextType) => {
+        lastQuestionRef.current = questionContext.question;
+        lastAttachementsRef.current = questionContext.attachments || [];
 
         error && setError(undefined);
         setIsLoading(true);
@@ -109,13 +115,13 @@ const Chat = () => {
 
         try {
             const messages: ResponseMessage[] = answers.flatMap(a => [
-                { content: a[0], role: "user" },
-                { content: a[1].choices[0].message.content, role: "assistant" }
+                { content: a[0], role: "user", attachments: a[1]},
+                { content: a[2].choices[0].message.content, role: "assistant" }
             ]);
 
             const stream = streamAvailable && shouldStream;
             const request: ChatAppRequest = {
-                messages: [...messages, { content: question, role: "user" }],
+                messages: [...messages, { content: questionContext.question, role: "user", attachments: questionContext.attachments }],
                 stream: stream,
                 context: {
                     overrides: {
@@ -133,7 +139,7 @@ const Chat = () => {
                 },
                 approach: approach,
                 // ChatAppProtocol: Client must pass on any session state received from the server
-                session_state: answers.length ? answers[answers.length - 1][1].choices[0].session_state : null
+                session_state: answers.length ? answers[answers.length - 1][2].choices[0].session_state : null
             };
 
             const response = await chatApi(request, token?.accessToken);
@@ -141,14 +147,14 @@ const Chat = () => {
                 throw Error("No response body");
             }
             if (stream) {
-                const parsedResponse: ChatAppResponse = await handleAsyncRequest(question, answers, setAnswers, response.body);
-                setAnswers([...answers, [question, parsedResponse]]);
+                const parsedResponse: ChatAppResponse = await handleAsyncRequest(questionContext.question,questionContext.attachments || [], answers, setAnswers, response.body);
+                setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse]]);
             } else {
                 const parsedResponse: ChatAppResponseOrError = await response.json();
                 if (response.status > 299 || !response.ok) {
                     throw Error(parsedResponse.error || "Unknown error");
                 }
-                setAnswers([...answers, [question, parsedResponse as ChatAppResponse]]);
+                setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse as ChatAppResponse]]);
             }
         } catch (e) {
             setError(e);
@@ -159,6 +165,7 @@ const Chat = () => {
 
     const clearChat = () => {
         lastQuestionRef.current = "";
+        lastAttachementsRef.current = [];
         error && setError(undefined);
         setActiveCitation(undefined);
         setActiveAnalysisPanelTab(undefined);
@@ -222,7 +229,7 @@ const Chat = () => {
     };
 
     const onExampleClicked = (example: string) => {
-        makeApiRequest(example);
+        makeApiRequest({question:example});
     };
 
     const onShowCitation = (citation: string, index: number) => {
@@ -282,17 +289,17 @@ const Chat = () => {
                             {isStreaming &&
                                 streamedAnswers.map((streamedAnswer, index) => (
                                     <div key={index}>
-                                        <UserChatMessage message={streamedAnswer[0]} />
+                                        <UserChatMessage message={streamedAnswer[0]} attachments={streamedAnswer[1]} />
                                         <div className={styles.chatMessageGpt}>
                                             <Answer
                                                 isStreaming={true}
                                                 key={index}
-                                                answer={streamedAnswer[1]}
+                                                answer={streamedAnswer[2]}
                                                 isSelected={false}
                                                 onCitationClicked={c => onShowCitation(c, index)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
+                                                onFollowupQuestionClicked={q => makeApiRequest({question:q})}
                                                 showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
                                             />
                                         </div>
@@ -301,17 +308,17 @@ const Chat = () => {
                             {!isStreaming &&
                                 answers.map((answer, index) => (
                                     <div key={index}>
-                                        <UserChatMessage message={answer[0]} />
+                                        <UserChatMessage message={answer[0]} attachments={answer[1]} />
                                         <div className={styles.chatMessageGpt}>
                                             <Answer
                                                 isStreaming={false}
                                                 key={index}
-                                                answer={answer[1]}
+                                                answer={answer[2]}
                                                 isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
                                                 onCitationClicked={c => onShowCitation(c, index)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
+                                                onFollowupQuestionClicked={q => makeApiRequest({question:q})}
                                                 showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
                                             />
                                         </div>
@@ -319,7 +326,7 @@ const Chat = () => {
                                 ))}
                             {isLoading && (
                                 <>
-                                    <UserChatMessage message={lastQuestionRef.current} />
+                                    <UserChatMessage message={lastQuestionRef.current} attachments={lastAttachementsRef.current || []}/>
                                     <div className={styles.chatMessageGptMinWidth}>
                                         <AnswerLoading />
                                     </div>
@@ -327,9 +334,9 @@ const Chat = () => {
                             )}
                             {error ? (
                                 <>
-                                    <UserChatMessage message={lastQuestionRef.current} />
+                                    <UserChatMessage message={lastQuestionRef.current} attachments={lastAttachementsRef.current || []}/>
                                     <div className={styles.chatMessageGptMinWidth}>
-                                        <AnswerError error={error.toString()} onRetry={() => makeApiRequest(lastQuestionRef.current)} />
+                                        <AnswerError error={error.toString()} onRetry={() => makeApiRequest({question:lastQuestionRef.current})} />
                                     </div>
                                 </>
                             ) : null}
@@ -353,7 +360,7 @@ const Chat = () => {
                         activeCitation={activeCitation}
                         onActiveTabChanged={x => onToggleTab(x, selectedAnswer)}
                         citationHeight="810px"
-                        answer={answers[selectedAnswer][1]}
+                        answer={answers[selectedAnswer][2]}
                         activeTab={activeAnalysisPanelTab}
                     />
                 )}

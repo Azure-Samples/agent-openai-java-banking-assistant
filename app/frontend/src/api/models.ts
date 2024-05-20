@@ -34,6 +34,7 @@ export type ChatAppRequestOverrides = {
 export type ResponseMessage = {
     content: string;
     role: string;
+    attachments?: string[];
 };
 
 export type ResponseContext = {

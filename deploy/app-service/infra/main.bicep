@@ -293,7 +293,7 @@ module openAiRoleBackend '../../shared/security/role.bicep' = if (openAiHost == 
 
 
 
-module formRecognizerRoleIndexer '../../shared/security/role.bicep' = {
+module formRecognizerBackend '../../shared/security/role.bicep' = {
   scope: formRecognizerResourceGroup
   name: 'formrecognizer-role-indexer'
   params: {
@@ -303,12 +303,12 @@ module formRecognizerRoleIndexer '../../shared/security/role.bicep' = {
   }
 }
 
-module storageRoleBackend '../../shared/security/role.bicep' = {
+module storageContributorRoleBackend '../../shared/security/role.bicep' = {
   scope: storageResourceGroup
   name: 'storage-role-backend'
   params: {
     principalId: backend.outputs.identityPrincipalId
-    roleDefinitionId: '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
+    roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
     principalType: 'ServicePrincipal'
   }
 }

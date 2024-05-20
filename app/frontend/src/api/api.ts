@@ -49,3 +49,23 @@ export async function chatApi(request: ChatAppRequest, idToken: string | undefin
 export function getCitationFilePath(citation: string): string {
     return `${BACKEND_URI}/content/${citation}`;
 }
+
+export function uploadAttachment(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return fetch(`${BACKEND_URI}/content`, {
+        method: "POST",
+        body: formData
+    }).then(response => {
+        if (response.status > 299 || !response.ok) {
+            throw Error("Failed to upload attachment");
+        }
+        return response.text();
+    });
+}
+
+export function getImage(name: string): string {
+        return `${BACKEND_URI}/content/${name}`;
+    }
+

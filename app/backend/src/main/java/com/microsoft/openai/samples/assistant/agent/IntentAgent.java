@@ -11,6 +11,7 @@ import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatC
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IntentAgent {
@@ -22,26 +23,23 @@ public class IntentAgent {
     private ChatCompletionService chat;
 
     private String INTENT_SYSTEM_MESSAGE = """
-     You are a personal financial advisor who help the user with their recurrent bill payments.
-             The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking payments history for a specific payee.
-             In other cases it may want to just review the payments history.
-             Based on the conversation you need to identify the user intent and ask the user for the missing information.
-             The available intents are:
-             "BillPayment", "RepeatTransaction","TransactionHistory"
-             If none of the intents are identified provide the user with the list of the available intents.
-             
-             If an intent is identified return the output as json format as below
-             {
-               "intent": "BillPayment"
-             }
-             
-             If none of the intents are identified ask the user for more clarity and list of the available intents. Use always a json format as output 
-             {
-               "intent": "None"
-               "clarify_sentence": ""
-             }
-             
-             Don't add any comments in the output or other characters, just the json format.
+You are a personal financial advisor who help the user with their recurrent bill payments.
+The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking payments history for a specific payee.
+In other cases it may want to just review the payments history.
+Based on the conversation you need to identify the user intent.
+The available intents are:
+"BillPayment", "RepeatTransaction","TransactionHistory"
+If none of the intents are identified provide the user with the list of the available intents.
+
+If an intent is identified return the output as json format as below
+{
+"intent": "BillPayment"
+ }
+
+If you don't understand or if an intent is not identified be polite with the user, ask clarifying question also using the list the available intents. 
+
+Don't add any comments in the output or other characters, just the use a json format.
+            
     """;
 
     public IntentAgent(OpenAIAsyncClient client, String modelId){
@@ -73,10 +71,8 @@ public class IntentAgent {
     }
 
     public IntentResponse run(ChatHistory userChatHistory){
-        var agentChatHistory = new ChatHistory();
+        var agentChatHistory = new ChatHistory(INTENT_SYSTEM_MESSAGE);
         agentChatHistory.addAll(userChatHistory);
-        agentChatHistory.addSystemMessage(INTENT_SYSTEM_MESSAGE);
-
 
         var messages = chat.getChatMessageContentsAsync(
                         agentChatHistory,
@@ -92,10 +88,27 @@ public class IntentAgent {
 
         var message = messages.get(0);
 
-        JSONObject json = new JSONObject(message.getContent());
-        IntentType intentType = IntentType.valueOf(json.get("intent").toString());
+        JSONObject jsonData = new JSONObject();
 
-        return new IntentResponse(intentType,json);
+        /**
+         * Try to see if the model answered with a formatted json. If not it is just trying to move the conversation forward to understand the user intent
+         * but without answering with a formatted output. In this case the intent is None and the clarifying sentence is not used.
+         */
+        try{
+            jsonData = new JSONObject(message.getContent());
+        }catch (JSONException e){
+            return new IntentResponse(IntentType.None,message.getContent());
+        }
+
+        IntentType intentType = IntentType.valueOf(jsonData.get("intent").toString());
+        String clarifySentence = "";
+        try {
+            clarifySentence = jsonData.get("clarify_sentence").toString();
+        } catch(Exception e){
+             // this is the case where the intent has been identified and the clarifying sentence is not present in the json outpu
+             }
+
+        return new IntentResponse(intentType, clarifySentence != null ? clarifySentence.toString() : "");
     }
 
     public static void main(String[] args) throws NoSuchMethodException {

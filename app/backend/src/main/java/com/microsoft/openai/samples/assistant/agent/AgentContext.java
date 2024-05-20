@@ -1,21 +1,25 @@
 package com.microsoft.openai.samples.assistant.agent;
-public class AgentContext {
+
+import java.util.HashMap;
+
+public class AgentContext extends HashMap<String,Object>{
 
     private String result;
 
-
-    public void AgentContext() {
+    public AgentContext() {
+        super();
     }
 
-    public void AgentContext(String result) {
-          this.result = result;
+    public AgentContext(String result) {
+        super();
+        this.put("result", result);
      }
 
     public String getResult() {
-        return result;
+        return (String)this.get("result");
     }
     public void setResult(String result) {
-        this.result = result;
+        this.put("result", result);
     }
 
 }

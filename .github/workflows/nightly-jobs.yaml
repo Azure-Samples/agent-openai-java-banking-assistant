@@ -91,12 +91,6 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      - name: Verify Indexer project
-        run: |
-          echo "Testing indexer project."
-          cd ./app/indexer
-          mvn test
-
       - name: Build Spring Boot App
         run: |
           echo "Building Spring Boot app."

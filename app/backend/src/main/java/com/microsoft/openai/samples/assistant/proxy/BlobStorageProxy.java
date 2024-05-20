@@ -2,13 +2,13 @@
 package com.microsoft.openai.samples.assistant.proxy;
 
 import com.azure.core.credential.TokenCredential;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * This class is a proxy to the Blob storage API. It is responsible for: - calling the API -
@@ -44,5 +44,10 @@ public class BlobStorageProxy {
         blobClient.downloadStream(outputStream);
 
         return outputStream.toByteArray();
+    }
+
+    public void storeFile(byte[] bytes, String originalFilename) {
+        BlobClient blobClient = client.getBlobClient(originalFilename);
+        blobClient.upload(new ByteArrayInputStream(bytes), bytes.length, true);
     }
 }
