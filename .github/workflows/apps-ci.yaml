@@ -67,7 +67,7 @@ jobs:
     secrets: inherit
   
   deploy-frontend-app:
-    needs: build-frontend-app
+    needs: [changes-detection,build-frontend-app]
     if: ${{ needs.changes-detection.outputs.build-frontend == 'true' }}
     uses: ./.github/workflows/aca-deploy.yaml
     with:
