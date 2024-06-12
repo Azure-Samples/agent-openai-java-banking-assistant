@@ -11,13 +11,10 @@ on:
         container-app-name:
           required: true
           type: string
-        resource-group:
-          required: true
-          type: string
       
 
 jobs:
-    build:
+    deploy:
         runs-on: ubuntu-latest
         environment: ${{inputs.env-name}}
         steps:
@@ -30,5 +27,5 @@ jobs:
           with:
               acrName: ${{vars.ACR_NAME}}
               containerAppName: ${{inputs.container-app-name}}
-              resourceGroup: ${{inputs.resource-group}}
+              resourceGroup: ${{vars.resource-group}}
               imageToDeploy: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
