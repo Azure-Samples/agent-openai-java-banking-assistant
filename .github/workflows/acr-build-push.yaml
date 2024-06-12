@@ -35,4 +35,4 @@ jobs:
             cd ${{ inputs.app-folder-path }}
             docker build . -t ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
             docker push ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
-            echo "image successfully pushed: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            echo "image successfully pushed: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}"

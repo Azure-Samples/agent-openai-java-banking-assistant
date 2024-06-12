@@ -65,4 +65,14 @@ jobs:
       image-name: personal-finance-assistance-java/web
       app-folder-path: ./app/frontend
     secrets: inherit
+  
+  deploy-frontend-app:
+    needs: changes-detection
+    if: ${{ needs.build-frontend-app.outputs.build == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/web
+      container-app-name: ${{ vars.WEB_ACA_APP_NAME }}
+      resource-group: ${{ vars.RESOURCE_GROUP }}
    

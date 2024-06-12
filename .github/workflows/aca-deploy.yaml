@@ -5,9 +5,6 @@ on:
         env-name:
           required: true
           type: string
-        acr-name:
-          required: true
-          type: string
         image-name:
           required: true
           type: string
@@ -31,7 +28,7 @@ jobs:
         - name: Build and deploy Container App
           uses: azure/container-apps-deploy-action@v1
           with:
-              acrName: ${{inputs.acr-name}}
+              acrName: ${{vars.ACR_NAME}}
               containerAppName: ${{inputs.container-app-name}}
               resourceGroup: ${{inputs.resource-group}}
-              imageToDeploy: ${{inputs.acr-name}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+              imageToDeploy: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
