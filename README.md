@@ -49,6 +49,8 @@
     | Secret                | Value                                                                                      |
     |-----------------------|--------------------------------------------------------------------------------------------|
     | AZURE_CREDENTIALS     | The entire JSON output from the service principal creation step                            |
+    | SPI_CLIENT_ID         | The service principal client id used as username to login to Azure Container Registry      |
+    | SPI_CLIENT_SECRET     | The service principal client secret used as password to login to Azure Container Registry  |
 3. Create 'Development' environment [variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-an-environment) as below:
     | Variable                | Value                                                                                        |
     |---------------------------|--------------------------------------------------------------------------------------------|

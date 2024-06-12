@@ -1,4 +1,4 @@
-name: APP CI/CD Pipeline 
+name: Container Apps CI/CD pipeline
 
 on:
   push:
