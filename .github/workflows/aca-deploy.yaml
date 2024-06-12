@@ -27,5 +27,5 @@ jobs:
           with:
               acrName: ${{vars.ACR_NAME}}
               containerAppName: ${{inputs.container-app-name}}
-              resourceGroup: ${{vars.resource-group}}
+              resourceGroup: ${{vars.RESOURCE_GROUP}}
               imageToDeploy: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
