@@ -9,8 +9,8 @@ export type ExampleModel = {
 
 const EXAMPLES: ExampleModel[] = [
     { text: "I want to pay a bill", value: "I want to pay a bill"},
-    { text: "When did I last pay my plumber?", value: "When did I last pay my plumber" },
-    { text: "Pay Bill the plumber as last time", value: "Pay Bill the plumber as last time" }
+    { text: "what are this year payments ?", value: "what are this year payments ?" },
+    { text: "What is the limit on my visa ?", value: "What is the limit on my visa ?" }
 ];
 
 interface Props {

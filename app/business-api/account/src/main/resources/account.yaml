@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Account API
+  version: 1.0.0
+paths:
+  /users/{user_name}/accounts:
+    get:
+      summary: Get the list of all accounts for a specific user
+      description: Get the list of all accounts for a specific user
+      operationId: getAccountsByUserId
+      parameters:
+        - name: user_name
+          description: userName once the user has logged.
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+  /accounts/{accountid}:
+    get:
+      summary: Get account details and available payment methods
+      description: Get account details
+      operationId: getAccountDetails
+      parameters:
+        - name: accountid
+          description: id of specific account.
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Account'
+    /accounts/{accountid}/paymentmethods/{methodid}:
+      get:
+        summary: Get payment method detail with available balance
+        description: Get payment method detail with available balance
+        operationId: getPaymentMethodDetails
+        parameters:
+          - name: accountid
+            description: id of specific account.
+            in: path
+            required: true
+            schema:
+              type: string
+          - name: methodId
+            description: id of specific payment method available for the account id.
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Payment method details
+            content:
+              application/json:
+                schema:
+                  type: object
+                  items:
+                    $ref: '#/components/schemas/PaymentMethod'
+    /accounts/{accountid}/registeredBeneficiaries:
+      get:
+        summary: Get list of registered beneficiaries for a specific account
+        description: Get list of registered beneficiaries for a specific account
+        operationId: getBeneficiaryMethodDetails
+        parameters:
+          - name: accountid
+            description: id of specific account.
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Payment method details
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Beneficiary'
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the account
+        userName:
+          type: string
+          description: The unique identifier for the user
+        accountHolderFullName:
+          type: string
+          description: The full name of the account holder
+        currency:
+          type: string
+          description: The currency of the account
+        activationDate:
+          type: string
+          description: The date when the account was activated
+        balance:
+          type: string
+          description: The current balance of the account
+        paymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+          description: The list of payment methods associated with the account
+    PaymentMethodSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the payment method
+        type:
+          type: string
+          description: The type of the payment method
+        activationDate:
+          type: string
+          description: The date when the payment method was activated
+        expirationDate:
+          type: string
+          description: The date when the payment method will expire
+    PaymentMethod:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the payment method
+        type:
+          type: string
+          description: The type of the payment method
+        activationDate:
+          type: string
+          description: The date when the payment method was activated
+        expirationDate:
+          type: string
+          description: The date when the payment method will expire
+        availableBalance:
+          type: string
+          description: The available balance of the payment method
+        cardNumber:
+          type: string
+          description: The card number of the payment method
+    Beneficiary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the beneficiary
+        fullName:
+          type: string
+          description: The full name of the beneficiary
+        bankCode:
+          type: string
+          description: The bank code of the beneficiary's bank
+        bankName:
+          type: string
+          description: The name of the beneficiary's bank

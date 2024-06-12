@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Stack, TextField } from "@fluentui/react";
-import { Button, Tooltip, Field, Textarea } from "@fluentui/react-components";
+import { Button, Tooltip,Textarea } from "@fluentui/react-components";
 import { Send28Filled, Attach24Filled, Delete16Filled } from "@fluentui/react-icons";
 import { QuestionContextType } from "./QuestionContext";
 import { uploadAttachment } from "../../api";
@@ -19,6 +19,24 @@ export const  QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: P
     const inputFile = useRef<HTMLInputElement | null>(null);
     const [attachmentRef, setAttachmentRef] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+
+
+    const internalSendQuestion = async() => {
+        const questionContext = {
+            question: question,
+            attachments: attachmentRef != null ? [attachmentRef.name] : []
+            };
+
+            onSend(questionContext);
+
+            if (clearOnSend) {
+                setQuestion("");
+            }
+
+            setAttachmentRef(null);
+            setPreviewImage(null);
+    }
 
     const sendQuestion = async() => {
         if (disabled || !question.trim()) {
@@ -27,23 +45,25 @@ export const  QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: P
 
         if( attachmentRef != null){
            
-            console.log("Uploading file... "+ attachmentRef.name);
-           await uploadAttachment(attachmentRef);
+           setIsUploading(true); 
+           console.log("Uploading file... "+ attachmentRef.name);
+           //await uploadAttachment(attachmentRef);
+         
+           uploadAttachment(attachmentRef)
+            .then((response) => {
+                console.log("File uploaded.");
+                setIsUploading(false);
+                internalSendQuestion()
+                })
+            .catch((error) => {
+               console.error(error);
+               setIsUploading(false);
+           });
+        } else {
+            internalSendQuestion()
         }
         
-        const questionContext = {
-            question: question,
-            attachments: attachmentRef != null ? [attachmentRef.name] : []
-        };
-
-        onSend(questionContext);
-
-        if (clearOnSend) {
-            setQuestion("");
-        }
-
-        setAttachmentRef(null);
-        setPreviewImage(null);
+        
     };
 
     const onEnterPress = (ev: React.KeyboardEvent<Element>) => {
@@ -80,12 +100,14 @@ export const  QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: P
     const sendQuestionDisabled = disabled || !question.trim();
 
     return (
+        <div>
         <Stack horizontal className={styles.questionInputContainer}>
              {previewImage && (
                     
                     <div className={styles.attachmentContainer}>
                     <img className={styles.imagePreview} src={previewImage} alt="" />
                     <Button size="small" icon={<Delete16Filled primaryFill="rgba(115, 118, 225, 1)" />} onClick={onAttachDelete}  />
+                        { isUploading && (<p>Uploading File...</p>)}
                    </div>
                 )}
             <TextField
@@ -111,5 +133,7 @@ export const  QuestionInput = ({ onSend, disabled, placeholder, clearOnSend }: P
             </div>
            
         </Stack>
+        
+       </div>
     );
 };

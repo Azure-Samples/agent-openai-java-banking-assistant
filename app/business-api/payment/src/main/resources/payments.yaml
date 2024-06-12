@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Payment API
+  version: 1.0.0
+paths:
+  /payments:
+    post:
+      operationId: submitPayment
+      summary: Submit a payment request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '201':
+          description: Payment request submitted successfully
+        '400':
+          description: Invalid request body
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Payment:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description of the payment
+        recipientName:
+          type: string
+          description: Name of the recipient
+        recipientId:
+          type: string
+          description: ID of the recipient
+        recipientBankCode:
+          type: string
+          description: Bank code of the recipient
+        accountId:
+          type: string
+          description: ID of the account
+        paymentMethodId:
+          type: string
+          description: ID of the payment method
+        amount:
+          type: string
+          description: Amount of the payment
+        timestamp:
+          type: string
+          description: Timestamp of the payment
+      required:
+        - description
+        - recipientName
+        - recipientBankCode
+        - accountId
+        - paymentMethodId
+        - amount
+        - timestamp

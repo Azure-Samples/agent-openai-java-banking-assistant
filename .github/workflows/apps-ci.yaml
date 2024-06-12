@@ -1,0 +1,68 @@
+name: APP CI/CD Pipeline 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+    tags:        
+      - v*.*.*
+  workflow_dispatch:
+
+jobs:
+  changes-detection:
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{steps.set-deploy-env.outputs.DEPLOY_ENVIRONMENT}}
+      build-copilot: ${{ steps.changes.outputs.copilot }}
+      build-frontend: ${{ steps.changes.outputs.frontend }}
+      build-account-api: ${{ steps.changes.outputs.account-api }}
+      build-payment-api: ${{ steps.changes.outputs.payment-api }}
+      build-transactions-api: ${{ steps.changes.outputs.transactions-api }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Filter Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+            filters: |
+              copilot:
+                - 'app/copilot/**'
+              frontend:
+                - 'app/frontend/**'
+              account-api:
+                - 'app/business-api/account/**'
+              payment-api:
+                - 'app/business-api/payment/**'
+              transactions-api:
+                - 'app/business-api/transactions-history/**'
+
+      - name: Set environment for branch
+        id: set-deploy-env
+        run: |
+          echo "checking branch name [${{github.ref_name}}]"
+          if [[ ${{github.ref_name}} == 'main' ]]; then
+              echo "main branch detected. Set Development environment"
+              echo "DEPLOY_ENVIRONMENT=Development" >> "$GITHUB_OUTPUT"
+          elif [[ ${{github.ref_name}} == *'release'* ]]; then
+              echo "release branch detected. Set Test environment"
+              echo "DEPLOY_ENVIRONMENT=Test" >> "$GITHUB_OUTPUT"
+          elif [[ ${{github.ref_name}} == *'v'* ]]; then
+              echo "tag detected. Set Production environment" 
+              echo "DEPLOY_ENVIRONMENT=Production" >> "$GITHUB_OUTPUT"
+          else
+              echo "branch not detected. Set Development environment as default"
+              echo "DEPLOY_ENVIRONMENT=Development" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-frontend-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-frontend == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      acr-name: ${{ vars.AZUREACR_NAME }}
+      image-name: personal-finance-assistance-java/web
+      app-folder-path: app/frontend
+   

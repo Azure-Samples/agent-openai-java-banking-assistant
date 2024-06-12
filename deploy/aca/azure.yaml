@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: personal-finance-assistance-java
+metadata:
+  template: personal-finance-assistance-java@1.0.0-alpha
+services:
+  copilot:
+    project: ../../app/copilot
+    language: java
+    host: containerapp
+  account:
+    project: ../../app/business-api/account
+    language: java
+    host: containerapp
+  payment:
+    project: ../../app/business-api/payment
+    language: java
+    host: containerapp
+  transaction:
+    project: ../../app/business-api/transactions-history
+    language: java
+    host: containerapp
+  web:
+    project: ../../app/frontend
+    language: js
+    host: containerapp
