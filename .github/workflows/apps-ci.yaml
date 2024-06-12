@@ -62,7 +62,6 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      acr-name: ${{ vars.ACR_NAME  }}
       image-name: personal-finance-assistance-java/web
       app-folder-path: app/frontend
     secrets: inherit

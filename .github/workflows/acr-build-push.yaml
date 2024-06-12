@@ -5,9 +5,6 @@ on:
         env-name:
           required: true
           type: string
-        acr-name:
-          required: true
-          type: string
         image-name:
           required: true
           type: string
@@ -21,7 +18,7 @@ jobs:
         runs-on: ubuntu-latest
         environment: ${{inputs.env-name}}
         steps:
-        - name: Log in to Azure with sevice principal
+        - name: Log in to Azure with service principal
           uses: azure/login@v2
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -30,11 +27,11 @@ jobs:
           with:
             azcliversion: latest
             inlineScript: |
-               az acr login --name ${{inputs.acr-name}}
+               az acr login --name ${{vars.ACR_NAME}}
         - name: Build and Push to ACR
           run: |
             echo "Building image [${{ inputs.image-name }}] and environment [${{ inputs.env-name }}]"
             cd ${{ inputs.app-folder-path }}
-            docker build . -t ${{inputs.acr-name}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
-            docker push ${{inputs.acr-name}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
-            echo "image successfully pushed: ${{inputs.acr-name}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            docker build . -t ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            docker push ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            echo "image successfully pushed: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
