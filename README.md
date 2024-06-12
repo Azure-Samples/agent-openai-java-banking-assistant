@@ -55,6 +55,7 @@
     | Variable                | Value                                                                                        |
     |---------------------------|--------------------------------------------------------------------------------------------|
     | ACR_NAME                  | The name of the Azure Container registry                                                   |
+    | ACA_ENV_NAME              | The name of the Azure Container Apps Environment                                            |
     | COPILOT_ACA_APP_NAME      | The container app name for the copilot orchestrator app                                    |
     | WEB_ACA_APP_NAME          | The container app name for the web frontend  app                                           |
     | ACCOUNTS_ACA_APP_NAME     | The container app name for the business account api                                        |

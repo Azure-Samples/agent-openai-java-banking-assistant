@@ -73,6 +73,7 @@ jobs:
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
       image-name: personal-finance-assistance-java/web
-      container-app-name: ${{ vars.WEB_ACA_APP_NAME }}
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.WEB_ACA_DEV_APP_NAME }}
     secrets: inherit
    

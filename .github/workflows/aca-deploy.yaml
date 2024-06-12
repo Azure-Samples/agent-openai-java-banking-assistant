@@ -11,6 +11,9 @@ on:
         container-app-name:
           required: true
           type: string
+        container-app-env-name:
+          required: true
+          type: string
       
 
 jobs:
@@ -27,5 +30,6 @@ jobs:
           with:
               acrName: ${{vars.ACR_NAME}}
               containerAppName: ${{inputs.container-app-name}}
+              containerAppEnvironment: ${{inputs.container-app-env-name}}
               resourceGroup: ${{vars.RESOURCE_GROUP}}
               imageToDeploy: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
