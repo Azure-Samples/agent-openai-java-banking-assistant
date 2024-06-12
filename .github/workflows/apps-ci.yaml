@@ -68,7 +68,7 @@ jobs:
   
   deploy-frontend-app:
     needs: changes-detection
-    if: ${{ needs.build-frontend-app.outputs.build == 'true' }}
+    if: ${{ needs.build-frontend-app.outputs.build-frontend == 'true' }}
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}

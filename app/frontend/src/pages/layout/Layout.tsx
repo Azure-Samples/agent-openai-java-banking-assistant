@@ -38,7 +38,7 @@ const Layout = () => {
                             </li>
                         </ul>
                     </nav>
-                    <h4 className={styles.headerRightText}>Personal Banking Assistance Copilot</h4>
+                    <h4 className={styles.headerRightText}>Banking Assistance Copilot</h4>
                     {useLogin && <LoginButton />}
                 </div>
             </header>
