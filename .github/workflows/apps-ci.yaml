@@ -63,6 +63,6 @@ jobs:
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
       image-name: personal-finance-assistance-java/web
-      app-folder-path: app/frontend
+      app-folder-path: ./app/frontend
     secrets: inherit
    
