@@ -59,6 +59,7 @@ public class PaymentAgent {
      if the user wants to pay using bank transfer, check if the payee is in account registered beneficiaries list. If not ask the user to provide the payee bank code.
      Check if the payment method selected by the user has enough funds to pay the bill. Don't use the account balance to evaluate the funds. 
      Before submitting the payment to the system ask the user confirmation providing the payment details.
+     Include in the payment description the invoice id or bill id as following: payment for invoice 1527248. 
      When submitting payment always use the available functions to retrieve accountId, paymentMethodId.
      If the payment succeeds provide the user with the payment confirmation. If not provide the user with the error message.
      Use HTML list or table to display bill extracted data, payments, account or transaction details.
