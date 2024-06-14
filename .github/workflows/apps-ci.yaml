@@ -19,7 +19,7 @@ jobs:
       build-frontend: ${{ steps.changes.outputs.frontend }}
       build-account-api: ${{ steps.changes.outputs.account-api }}
       build-payment-api: ${{ steps.changes.outputs.payment-api }}
-      build-transactions-api: ${{ steps.changes.outputs.transactions-api }}
+      build-transaction-api: ${{ steps.changes.outputs.transaction-api }}
     steps:
       - uses: actions/checkout@v2
       - name: Filter Changes
@@ -35,7 +35,7 @@ jobs:
                 - 'app/business-api/account/**'
               payment-api:
                 - 'app/business-api/payment/**'
-              transactions-api:
+              transaction-api:
                 - 'app/business-api/transactions-history/**'
 
       - name: Set environment for branch
@@ -76,6 +76,47 @@ jobs:
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.ACCOUNTS_ACA_DEV_APP_NAME }}
     secrets: inherit
+
+  build-transaction-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-transaction-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/transactions-history-api
+      app-folder-path: ./app/business-api/transactions-history
+    secrets: inherit
+  
+  deploy-transaction-app:
+    needs: [changes-detection,build-transaction-app]
+    if: ${{ needs.changes-detection.outputs.build-transaction-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/transactions-history-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.TRANSACTIONS_ACA_DEV_APP_NAME }}
+    secrets: inherit
+  build-payment-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-payment-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/payment-api
+      app-folder-path: ./app/business-api/payment
+    secrets: inherit
+  
+  deploy-payment-app:
+    needs: [changes-detection,build-payment-app]
+    if: ${{ needs.changes-detection.outputs.build-payment-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/transactions-history-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.PAYMENTS_ACA_DEV_APP_NAME }}
+    secrets: inherit
       
   build-frontend-app:
     needs: changes-detection
@@ -96,5 +137,26 @@ jobs:
       image-name: personal-finance-assistance-java/web
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.WEB_ACA_DEV_APP_NAME }}
+    secrets: inherit
+  
+  build-copilot-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-copilot == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/copilot
+      app-folder-path: ./app/copilot
+    secrets: inherit
+  
+  deploy-copilot-app:
+    needs: [changes-detection,build-copilot-app]
+    if: ${{ needs.changes-detection.outputs.build-copilot == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/copilot
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.COPILOT_ACA_DEV_APP_NAME }}
     secrets: inherit
    
