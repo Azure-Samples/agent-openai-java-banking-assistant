@@ -56,6 +56,27 @@ jobs:
               echo "DEPLOY_ENVIRONMENT=Development" >> "$GITHUB_OUTPUT"
           fi
 
+  build-account-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-account-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/account-api
+      app-folder-path: ./app/business-api/account
+    secrets: inherit
+  
+  deploy-account-app:
+    needs: [changes-detection,build-account-app]
+    if: ${{ needs.changes-detection.outputs.build-account-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/account-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.ACCOUNTS_ACA_DEV_APP_NAME }}
+    secrets: inherit
+      
   build-frontend-app:
     needs: changes-detection
     if : ${{ needs.changes-detection.outputs.build-frontend == 'true' }}
