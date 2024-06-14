@@ -113,7 +113,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/transactions-history-api
+      image-name: personal-finance-assistance-java/payment-api
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.PAYMENTS_ACA_DEV_APP_NAME }}
     secrets: inherit
