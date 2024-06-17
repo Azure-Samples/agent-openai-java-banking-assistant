@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.openai.samples.assistant.agent;
 
-import com.azure.ai.documentintelligence.DocumentIntelligenceClient;
 import com.azure.ai.openai.OpenAIAsyncClient;
-import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
-import com.microsoft.openai.samples.assistant.plugin.InvoiceScanPlugin;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheKey;
+import com.microsoft.openai.samples.assistant.agent.cache.InMemoryToolsExecutionCache;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheUtils;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolsExecutionCache;
 import com.microsoft.openai.samples.assistant.plugin.LoggedUserPlugin;
-import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
 import com.microsoft.openai.samples.assistant.security.LoggedUserService;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
@@ -16,7 +16,7 @@ import com.microsoft.semantickernel.orchestration.InvocationReturnMode;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.orchestration.ToolCallBehavior;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
-import com.microsoft.semantickernel.plugin.KernelPluginFactory;
+import com.microsoft.semantickernel.hooks.KernelHook.FunctionInvokedHook;
 import com.microsoft.semantickernel.samples.openapi.SemanticKernelOpenAPIImporter;
 import com.microsoft.semantickernel.services.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
@@ -36,17 +36,22 @@ public class AccountAgent {
 
     private LoggedUserService loggedUserService;
 
+    private ToolsExecutionCache<Object> toolsExecutionCache;
+
     private String ACCOUNT_AGENT_SYSTEM_MESSAGE = """
      you are a personal financial advisor who help the user to retrieve information about their bank accounts.
      Use html list or table to display the account information.
      Always use the below logged user details to retrieve account info:
      %s
-      
+     
+     Before executing a function call, check data in below function calls cache:
+     %s
     """;
 
-    public AccountAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, String modelId,String accountAPIUrl) {
+    public AccountAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService,ToolsExecutionCache toolsExecutionCache, String modelId,String accountAPIUrl) {
         this.client = client;
         this.loggedUserService = loggedUserService;
+        this.toolsExecutionCache = toolsExecutionCache;
         this.chat = OpenAIChatCompletion.builder()
                 .withModelId(modelId)
                 .withOpenAIAsyncClient(client)
@@ -63,7 +68,7 @@ public class AccountAgent {
                     HistoryReportingAgent.class,
                     EmbeddedResourceLoader.ResourceLocation.CLASSPATH_ROOT);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Cannot find account-history.yaml file in the classpath",e);
+            throw new RuntimeException("Cannot find account-history.yaml file in the classpath", e);
         }
         //Used to retrieve account id. Transaction API requires account id to retrieve transactions
         KernelPlugin openAPIImporterAccountPlugin = SemanticKernelOpenAPIImporter
@@ -74,22 +79,37 @@ public class AccountAgent {
                 .build();
 
 
-
         kernel = Kernel.builder()
                 .withAIService(ChatCompletionService.class, chat)
                 .withPlugin(openAPIImporterAccountPlugin)
 
                 .build();
+
+        FunctionInvokedHook postExecutionHandler = event -> {
+            LOGGER.info("Adding {} result to the cache:{}", event.getFunction().getName(),event.getResult().getResult());
+            var tollsExecutionKey = new ToolExecutionCacheKey(loggedUserService.getLoggedUser().username(),null,event.getFunction().getName(),ToolExecutionCacheUtils.convert(event.getArguments()));
+            this.toolsExecutionCache.put(tollsExecutionKey , event.getResult().getResult());
+            return event;
+        };
+
+        kernel.getGlobalKernelHooks().addHook(postExecutionHandler);
+
     }
-
-
      public void run (ChatHistory userChatHistory, AgentContext agentContext){
          LOGGER.info("======== Account Agent: Starting ========");
 
          // Extend system prompt with logged user details
-         String extendedSystemMessage = ACCOUNT_AGENT_SYSTEM_MESSAGE.formatted(new LoggedUserPlugin(loggedUserService).getUserContext());
-         var agentChatHistory = new ChatHistory(extendedSystemMessage);
+         var userContext = new LoggedUserPlugin(loggedUserService).getUserContext();
 
+         /**
+          * Add the function calls cache to the system prompt. This is a global in memory implementation used only for demo purposes.
+          * In production scenario this should be stored globally in an external cache (e.g. Redis) or as scoped conversation context in a database.
+          */
+         var toolsExecutionCacheContent = this.toolsExecutionCache.entries();
+
+         String extendedSystemMessage = ACCOUNT_AGENT_SYSTEM_MESSAGE.formatted(userContext,ToolExecutionCacheUtils.printWithToolNameAndValues(toolsExecutionCacheContent));
+
+        var agentChatHistory = new ChatHistory(extendedSystemMessage);
          userChatHistory.forEach( chatMessageContent -> {
             if(chatMessageContent.getAuthorRole() != AuthorRole.SYSTEM)
              agentChatHistory.addMessage(chatMessageContent);

@@ -35,7 +35,7 @@ public class PaymentService {
             throw new IllegalArgumentException("AccountId is not a valid number");
         }
 
-        if (payment.paymentMethodId() == null || payment.paymentMethodId().isEmpty())
+        if (!payment.paymentType().equalsIgnoreCase("transfer") && (payment.paymentMethodId() == null || payment.paymentMethodId().isEmpty()))
             throw new IllegalArgumentException("paymentMethodId is empty or null");
 
         try {

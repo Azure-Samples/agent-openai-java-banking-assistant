@@ -6,11 +6,14 @@ import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheUtils;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolsExecutionCache;
 import com.microsoft.openai.samples.assistant.plugin.TransactionHistoryPlugin;
 import com.microsoft.openai.samples.assistant.plugin.LoggedUserPlugin;
 import com.microsoft.openai.samples.assistant.security.LoggedUserService;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
+import com.microsoft.semantickernel.hooks.KernelHook;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
@@ -36,6 +39,8 @@ public class HistoryReportingAgent {
 
     private LoggedUserService loggedUserService;
 
+    ToolsExecutionCache<Object> toolsExecutionCache;
+
     private String HISTORY_AGENT_SYSTEM_MESSAGE = """
     you are a personal financial advisor who help the user with their recurrent bill payments. To search about the payments history you need to know the payee name.
     If the user doesn't provide the payee name, search the last 10 transactions order by date.
@@ -44,11 +49,15 @@ public class HistoryReportingAgent {
     Always use the below logged user details to search the transactions:
     %s
     Current timestamp: %s
+    
+    Before executing a function call, check data in below function calls cache:
+     %s
     """;
 
-    public HistoryReportingAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, String modelId, String transactionAPIUrl, String accountAPIUrl){
+    public HistoryReportingAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, ToolsExecutionCache<Object> toolsExecutionCache, String modelId, String transactionAPIUrl, String accountAPIUrl){
         this.client = client;
         this.loggedUserService = loggedUserService;
+        this.toolsExecutionCache = toolsExecutionCache;
         this.chat = OpenAIChatCompletion.builder()
                 .withModelId(modelId)
                 .withOpenAIAsyncClient(client)
@@ -101,6 +110,13 @@ public class HistoryReportingAgent {
                 .withPlugin(openAPIImporterAccountPlugin)
                 .build();
 
+        KernelHook.FunctionInvokedHook postExecutionHandler = event -> {
+            LOGGER.info("Post execution handler for {} function. Result won't be added to cache: {}", event.getFunction().getName(),event.getResult().getResult());
+            return event;
+        };
+
+        kernel.getGlobalKernelHooks().addHook(postExecutionHandler);
+
     }
 
      public void run (ChatHistory userChatHistory, AgentContext agentContext){
@@ -108,7 +124,15 @@ public class HistoryReportingAgent {
 
          // Extend system prompt with logged user details and current timestamp
          var datetimeIso8601 = ZonedDateTime.now(ZoneId.of("UTC")).toInstant().toString();
-         String extendedSystemMessage = HISTORY_AGENT_SYSTEM_MESSAGE.formatted(new LoggedUserPlugin(loggedUserService).getUserContext(),datetimeIso8601);
+
+         /**
+          * Add the function calls cache to the system prompt. This is a global in memory implementation used only for demo purposes.
+          * In production scenario this should be stored globally in an external cache (e.g. Redis) or as scoped conversation context in a database.
+          * Search results won't be cached. Only account details.
+          */
+
+         var toolsExecutionCacheContent = this.toolsExecutionCache.entries();
+         String extendedSystemMessage = HISTORY_AGENT_SYSTEM_MESSAGE.formatted(new LoggedUserPlugin(loggedUserService).getUserContext(),datetimeIso8601, ToolExecutionCacheUtils.printWithToolNameAndValues(toolsExecutionCacheContent));
 
          var agentChatHistory = new ChatHistory(extendedSystemMessage);
          userChatHistory.forEach( chatMessageContent -> {

@@ -7,6 +7,9 @@ import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheKey;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheUtils;
+import com.microsoft.openai.samples.assistant.agent.cache.ToolsExecutionCache;
 import com.microsoft.openai.samples.assistant.controller.ChatController;
 import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
 import com.microsoft.openai.samples.assistant.plugin.InvoiceScanPlugin;
@@ -21,6 +24,7 @@ import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatM
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIFunctionToolCall;
 import com.microsoft.semantickernel.contextvariables.CaseInsensitiveMap;
 import com.microsoft.semantickernel.contextvariables.ContextVariable;
+import com.microsoft.semantickernel.hooks.KernelHook;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
@@ -49,6 +53,8 @@ public class PaymentAgent {
 
     private LoggedUserService loggedUserService;
 
+    private ToolsExecutionCache<Object> toolsExecutionCache;
+
     private String PAYMENT_AGENT_SYSTEM_MESSAGE = """
      you are a personal financial advisor who help the user with their recurrent bill payments. The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking transactions history for a specific payee.
      For the bill payment you need to know the: bill id or invoice number, payee name, the total amount.
@@ -67,11 +73,15 @@ public class PaymentAgent {
      %s
      Current timestamp: %s
      Don't try to guess accountId,paymentMethodId from the conversation.When submitting payment always use functions to retrieve accountId, paymentMethodId.
+     
+     Before executing a function call, check data in below function calls cache:
+     %s
     """;
 
-    public PaymentAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, String modelId, DocumentIntelligenceClient documentIntelligenceClient, BlobStorageProxy blobStorageProxy, String transactionAPIUrl, String accountAPIUrl, String paymentsAPIUrl) {
+    public PaymentAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService,ToolsExecutionCache<Object> toolsExecutionCache, String modelId, DocumentIntelligenceClient documentIntelligenceClient, BlobStorageProxy blobStorageProxy, String transactionAPIUrl, String accountAPIUrl, String paymentsAPIUrl) {
         this.client = client;
         this.loggedUserService = loggedUserService;
+        this.toolsExecutionCache = toolsExecutionCache;
         this.chat = OpenAIChatCompletion.builder()
                 .withModelId(modelId)
                 .withOpenAIAsyncClient(client)
@@ -143,6 +153,21 @@ public class PaymentAgent {
                 .withPlugin(openAPIImporterAccountPlugin)
 
                 .build();
+
+       KernelHook.FunctionInvokedHook postExecutionHandler = event -> {
+           //avoid caching scan invoice and submitPayment calls
+           if(event.getFunction().getName().equalsIgnoreCase("scanInvoice") ||
+              event.getFunction().getName().equalsIgnoreCase("submitPayment")
+           )
+               return event;
+
+           LOGGER.info("Adding {} result to the cache:{}", event.getFunction().getName(),event.getResult().getResult());
+           var toolsExecutionKey = new ToolExecutionCacheKey(loggedUserService.getLoggedUser().username(),null,event.getFunction().getName(), ToolExecutionCacheUtils.convert(event.getArguments()));
+           this.toolsExecutionCache.put(toolsExecutionKey , event.getResult().getResult());
+           return event;
+       };
+
+        kernel.getGlobalKernelHooks().addHook(postExecutionHandler);
     }
 
 
@@ -150,9 +175,19 @@ public class PaymentAgent {
          LOGGER.info("======== Payment Agent: Starting ========");
 
          // Extend system prompt with logged user details and current timestamp
+         var userContext = new LoggedUserPlugin(loggedUserService).getUserContext();
+
          var datetimeIso8601 = ZonedDateTime.now(ZoneId.of("UTC")).toInstant().toString();
 
-         String extendedSystemMessage = PAYMENT_AGENT_SYSTEM_MESSAGE.formatted(new LoggedUserPlugin(loggedUserService).getUserContext(),datetimeIso8601);
+
+         /**
+          * Add the function calls cache to the system prompt. This is a global in memory implementation used only for demo purposes.
+          * In production scenario this should be stored globally in an external cache (e.g. Redis) or as scoped conversation context in a database.
+          */
+         var toolsExecutionCacheContent = this.toolsExecutionCache.entries();
+
+
+         String extendedSystemMessage = PAYMENT_AGENT_SYSTEM_MESSAGE.formatted(userContext,datetimeIso8601,ToolExecutionCacheUtils.printWithToolNameAndValues(toolsExecutionCacheContent));
          var agentChatHistory = new ChatHistory(extendedSystemMessage);
 
          userChatHistory.forEach( chatMessageContent -> {

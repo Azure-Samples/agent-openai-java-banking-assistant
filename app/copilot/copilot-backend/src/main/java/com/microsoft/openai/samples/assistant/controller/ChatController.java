@@ -57,6 +57,8 @@ public class ChatController {
         }
 
         ChatHistory chatHistory = convertSKChatHistory(chatRequest);
+
+
         LOGGER.info("Processing chat conversation..", chatHistory.getLastMessage().get().getContent());
 
         var agentContext = new AgentContext();
