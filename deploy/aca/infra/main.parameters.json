@@ -29,6 +29,9 @@
     "documentIntelligenceResourceGroupName": {
       "value": "${AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP}"
     },
+    "documentIntelligenceResourceGroupLocation": {
+      "value": "${AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP_LOCATION}"
+    },
     "documentIntelligenceSkuName": {
       "value": "S0"
     },

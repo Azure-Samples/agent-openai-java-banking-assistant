@@ -30,7 +30,7 @@ param storageSkuName string // Set in main.parameters.json
 param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
 @description('Location for the OpenAI resource group')
-@allowed(['eastus', 'eastus2', 'northcentralus', 'southcentralus', 'westus', 'westus3'])
+@allowed(['eastus', 'eastus2', 'northcentralus', 'southcentralus', 'swedencentral', 'westus', 'westus3'])
 @metadata({
   azd: {
     type: 'location'
@@ -46,7 +46,7 @@ param openAiApiOrganization string = ''
 
 param documentIntelligenceServiceName string = ''
 param documentIntelligenceResourceGroupName string = ''
-//Document Intelligence new rest api available in eastus, westus2, westeurope
+//Document Intelligence new rest api available in eastus, westus2, westeurope. https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp
 @allowed(['eastus', 'westus2', 'westeurope'])
 param documentIntelligenceResourceGroupLocation string = 'eastus'
 
