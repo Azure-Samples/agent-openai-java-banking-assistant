@@ -48,10 +48,7 @@ The development of a vertical multi-agent architecture for a personal banking as
 
 
 ## Personal Banking Vertical Multi-Agent Architecture
-<div align="center">
-<img src="./docs/assets/HLA.png" alt="" align="center" height="600"  width="1200" />
-</div>
-
+![HLA](docs/assets/HLA.png)
 The personal banking assistant is designed as a vertical multi-agent system, with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
 
 - **Copilot Assistant Copilot App (Microservice)**: Serves as the central hub for processing user requests. It's a spring boot application implementing a vertical multi-agent architectures using Java Semantic Kernel to create Agents equipped with tools. in Java the Agent Router to understand user intent from chat interactions and routes the request to the appropriate domain-specific agent.
@@ -77,7 +74,7 @@ The personal banking assistant is designed as a vertical multi-agent system, wit
 
 You can run this repo virtually by using GitHub Codespaces or VS Code Dev Containers.  Click on one of the buttons below to open this repo in one of those options.
 
-[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://codespaces.new/dantelmomsft/personal-finance-assistant-java&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
+[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://codespaces.new/dantelmomsft/personal-finance-assistant-java?hide_repo_select=true&ref=main&quickstart=true)
 [![Open in VS Code Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/dantelmomsft/personal-finance-assistant-java/)
 
 All prerequisites are already installed in the container.  You can skip to the [Starting from scratch](#starting-from-scratch) section.
