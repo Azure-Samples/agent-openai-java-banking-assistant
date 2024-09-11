@@ -30,8 +30,21 @@ Instead of navigating through traditional web interfaces and menus, users can si
 
 Invoices samples are included in the data folder to make it easy to explore payments feature. The payment agent equipped with OCR tools ( Azure Document Intelligence) will lead the conversation with the user to extract the invoice data and initiate the payment process. Other account fake data as transactions, payment methods and account balance are also available to be queried by the user. All data and services are exposed as external REST APIs and consumed by the agents to provide the user with the requested information.
 
+## Features 
+This project provides the following features and technical patterns:
+ - Simple multi ai agents Java implementation using *gpt-4o* on Azure Open AI.
+ - Chat intent extraction and agent routing.
+ - Agents tools configuration and auto-calling with [Java Semantic Kernel](https://github.com/microsoft/semantic-kernel-java/).
+ - Tools output cache scoped at chat conversation level.It improves functions call planning and parameters extraction for long chat.
+ - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
+ - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
+ - Import REST api contracts (OpenAPI yaml files) as agent tools, providing automatic rest client call. It uses code from Java Semantic Kernel [open-api-plugin code sample](https://github.com/microsoft/semantic-kernel-java/tree/main/samples/semantickernel-sample-plugins/semantickernel-openapi-plugin).
+ - Add a copilot app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
+ - Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
 
-## Agents Concepts and Architectures
+For complex agents conversation implementation, read more about [Autogen framework](https://github.com/microsoft/autogen).
+
+### Agents Concepts and Architectures
 
 <img src="./docs/assets/multi-agents.png" alt="" align="center"  />
 
@@ -47,7 +60,7 @@ The development of a vertical multi-agent architecture for a personal banking as
 
 
 
-## Personal Banking Vertical Multi-Agent Architecture
+### Personal Banking Vertical Multi-Agent Architecture
 ![HLA](docs/assets/HLA.png)
 The personal banking assistant is designed as a vertical multi-agent system, with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
 
@@ -68,7 +81,6 @@ The personal banking assistant is designed as a vertical multi-agent system, wit
     - **Reporting Service (Microservice)**: Enables searching transactions and retrieving transactions by recipient. This service supports the Transactions Agent in providing detailed transaction reports to the user and the Payment Agent as it needs to check if an invoice has not been already paid.
 
 ## Getting Started
-> **IMPORTANT:** In order to deploy and run this example, you'll need an **Azure subscription with access enabled for the Azure OpenAI Service**. You can request access [here](https://aka.ms/oaiapply). You can also visit [here](https://azure.microsoft.com/free/) to get some free Azure credits to get you started.
 
 ### Run in GitHub Codespaces or VS Code Dev Containers
 
@@ -208,7 +220,7 @@ azd up
 4. Wait for the docker compose to start all the containers (web, api, indexer) and refresh your browser to [http://localhost](http://localhost)
 
 
-## Enabling optional features
+## Guidance
 
 ### Enabling Application Insights
 
@@ -234,7 +246,7 @@ By default, the web app on ACA will have no authentication or access restriction
 
 To then limit access to a specific set of users or groups, you can follow the steps from [Restrict your Microsoft Entra app to a set of users](https://learn.microsoft.com/entra/identity-platform/howto-restrict-your-app-to-a-set-of-users) by changing "Assignment Required?" option under the Enterprise Application, and then assigning users/groups access.  Users not granted explicit access will receive the error message -AADSTS50105: Your administrator has configured the application <app_name> to block users 
 
-## App Continuos Integration with GitHub Actions
+### App Continuous Integration with GitHub Actions
 
 1. **Create a Service Principal for the github action pipeline**
 
