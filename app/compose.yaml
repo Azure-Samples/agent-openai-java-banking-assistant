@@ -1,0 +1,40 @@
+services:
+  frontend:
+    image: personal-finance-assistant-java/frontend
+    build: ../../app/frontend
+    environment:
+      REACT_APP_API_BASE_URL: "http://copilot:8080"
+    ports:
+      - "80:80"
+  copilot:
+    image: personal-finance-assistant-java/copilot-backend
+    build: ../../app/copilot
+    environment:
+      - AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - AZURE_OPENAI_CHATGPT_MODEL=${AZURE_OPENAI_CHATGPT_MODEL}
+      - AZURE_OPENAI_SERVICE=${AZURE_OPENAI_SERVICE}
+      - AZURE_OPENAI_CHATGPT_DEPLOYMENT=${AZURE_OPENAI_CHATGPT_DEPLOYMENT}
+      - spring_profiles_active=docker
+      - ACCOUNTS_API_SERVER_URL=http://account:8080
+      - PAYMENTS_API_SERVER_URL=http://payment:8080
+      - TRANSACTIONS_API_SERVER_URL=http://transaction:8080
+      - AZURE_CLIENT_ID=${servicePrincipal}
+      - AZURE_CLIENT_SECRET=${servicePrincipalPassword}
+      - AZURE_TENANT_ID=${servicePrincipalTenant}
+  account:
+    image: personal-finance-assistant-java/business-account
+    build:
+      context: ../../app/business-api/account
+  payment:
+    image: personal-finance-assistant-java/business-payment
+    build:
+      context: ../../app/business-api/payment
+    environment:
+      - TRANSACTIONS_API_SERVER_URL=http://transaction:8080
+  transaction:
+    image: personal-finance-assistant-java/business-transaction-history
+    build:
+      context: ../../app/business-api/transactions-history
+
+

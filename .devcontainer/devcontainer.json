@@ -19,9 +19,7 @@
             "version": "2.39.1"
         },
         "ghcr.io/devcontainers-contrib/features/typescript:2": {},
-        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-            "version": "1.1.8"
-        },
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
         "docker-in-docker": {
             "version": "latest",
             "moby": true,

@@ -61,7 +61,7 @@ public class AgentRouter {
                 chatHistory.addAssistantMessage(agentContext.getResult());
                 break;
             case None:
-                chatHistory.addAssistantMessage(agentContext.getResult());
+                chatHistory.addAssistantMessage(intentResponse.getMessage()!= null ? intentResponse.getMessage() : "Sorry. Can't help with that.");
                 break;
             default:
                 break;

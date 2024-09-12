@@ -3,6 +3,7 @@ package com.microsoft.openai.samples.assistant.agent;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
+import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
@@ -11,8 +12,12 @@ import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatC
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
+import com.microsoft.semantickernel.services.chatcompletion.ChatMessageContent;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IntentAgent {
 
@@ -37,7 +42,7 @@ If an intent is identified return the output as json format as below
  }
 
 If you don't understand or if an intent is not identified be polite with the user, ask clarifying question also using the list of the available intents. 
-Don't add any comments in the output or other characters, just the use a json format.
+Don't add any comments in the output or other characters, just use json format.
             
     """;
 
@@ -71,6 +76,7 @@ Don't add any comments in the output or other characters, just the use a json fo
 
     public IntentResponse run(ChatHistory userChatHistory,AgentContext agentContext){
         var agentChatHistory = new ChatHistory(INTENT_SYSTEM_MESSAGE);
+        agentChatHistory.addAll(fewShotExamples());
         agentChatHistory.addAll(userChatHistory);
 
         var messages = chat.getChatMessageContentsAsync(
@@ -108,6 +114,14 @@ Don't add any comments in the output or other characters, just the use a json fo
              }
 
         return new IntentResponse(intentType, clarifySentence != null ? clarifySentence.toString() : "");
+    }
+
+    ChatHistory fewShotExamples(){
+        return new ChatHistory()
+                .addUserMessage("can you buy stocks for me?")
+                .addAssistantMessage("{\"intent\": \"None\", \"clarify_sentence\":\"I'm sorry can't help with that.I can review your account details, transactions and help you with your payments\"")
+                .addUserMessage("can you pay this bill for me?")
+                .addAssistantMessage("{\"intent\": \"BillPayment\" }");
     }
 
 }

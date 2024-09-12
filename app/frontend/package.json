@@ -12,17 +12,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@azure/msal-react": "^2.0.4",
     "@azure/msal-browser": "^3.1.0",
+    "@azure/msal-react": "^2.0.4",
     "@fluentui/react": "^8.112.5",
     "@fluentui/react-components": "^9.37.3",
     "@fluentui/react-icons": "^2.0.221",
     "@react-spring/web": "^9.7.3",
     "dompurify": "^3.0.6",
+    "frontend": "file:",
+    "ndjson-readablestream": "^1.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0",
-    "ndjson-readablestream": "^1.0.7",
     "scheduler": "^0.20.2"
   },
   "devDependencies": {
@@ -33,6 +34,5 @@
     "prettier": "^3.0.3",
     "typescript": "^5.2.2",
     "vite": "^4.5.3"
-
   }
 }
