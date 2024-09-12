@@ -1,0 +1,162 @@
+name: Container Apps CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+    tags:        
+      - v*.*.*
+  workflow_dispatch:
+
+jobs:
+  changes-detection:
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{steps.set-deploy-env.outputs.DEPLOY_ENVIRONMENT}}
+      build-copilot: ${{ steps.changes.outputs.copilot }}
+      build-frontend: ${{ steps.changes.outputs.frontend }}
+      build-account-api: ${{ steps.changes.outputs.account-api }}
+      build-payment-api: ${{ steps.changes.outputs.payment-api }}
+      build-transaction-api: ${{ steps.changes.outputs.transaction-api }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Filter Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+            filters: |
+              copilot:
+                - 'app/copilot/**'
+              frontend:
+                - 'app/frontend/**'
+              account-api:
+                - 'app/business-api/account/**'
+              payment-api:
+                - 'app/business-api/payment/**'
+              transaction-api:
+                - 'app/business-api/transactions-history/**'
+
+      - name: Set environment for branch
+        id: set-deploy-env
+        run: |
+          echo "checking branch name [${{github.ref_name}}]"
+          if [[ ${{github.ref_name}} == 'main' ]]; then
+              echo "main branch detected. Set Development environment"
+              echo "DEPLOY_ENVIRONMENT=Development" >> "$GITHUB_OUTPUT"
+          elif [[ ${{github.ref_name}} == *'release'* ]]; then
+              echo "release branch detected. Set Test environment"
+              echo "DEPLOY_ENVIRONMENT=Test" >> "$GITHUB_OUTPUT"
+          elif [[ ${{github.ref_name}} == *'v'* ]]; then
+              echo "tag detected. Set Production environment" 
+              echo "DEPLOY_ENVIRONMENT=Production" >> "$GITHUB_OUTPUT"
+          else
+              echo "branch not detected. Set Development environment as default"
+              echo "DEPLOY_ENVIRONMENT=Development" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-account-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-account-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/account-api
+      app-folder-path: ./app/business-api/account
+    secrets: inherit
+  
+  deploy-account-app:
+    needs: [changes-detection,build-account-app]
+    if: ${{ needs.changes-detection.outputs.build-account-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/account-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.ACCOUNTS_ACA_DEV_APP_NAME }}
+    secrets: inherit
+
+  build-transaction-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-transaction-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/transactions-history-api
+      app-folder-path: ./app/business-api/transactions-history
+    secrets: inherit
+  
+  deploy-transaction-app:
+    needs: [changes-detection,build-transaction-app]
+    if: ${{ needs.changes-detection.outputs.build-transaction-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/transactions-history-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.TRANSACTIONS_ACA_DEV_APP_NAME }}
+    secrets: inherit
+  build-payment-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-payment-api == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/payment-api
+      app-folder-path: ./app/business-api/payment
+    secrets: inherit
+  
+  deploy-payment-app:
+    needs: [changes-detection,build-payment-app]
+    if: ${{ needs.changes-detection.outputs.build-payment-api == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/payment-api
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.PAYMENTS_ACA_DEV_APP_NAME }}
+    secrets: inherit
+      
+  build-frontend-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-frontend == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/web
+      app-folder-path: ./app/frontend
+    secrets: inherit
+  
+  deploy-frontend-app:
+    needs: [changes-detection,build-frontend-app]
+    if: ${{ needs.changes-detection.outputs.build-frontend == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/web
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.WEB_ACA_DEV_APP_NAME }}
+    secrets: inherit
+  
+  build-copilot-app:
+    needs: changes-detection
+    if : ${{ needs.changes-detection.outputs.build-copilot == 'true' }}
+    uses: ./.github/workflows/acr-build-push.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/copilot
+      app-folder-path: ./app/copilot
+    secrets: inherit
+  
+  deploy-copilot-app:
+    needs: [changes-detection,build-copilot-app]
+    if: ${{ needs.changes-detection.outputs.build-copilot == 'true' }}
+    uses: ./.github/workflows/aca-deploy.yaml
+    with:
+      env-name: ${{ needs.changes-detection.outputs.env-name}}
+      image-name: personal-finance-assistance-java/copilot
+      container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
+      container-app-name: ${{ vars.COPILOT_ACA_DEV_APP_NAME }}
+    secrets: inherit
+   
