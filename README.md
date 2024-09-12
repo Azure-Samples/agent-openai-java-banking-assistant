@@ -32,7 +32,7 @@ Invoices samples are included in the data folder to make it easy to explore paym
 
 ## Features 
 This project provides the following features and technical patterns:
- - Simple multi ai agents Java implementation using *gpt-4o* on Azure Open AI.
+ - Simple multi ai agents Java implementation using *gpt-4o-mini* on Azure Open AI.
  - Chat intent extraction and agent routing.
  - Agents tools configuration and auto-calling with [Java Semantic Kernel](https://github.com/microsoft/semantic-kernel-java/).
  - Tools output cache scoped at chat conversation level.It improves functions call planning and parameters extraction for long chat.
