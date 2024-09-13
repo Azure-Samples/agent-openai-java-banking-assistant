@@ -1,20 +1,21 @@
 services:
   frontend:
-    image: personal-finance-assistant-java/frontend
-    build: ../../app/frontend
+    image: agent-openai-java-banking-assistant/frontend
+    build: ./frontend
     environment:
       REACT_APP_API_BASE_URL: "http://copilot:8080"
     ports:
       - "80:80"
   copilot:
-    image: personal-finance-assistant-java/copilot-backend
-    build: ../../app/copilot
+    image: agent-openai-java-banking-assistant/copilot-backend
+    build: ./copilot
     environment:
       - AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
       - AZURE_OPENAI_CHATGPT_MODEL=${AZURE_OPENAI_CHATGPT_MODEL}
       - AZURE_OPENAI_SERVICE=${AZURE_OPENAI_SERVICE}
       - AZURE_OPENAI_CHATGPT_DEPLOYMENT=${AZURE_OPENAI_CHATGPT_DEPLOYMENT}
+      - AZURE_DOCUMENT_INTELLIGENCE_SERVICE=${AZURE_DOCUMENT_INTELLIGENCE_SERVICE}
       - spring_profiles_active=docker
       - ACCOUNTS_API_SERVER_URL=http://account:8080
       - PAYMENTS_API_SERVER_URL=http://payment:8080
@@ -23,18 +24,18 @@ services:
       - AZURE_CLIENT_SECRET=${servicePrincipalPassword}
       - AZURE_TENANT_ID=${servicePrincipalTenant}
   account:
-    image: personal-finance-assistant-java/business-account
+    image: agent-openai-java-banking-assistant/business-account
     build:
-      context: ../../app/business-api/account
+      context: ./business-api/account
   payment:
-    image: personal-finance-assistant-java/business-payment
+    image: agent-openai-java-banking-assistant/business-payment
     build:
-      context: ../../app/business-api/payment
+      context: ./business-api/payment
     environment:
       - TRANSACTIONS_API_SERVER_URL=http://transaction:8080
   transaction:
-    image: personal-finance-assistant-java/business-transaction-history
+    image: agent-openai-java-banking-assistant/business-transaction-history
     build:
-      context: ../../app/business-api/transactions-history
+      context: ./business-api/transactions-history
 
 

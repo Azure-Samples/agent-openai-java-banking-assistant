@@ -14,17 +14,17 @@ $roles = @(
 )
 
 # Check if service principal exists
-$servicePrincipal = $(az ad sp list --display-name "virtual-ai-agent-java-spi" --query [].appId --output tsv)
+$servicePrincipal = $(az ad sp list --display-name "agent-java-banking-spi" --query [].appId --output tsv)
 
 if ([string]::IsNullOrEmpty($servicePrincipal)) {
-    Write-Host "Service principal not found. Creating service principal"
-    $servicePrincipal = $(az ad sp create-for-rbac --name "virtual-ai-agent-java-spi" --role reader --scopes "/subscriptions/$($env:AZURE_SUBSCRIPTION_ID)/resourceGroups/$($env:AZURE_RESOURCE_GROUP)" --query appId --output tsv)
+    Write-Host "Service principal not found. Creating service principal.."
+    $servicePrincipal = $(az ad sp create-for-rbac --name "agent-java-banking-spi" --role reader --scopes "/subscriptions/$($env:AZURE_SUBSCRIPTION_ID)/resourceGroups/$($env:AZURE_RESOURCE_GROUP)" --query appId --output tsv)
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to create service principal"
         exit $LASTEXITCODE
     }
     $servicePrincipalObjectId = $(az ad sp show --id $servicePrincipal --query id --output tsv)
-    Write-Host "Assigning Roles to service principal virtual-ai-agent-java-spi with principal id: $servicePrincipal and object id[$servicePrincipalObjectId]"
+    Write-Host "Assigning Roles to service principal agent-java-banking-spi with principal id: $servicePrincipal and object id[$servicePrincipalObjectId]"
     foreach ($role in $roles) {
         Write-Host "Assigning Role[$role] to principal id[$servicePrincipal] for resource[/subscriptions/$($env:AZURE_SUBSCRIPTION_ID)/resourceGroups/$($env:AZURE_RESOURCE_GROUP)]"
         az role assignment create `

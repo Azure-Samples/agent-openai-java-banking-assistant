@@ -5,8 +5,8 @@
 
 # Multi Agents Banking Assistant with Java and Semantic Kernel
 
-[![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/dantelmomsft/personal-finance-assistant-java?hide_repo_select=true&ref=main&quickstart=true)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/dantelmomsft/personal-finance-assistant-java/apps-ci.yaml?style=flat-square&label=Build)](https://github.com/dantelmomsft/personal-finance-assistant-java/actions)
+[![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/azure-samples/agent-openai-java-banking-assistant/azure-dev.yaml?style=flat-square&label=Build)](https://github.com/azure-samples/agent-openai-java-banking-assistant/actions)
 ![Java version](https://img.shields.io/badge/Java->=17-3c873a?style=flat-square)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
@@ -34,7 +34,7 @@ Invoices samples are included in the data folder to make it easy to explore paym
 This project provides the following features and technical patterns:
  - Simple multi ai agents Java implementation using *gpt-4o-mini* on Azure Open AI.
  - Chat intent extraction and agent routing.
- - Agents tools configuration and auto-calling with [Java Semantic Kernel](https://github.com/microsoft/semantic-kernel-java/).
+ - Agents tools configuration and automatic tools invocations with [Java Semantic Kernel](https://github.com/microsoft/semantic-kernel-java/).
  - Tools output cache scoped at chat conversation level.It improves functions call planning and parameters extraction for long chat.
  - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
  - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
@@ -56,7 +56,7 @@ The development of a vertical multi-agent architecture for a personal banking as
 
 3. **Multi-Agent Architectures**: The debate between single and multi-agent systems highlights the versatility of multi-agent architectures in handling complex tasks requiring collaboration and multiple execution paths. Vertical and horizontal architectures represent two approaches, with most systems falling somewhere in between. Specifically, vertical architectures, where one agent acts as a leader coordinating with other specialized agents, are particularly relevant for building a personal banking assistant. This structure allows for a clear division of labor and efficient collaboration among agents with different functional domains.
 
-5. **MicroAgents Concept**: The idea of MicroAgents, as proposed by the semantic kernel team at Microsoft, offers a practical approach to implementing vertical multi-agent systems. By partitioning agents by functional domain and associating each with a microservice, a banking assistant can leverage specialized knowledge and services (e.g., account management, transaction history, payments) to provide a comprehensive and user-friendly experience.
+5. **MicroAgents Concept**: The idea of MicroAgents, as proposed by the semantic kernel team at Microsoft, offers a practical approach for implementing vertical multi-agent systems. By partitioning agents by functional domain and associating each with a microservice, a banking assistant can leverage specialized knowledge and services (e.g., account management, transaction history, payments) to provide a comprehensive and user-friendly experience.
 
 
 
@@ -86,8 +86,8 @@ The personal banking assistant is designed as a vertical multi-agent system, wit
 
 You can run this repo virtually by using GitHub Codespaces or VS Code Dev Containers.  Click on one of the buttons below to open this repo in one of those options.
 
-[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://codespaces.new/dantelmomsft/personal-finance-assistant-java?hide_repo_select=true&ref=main&quickstart=true)
-[![Open in VS Code Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/dantelmomsft/personal-finance-assistant-java/)
+[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
+[![Open in VS Code Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/azure-samples/agent-openai-java-banking-assistant/)
 
 All prerequisites are already installed in the container.  You can skip to the [Starting from scratch](#starting-from-scratch) section.
 
@@ -106,7 +106,7 @@ All prerequisites are already installed in the container.  You can skip to the [
 
 ### Starting from scratch
 
-You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t dantelmomsft/personal-finance-assistant-java`.
+You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t Azure-Samples/agent-openai-java-banking-assistant`.
 
 Once you have the project available locally, run the following commands if you don't have any pre-existing Azure services and want to start from a fresh deployment.
 > [!IMPORTANT]
@@ -125,14 +125,14 @@ Once you have the project available locally, run the following commands if you d
     ```
     
     * This will provision Azure resources and deploy this sample to those resources.
-    * The project has been tested with gpt4-o model which is currently available in these regions: **eastus**, **eastus2**, **northcentralus**, **southcentralus**, **swedencentral**, **westus**, **westus3**. For an up-to-date list of regions and models, check [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models)
-    * The Azure Document Intelligence  new rest API is used which is currently available in these regions: **eastus**, **westus2**, **westeurope**. More info [here](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp)
+    * The project has been tested with gpt4-o-mini model which is currently available in these regions: **eastus** (Default), **swedencentral**.  For an up-to-date list of regions and models, check [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models)
+    * The Azure Document Intelligence  new rest API is used which is currently available in these regions: **eastus**(Default), **westus2**, **westeurope**. More info [here](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp)
 
 3. After the application has been successfully deployed you will see a web app URL printed to the console.  Click that URL to interact with the application in your browser.  
 
 It will look like the following:
 
-!['Output from running azd up'](aca-endpoint.png)
+!['Output from running azd up'](docs/assets/azd-success.png)
 
 
 ### Deploying with existing Azure resources
@@ -210,10 +210,10 @@ azd up
     az login
     ```
 
-2. Change dir to `deploy/aca`
+2. Change dir to `app`
 
     ```shell
-    cd deploy/aca
+    cd app
     ```
 
 3. Run the `./start-compose.ps1` (Windows) or `./start-compose.sh` (Linux/Mac) scripts or run the "VS Code Task: Start App" to start the project locally.
@@ -349,7 +349,7 @@ You can find answers to frequently asked questions in the [FAQ](./docs/faq.md).
 
 ## Troubleshooting
 
-If you have any issue when running or deploying this sample, please check the [troubleshooting guide](./docs/troubleshooting.md). If you can't find a solution to your problem, please [open an issue](https://github.com/Azure-Samples/serverless-chat-langchainjs/issues) in this repository.
+If you have any issue when running or deploying this sample, please check the [troubleshooting guide](./docs/troubleshooting.md). If you can't find a solution to your problem, please [open an issue](https://github.com/Azure-Samples/agent-openai-java-banking-assistant/issues) in this repository.
 
 ## Contributing
 

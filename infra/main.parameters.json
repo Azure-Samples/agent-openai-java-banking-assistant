@@ -17,8 +17,8 @@
     "openAiResourceGroupName": {
       "value": "${AZURE_OPENAI_RESOURCE_GROUP}"
     },
-    "customOpenAiResourceGroupLocation": {
-      "value": "${AZURE_OPENAI_SERVICE_LOCATION}"
+    "openAiResourceGroupLocation": {
+      "value": "${AZURE_OPENAI_SERVICE_LOCATION=eastus}"
     },
     "openAiSkuName": {
       "value": "S0"
@@ -58,19 +58,19 @@
     }
     ,
     "copilotAppExists": {
-      "value": true
+      "value": false
     },
     "webAppExists": {
-      "value": true
+      "value": false
     },
     "accountAppExists": {
-      "value": true
+      "value": false
     },
     "paymentAppExists": {
-      "value": true
+      "value": false
     },
     "transactionAppExists": {
-      "value": true
+      "value": false
     }
   }
 
