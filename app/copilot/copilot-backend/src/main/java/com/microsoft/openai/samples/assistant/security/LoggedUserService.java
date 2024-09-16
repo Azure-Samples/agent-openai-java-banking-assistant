@@ -21,12 +21,12 @@ public class LoggedUserService {
 
             Object details = authentication.getDetails();
             //object should be cast to specific type based on the authentication provider
-            return new LoggedUser(currentUserName, "changeme@microsoft.com", "changeme", "changeme");
+            return new LoggedUser(currentUserName, "changeme@contoso.com", "changeme", "changeme");
         }
         return getDefaultUser();
     }
 
     private LoggedUser getDefaultUser() {
-        return new LoggedUser("bob.user@microsoft.com", "bob.user@microsoft.com", "generic", "Bob The User");
+        return new LoggedUser("bob.user@contoso.com", "bob.user@contoso.com", "generic", "Bob The User");
     }
 }

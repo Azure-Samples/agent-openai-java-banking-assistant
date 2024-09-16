@@ -24,7 +24,7 @@ public class AccountService {
         // Fill the map with dummy data
         this.accounts.put("1000", new Account(
                 "1000",
-                "alice.user@microsoft.com",
+                "alice.user@contoso.com",
                 "Alice User",
                 "USD",
                 "2022-01-01",
@@ -33,7 +33,7 @@ public class AccountService {
                               new PaymentMethodSummary("23456", "BankTransfer", "2022-01-01", "9999-01-01"))));
         this.accounts.put("1010", new Account(
                 "1010",
-                "bob.user@microsoft.com",
+                "bob.user@contoso.com",
                 "Bob User",
                 "EUR",
                 "2022-01-01",
@@ -42,7 +42,7 @@ public class AccountService {
                               new PaymentMethodSummary("55555", "Visa", "2022-01-01", "2025-01-01"))));
         this.accounts.put("1020", new Account(
                 "1020",
-                "charlie.user@microsoft.com",
+                "charlie.user@contoso.com",
                 "Charlie User",
                 "EUR",
                 "2022-01-01",

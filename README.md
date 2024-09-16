@@ -109,8 +109,6 @@ All prerequisites are already installed in the container.  You can skip to the [
 You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t Azure-Samples/agent-openai-java-banking-assistant`.
 
 Once you have the project available locally, run the following commands if you don't have any pre-existing Azure services and want to start from a fresh deployment.
-> [!IMPORTANT]
-> All the commands below must be run from the `deploy/aca` folder
 
 1. Run 
 
@@ -149,7 +147,7 @@ If you already have existing Azure resources, you can re-use those by setting `a
 1. Run `azd env set AZURE_OPENAI_SERVICE {Name of existing OpenAI service}`
 2. Run `azd env set AZURE_OPENAI_RESOURCE_GROUP {Name of existing resource group that OpenAI service is provisioned to}`
 3. Run `azd env set AZURE_OPENAI_SERVICE_LOCATION {Location of existing resource (i.e eastus2)}`. Only needed if your OpenAI resource is in a different location than the one you'll pick for the `azd up` step.
-4. Run `azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT {Name of existing ChatGPT deployment}`. Only needed if your ChatGPT deployment is not the default 'gpt4-o'.
+4. Run `azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT {Name of existing ChatGPT deployment}`. Only needed if your ChatGPT deployment is not the default 'gpt4-o-mini'.
 
 #### Existing Azure Document Intelligence
 
@@ -222,6 +220,16 @@ azd up
 
 ## Guidance
 
+### Testing different gpt4 models and versions
+The default LLM used in this project is *gpt-4o-mini*. It's a cost-efficient small model with enhanced planning, reasoning capabilities which are required by this use case to reliably select the right agent based on the chat conversation and to properly handle tools call.However, in case of long chat or some words, the model might fail sometimes to detect the right user intent especially when he/she asks to pay a bill based on image upload. Based on our tests *gpt4-o* provides better results but it's more expensive and slower. To read more about the models and prices, check [here](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/). 
+
+You can test different models and versions by changing the , `AZURE_OPENAI_CHATGPT_MODEL`, `AZURE_OPENAI_CHATGPT_VERSION` and `AZURE_OPENAI_CHATGPT_DEPLOYMENT` environment variable to the desired model like below:
+
+```shell
+azd env set AZURE_OPENAI_CHATGPT_MODEL gpt-4o
+azd env set AZURE_OPENAI_CHATGPT_VERSION 2024-05-13
+azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT gpt-4o
+```
 ### Enabling Application Insights
 
 Applications Insights is enabled by default. It allows to investigate each request tracing along with the logging of errors.
@@ -297,17 +305,20 @@ To then limit access to a specific set of users or groups, you can follow the st
     | AZURE_CREDENTIALS     | The entire JSON output from the service principal creation step                            |
     | SPI_CLIENT_ID         | The service principal client id used as username to login to Azure Container Registry      |
     | SPI_CLIENT_SECRET     | The service principal client secret used as password to login to Azure Container Registry  |
-3. Create 'Development' environment [variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-an-environment) as below:
+ - Create 'Development' [environment variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-an-environment) as below:
     | Variable                | Value                                                                                        |
     |---------------------------|--------------------------------------------------------------------------------------------|
     | ACR_NAME                  | The name of the Azure Container registry                                                   |
-    | ACA_DEV_ENV_NAME                  | The name of the Azure Container Apps Environment                                            |
+    | RESOURCE_GROUP            | The name of the resource group where your Azure Container Environment has been deployed    |
+ - Create [repository variables](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#creating-configuration-variables-for-a-repository) as below:
+    | Variable                | Value                                                                                        |
+    |---------------------------|--------------------------------------------------------------------------------------------|
+    | ACA_DEV_ENV_NAME                  | The name of the Azure Container Apps Environment                                       |
     | COPILOT_ACA_DEV_APP_NAME      | The container app name for the copilot orchestrator app                                    |
     | WEB_ACA_DEV_APP_NAME          | The container app name for the web frontend  app                                           |
     | ACCOUNTS_ACA_DEV_APP_NAME     | The container app name for the business account api                                        |
     | PAYMENTS_ACA_DEV_APP_NAME     | The container app name for the business payment api                                        |
     | TRANSACTIONS_ACA_DEV_APP_NAME | The container app name for the business payment api                                        |
-    | RESOURCE_GROUP            | The name of the resource group where your Azure Container Environment has been deployed    |
 
 
 ### Cost estimation

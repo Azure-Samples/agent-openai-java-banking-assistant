@@ -14,10 +14,10 @@ public class UserService {
 
     public UserService() {
         accounts.put(
-                "alice.user@microsoft.com",
+                "alice.user@contoso.com",
                 new Account(
                         "1000",
-                        "alice.user@microsoft.com",
+                        "alice.user@contoso.com",
                         "Alice User",
                         "USD",
                         "2022-01-01",
@@ -26,10 +26,10 @@ public class UserService {
                 )
         );
         accounts.put(
-                "bob.user@microsoft.com",
+                "bob.user@contoso.com",
                 new Account(
                         "1010",
-                        "bob.user@microsoft.com",
+                        "bob.user@contoso.com",
                         "Bob User",
                         "EUR",
                         "2022-01-01",
@@ -38,10 +38,10 @@ public class UserService {
                 )
         );
         accounts.put(
-                "charlie.user@microsoft.com",
+                "charlie.user@contoso.com",
                 new Account(
                         "1020",
-                        "charlie.user@microsoft.com",
+                        "charlie.user@contoso.com",
                         "Charlie User",
                         "EUR",
                         "2022-01-01",
