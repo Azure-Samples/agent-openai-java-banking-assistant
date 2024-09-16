@@ -62,7 +62,7 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/account-api
+      image-name: agent-openai-java-banking-assistant/account-api
       app-folder-path: ./app/business-api/account
     secrets: inherit
   
@@ -72,7 +72,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/account-api
+      image-name: agent-openai-java-banking-assistant/account-api
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.ACCOUNTS_ACA_DEV_APP_NAME }}
     secrets: inherit
@@ -83,7 +83,7 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/transactions-history-api
+      image-name: agent-openai-java-banking-assistant/transactions-history-api
       app-folder-path: ./app/business-api/transactions-history
     secrets: inherit
   
@@ -93,7 +93,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/transactions-history-api
+      image-name: agent-openai-java-banking-assistant/transactions-history-api
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.TRANSACTIONS_ACA_DEV_APP_NAME }}
     secrets: inherit
@@ -103,7 +103,7 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/payment-api
+      image-name: agent-openai-java-banking-assistant/payment-api
       app-folder-path: ./app/business-api/payment
     secrets: inherit
   
@@ -113,7 +113,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/payment-api
+      image-name: agent-openai-java-banking-assistant/payment-api
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.PAYMENTS_ACA_DEV_APP_NAME }}
     secrets: inherit
@@ -124,7 +124,7 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/web
+      image-name: agent-openai-java-banking-assistant/web
       app-folder-path: ./app/frontend
     secrets: inherit
   
@@ -134,7 +134,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/web
+      image-name: agent-openai-java-banking-assistant/web
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.WEB_ACA_DEV_APP_NAME }}
     secrets: inherit
@@ -145,7 +145,7 @@ jobs:
     uses: ./.github/workflows/acr-build-push.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/copilot
+      image-name: agent-openai-java-banking-assistant/copilot
       app-folder-path: ./app/copilot
     secrets: inherit
   
@@ -155,7 +155,7 @@ jobs:
     uses: ./.github/workflows/aca-deploy.yaml
     with:
       env-name: ${{ needs.changes-detection.outputs.env-name}}
-      image-name: personal-finance-assistance-java/copilot
+      image-name: agent-openai-java-banking-assistant/copilot
       container-app-env-name: ${{ vars.ACA_DEV_ENV_NAME}}
       container-app-name: ${{ vars.COPILOT_ACA_DEV_APP_NAME }}
     secrets: inherit

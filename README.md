@@ -254,7 +254,7 @@ To then limit access to a specific set of users or groups, you can follow the st
     
     ```bash
     groupId=$(az group show --name <resource-group-name>  --query id --output tsv)
-    az ad sp create-for-rbac --name "virtual-ai-agent-java-pipeline-spi" --role contributor --scope $groupId --sdk-auth
+    az ad sp create-for-rbac --name "agent-openai-java-banking-assistant-pipeline-spi" --role contributor --scope $groupId --sdk-auth
     ```
     Output is similar to:
     
@@ -290,7 +290,7 @@ To then limit access to a specific set of users or groups, you can follow the st
 
 3. **Add the service principal to your GitHub environment secrets**
 
- - Go to your forked repository in GitHub and create an [environment]((https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)) called 'Development' (yes this is the exact name; don't change it). If you want to change the environment name (also adding new branches and environments, change the current branch/env mapping) you can do that, but make sure to change the pipeline code accordingly in `.github/workflows/apps-ci.yml`.
+ - Go to your forked repository in GitHub and create an [environment]((https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)) called 'Development' (yes this is the exact name; don't change it). If you want to change the environment name (also adding new branches and environments, change the current branch/env mapping) you can do that, but make sure to change the pipeline code accordingly in `.github/workflows/azure-dev.yml`.
  - Create 'Development' environment [secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) as below:
     | Secret                | Value                                                                                      |
     |-----------------------|--------------------------------------------------------------------------------------------|
@@ -301,7 +301,7 @@ To then limit access to a specific set of users or groups, you can follow the st
     | Variable                | Value                                                                                        |
     |---------------------------|--------------------------------------------------------------------------------------------|
     | ACR_NAME                  | The name of the Azure Container registry                                                   |
-    | ACA_ENV_DEV_NAME                  | The name of the Azure Container Apps Environment                                            |
+    | ACA_DEV_ENV_NAME                  | The name of the Azure Container Apps Environment                                            |
     | COPILOT_ACA_DEV_APP_NAME      | The container app name for the copilot orchestrator app                                    |
     | WEB_ACA_DEV_APP_NAME          | The container app name for the web frontend  app                                           |
     | ACCOUNTS_ACA_DEV_APP_NAME     | The container app name for the business account api                                        |
