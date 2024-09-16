@@ -22,9 +22,9 @@ COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 
-RUN curl -LJ -o /app/applicationinsights-agent-3.5.2.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.5.2/applicationinsights-agent-3.5.2.jar
+RUN curl -LJ -o /app/applicationinsights-agent-3.5.4.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.5.4/applicationinsights-agent-3.5.4.jar
 COPY applicationinsights.json /app
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-javaagent:/app/applicationinsights-agent-3.5.2.jar","-noverify", "-XX:MaxRAMPercentage=70", "-XX:+UseParallelGC", "-XX:ActiveProcessorCount=2", "-cp","app:app/lib/*","com.microsoft.openai.samples.assistant.business.TransactionsHistoryApplication"]
+ENTRYPOINT ["java","-javaagent:/app/applicationinsights-agent-3.5.4.jar","-noverify", "-XX:MaxRAMPercentage=70", "-XX:+UseParallelGC", "-XX:ActiveProcessorCount=2", "-cp","app:app/lib/*","com.microsoft.openai.samples.assistant.business.TransactionsHistoryApplication"]
