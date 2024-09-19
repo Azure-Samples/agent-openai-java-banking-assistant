@@ -1,3 +1,28 @@
+---
+page_type: sample
+languages:
+- azdeveloper
+- java
+- bicep
+- typescript
+- html
+products:
+- ai-services 
+- azure
+- azure-openai
+- active-directory
+- azure-cognitive-search
+- azure-container-apps
+- azure-sdks
+- github
+- document-intelligence
+- azure-monitor
+- azure-pipelines
+urlFragment: agent-openai-java-banking-assistant
+name: Multi Agents Banking Assistant with Java and Semantic Kernel
+description: A Java sample app emulating a personal banking AI-powered assistant to inquire about account balances, review recent transactions, or initiate payments
+---
+<!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 <!-- prettier-ignore -->
 <div align="center">
 
