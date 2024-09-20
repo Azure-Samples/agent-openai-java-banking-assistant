@@ -26,7 +26,7 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 <!-- prettier-ignore -->
 <div align="center">
 
-<img src="./docs/assets/robot-agents.png" alt="" align="center" height="200"  width="200" />
+![](./docs/assets/robot-agents-small.png)
 
 # Multi Agents Banking Assistant with Java and Semantic Kernel
 
@@ -41,7 +41,7 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 
 [Overview](#overview) • [Architecture](#agents-concepts-and-architectures) • [Get started](#getting-started) •  [Resources](#resources) • [FAQ](#faq) • [Troubleshooting](#troubleshooting)
 
-<img src="./docs/assets/ui.gif" alt="" align="center" height="600"  width="900" />
+![](./docs/assets/ui.gif)
 </div>
 
 This project is designed as a Proof of Concept (PoC) to explore the innovative realm of generative AI within the context of multi-agent architectures. By leveraging Java and Microsoft Semantic Kernel AI orchestration framework, our aim is to build a chat web app to demonstrate the feasibility and reliability of using generative AI agents to transform user experience from web clicks to natural language conversations while maximizing reuse of the existing workload data and APIs.
