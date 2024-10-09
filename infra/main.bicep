@@ -9,23 +9,16 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
-
-
 param resourceGroupName string = ''
 
 param applicationInsightsName string = ''
 param logAnalyticsName string = ''
 
-
-
 param storageAccountName string = ''
 param storageResourceGroupName string = ''
-
 param storageResourceGroupLocation string = location
 param storageContainerName string = 'content'
 param storageSkuName string // Set in main.parameters.json
-
-
 
 param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
@@ -40,25 +33,19 @@ param openAiResourceGroupLocation string = 'eastus'
 param customOpenAiResourceGroupLocation string = ''
 
 param openAiSkuName string = 'S0'
-
-param openAiApiKey string = ''
-param openAiApiOrganization string = ''
+param openAiDeploymentCapacity int = 30
+param chatGptDeploymentName string // Set in main.parameters.json
+param chatGptDeploymentCapacity int = 60
+param chatGptDeploymentSkuName string= 'Standard'
+param chatGptModelName string = 'gpt-4o-mini'
+param chatGptModelVersion string = '2024-07-18'
 
 param documentIntelligenceServiceName string = ''
 param documentIntelligenceResourceGroupName string = ''
 //Document Intelligence new rest api available in eastus, westus2, westeurope. https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp
 @allowed(['eastus', 'westus2', 'westeurope'])
 param documentIntelligenceResourceGroupLocation string = 'eastus'
-
 param documentIntelligenceSkuName string = 'S0'
-
-param chatGptDeploymentName string // Set in main.parameters.json
-param chatGptDeploymentCapacity int = 60
-param chatGptModelName string = 'gpt-4o-mini'
-param chatGptModelVersion string = '2024-07-18'
-
-
-
 
 param containerAppsEnvironmentName string = ''
 param containerRegistryName string = ''
@@ -73,8 +60,6 @@ param webAppExists bool = false
 param accountAppExists bool = false
 param paymentAppExists bool = false
 param transactionAppExists bool = false
-
-
 
 @description('Use Application Insights for monitoring and performance tracing')
 param useApplicationInsights bool = false
@@ -280,7 +265,7 @@ module openAi 'shared/ai/cognitiveservices.bicep' =  {
           version: chatGptModelVersion
         }
         sku: {
-          name: 'Standard'
+          name: chatGptDeploymentSkuName
           capacity: chatGptDeploymentCapacity
         }
       }
@@ -382,9 +367,6 @@ output AZURE_OPENAI_SERVICE string =  openAi.outputs.name
 output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name 
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = chatGptDeploymentName
 
-// Used only with non-Azure OpenAI deployments
-output OPENAI_API_KEY string = openAiApiKey
-output OPENAI_ORGANIZATION string = openAiApiOrganization
 
 output AZURE_DOCUMENT_INTELLIGENCE_SERVICE string = documentIntelligence.outputs.name
 output AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP string = documentIntelligenceResourceGroup.name
