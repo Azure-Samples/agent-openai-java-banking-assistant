@@ -22,8 +22,33 @@ param storageSkuName string // Set in main.parameters.json
 
 param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
+// Look for the desired model in availability table. Default model is gpt-4o-mini:
+// https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
 @description('Location for the OpenAI resource group')
-@allowed(['eastus', 'swedencentral'])
+@allowed([
+  'australiaeast'
+  'brazilsouth'
+  'canadaeast'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'japaneast'
+  'koreacentral'
+  'northcentralus'
+  'norwayeast'
+  'polandcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southindia'
+  'spaincentral'
+  'swedencentral'
+  'switzerlandnorth'
+  'uksouth'
+  'westeurope'
+  'westu'
+  'westus3'
+])
 @metadata({
   azd: {
     type: 'location'
