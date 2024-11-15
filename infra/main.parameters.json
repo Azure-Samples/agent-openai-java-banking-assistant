@@ -57,7 +57,7 @@
       "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_CAPACITY=30}"
     },
     "chatGptDeploymentSkuName": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU_NAME=Standard}"
+      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU_NAME=GlobalStandard}"
     },
     "useApplicationInsights": {
       "value": "${AZURE_USE_APPLICATION_INSIGHTS=true}"
