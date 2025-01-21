@@ -1,16 +1,16 @@
 package com.microsoft.openai.samples.assistant.plugin;
 
-import com.microsoft.openai.samples.assistant.plugin.mock.TransactionService;
+import com.microsoft.openai.samples.assistant.plugin.mock.TransactionServiceMock;
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionHistoryPlugin {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionHistoryPlugin.class);
-    private final TransactionService transactionService;
-    public TransactionHistoryPlugin(){
-        this.transactionService = new TransactionService();
+public class TransactionHistoryMockPlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionHistoryMockPlugin.class);
+    private final TransactionServiceMock transactionService;
+    public TransactionHistoryMockPlugin(){
+        this.transactionService = new TransactionServiceMock();
     }
 
     @DefineKernelFunction(name = "getTransactionsByRecepient", description = "Gets the last payment transactions based on the payee, recipient name")

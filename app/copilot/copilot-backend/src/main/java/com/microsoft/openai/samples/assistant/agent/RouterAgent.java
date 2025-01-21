@@ -12,27 +12,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AgentRouter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentRouter.class);
-    private final IntentAgent intentAgent;
+public class RouterAgent {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouterAgent.class);
+    private final IntentExtractor intentAgent;
     private final PaymentAgent paymentAgent;
-    private final HistoryReportingAgent historyReportingAgent;
+    private final TransactionsReportingAgent historyReportingAgent;
     private final AccountAgent accountAgent;
 
     private final ToolsExecutionCache toolsExecutionCache;
 
-    public AgentRouter(LoggedUserService loggedUserService,ToolsExecutionCache toolsExecutionCache, OpenAIAsyncClient openAIAsyncClient, DocumentIntelligenceClient documentIntelligenceClient, BlobStorageProxy blobStorageProxy, @Value("${openai.chatgpt.deployment}") String gptChatDeploymentModelId, @Value("${transactions.api.url}") String transactionsAPIUrl, @Value("${accounts.api.url}") String accountsAPIUrl, @Value("${payments.api.url}") String paymentsAPIUrl ){
-        this.intentAgent = new IntentAgent(openAIAsyncClient,gptChatDeploymentModelId);
+    public RouterAgent(LoggedUserService loggedUserService, ToolsExecutionCache toolsExecutionCache, OpenAIAsyncClient openAIAsyncClient, DocumentIntelligenceClient documentIntelligenceClient, BlobStorageProxy blobStorageProxy, @Value("${openai.chatgpt.deployment}") String gptChatDeploymentModelId, @Value("${transactions.api.url}") String transactionsAPIUrl, @Value("${accounts.api.url}") String accountsAPIUrl, @Value("${payments.api.url}") String paymentsAPIUrl ){
+        this.intentAgent = new IntentExtractor(openAIAsyncClient,gptChatDeploymentModelId);
         this.paymentAgent = new PaymentAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,documentIntelligenceClient,blobStorageProxy,transactionsAPIUrl,accountsAPIUrl,paymentsAPIUrl);
-        this.historyReportingAgent = new HistoryReportingAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,transactionsAPIUrl,accountsAPIUrl);
+        this.historyReportingAgent = new TransactionsReportingAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,transactionsAPIUrl,accountsAPIUrl);
         this.accountAgent = new AccountAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,accountsAPIUrl);
         this.toolsExecutionCache = toolsExecutionCache;
     }
 
     public void run(ChatHistory chatHistory, AgentContext agentContext){
-        IntentResponse intentResponse = intentAgent.run(chatHistory, agentContext);
+        LOGGER.info("======== Router Agent: Starting ========");
+        IntentResponse intentResponse = intentAgent.run(chatHistory);
 
-        LOGGER.info("Intent Type for chat conversation: {}", intentResponse.getIntentType());
+        LOGGER.info("Intent Type for chat conversation is [{}]", intentResponse.getIntentType());
 
         routeToAgent(intentResponse, chatHistory, agentContext);
     }
@@ -42,25 +43,30 @@ public class AgentRouter {
 
         //reset the function calls cache if it's a new conversation
         if( chatHistory.getMessages().size()<=1) {
-            LOGGER.info("Flushing tools call cache for new chat conversation : {}",chatHistory.getLastMessage().get().getContent());
+            LOGGER.debug("Flushing tools call cache for new chat conversation : {}",chatHistory.getLastMessage().get().getContent());
             toolsExecutionCache.flush();
         }
 
         switch (intentResponse.getIntentType()) {
             case BillPayment:
             case RepeatTransaction:
+                LOGGER.info("Routing request to PaymentAgent");
                 paymentAgent.run(chatHistory, agentContext);
+
                 chatHistory.addAssistantMessage(agentContext.getResult());
                 break;
             case TransactionHistory:
+                LOGGER.info("Routing request to TransactionsReportingAgent");
                 historyReportingAgent.run(chatHistory, agentContext);
                 chatHistory.addAssistantMessage(agentContext.getResult());
                 break;
             case AccountInfo:
+                LOGGER.info("Routing request to AccountAgent");
                 accountAgent.run(chatHistory, agentContext);
                 chatHistory.addAssistantMessage(agentContext.getResult());
                 break;
             case None:
+                LOGGER.info("Intent is None. Ask User to clarify with message: {}", intentResponse.getMessage());
                 chatHistory.addAssistantMessage(intentResponse.getMessage()!= null ? intentResponse.getMessage() : "Sorry. Can't help with that.");
                 break;
             default:

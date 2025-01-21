@@ -45,13 +45,13 @@
       "value": "${AZURE_STORAGE_SKU=Standard_LRS}"
     },
     "chatGptModelName": {
-      "value": "${AZURE_OPENAI_CHATGPT_MODEL=gpt-4o-mini}"
+      "value": "${AZURE_OPENAI_CHATGPT_MODEL=gpt-4o}"
     },
     "chatGptModelVersion": {
-      "value": "${AZURE_OPENAI_CHATGPT_VERSION=2024-07-18}"
+      "value": "${AZURE_OPENAI_CHATGPT_VERSION=2024-11-20}"
     },
     "chatGptDeploymentName": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=gpt-4o-mini}"
+      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=gpt-4o}"
     },
     "chatGptDeploymentCapacity": {
       "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_CAPACITY=30}"

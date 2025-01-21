@@ -28,7 +28,7 @@ public class AccountService {
                 "Alice User",
                 "USD",
                 "2022-01-01",
-                "1000.00",
+                "5000",
                 Arrays.asList(new PaymentMethodSummary("12345", "Visa", "2022-01-01", "2025-01-01"),
                               new PaymentMethodSummary("23456", "BankTransfer", "2022-01-01", "9999-01-01"))));
         this.accounts.put("1010", new Account(
@@ -37,16 +37,16 @@ public class AccountService {
                 "Bob User",
                 "EUR",
                 "2022-01-01",
-                "2000,40",
+                "10000",
                 Arrays.asList(new PaymentMethodSummary("345678", "BankTransfer", "2022-01-01", "9999-01-01"),
-                              new PaymentMethodSummary("55555", "Visa", "2022-01-01", "2025-01-01"))));
+                              new PaymentMethodSummary("55555", "Visa", "2022-01-01", "2026-01-01"))));
         this.accounts.put("1020", new Account(
                 "1020",
                 "charlie.user@contoso.com",
                 "Charlie User",
                 "EUR",
                 "2022-01-01",
-                "3000,20",
+                "3000",
                 Arrays.asList(new PaymentMethodSummary("46748576", "DirectDebit", "2022-02-01", "9999-02-01"))));
 
         this.paymentMethods.put("12345", new PaymentMethod("12345", "Visa", "2022-01-01", "2025-01-01", "500.00", "1234567812345678"));

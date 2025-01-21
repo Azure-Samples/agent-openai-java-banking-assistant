@@ -3,11 +3,8 @@ package com.microsoft.openai.samples.assistant.invoice;
 
 
 import com.azure.ai.documentintelligence.DocumentIntelligenceClient;
-import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder;
 import com.azure.ai.documentintelligence.models.*;
-import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.util.polling.SyncPoller;
-import com.microsoft.openai.samples.assistant.agent.HistoryReportingAgent;
 import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +36,7 @@ public class DocumentIntelligenceInvoiceScanHelper {
 
        byte[] blobData = blobStorageProxy.getFileAsBytes(blobName);
 
-        LOGGER.info("Found blob file with name [{}] and size [{}]", blobName,blobData.length);
+        LOGGER.debug("Found blob file with name [{}] and size [{}]", blobName,blobData.length);
         SyncPoller<AnalyzeResultOperation, AnalyzeResultOperation> analyzeInvoicePoller =
                 client.beginAnalyzeDocument("prebuilt-invoice",
                         null,
@@ -70,7 +67,7 @@ public class DocumentIntelligenceInvoiceScanHelper {
     private  Map<String, String> internalScan(SyncPoller<AnalyzeResultOperation, AnalyzeResultOperation> analyzeInvoicePoller) {
         AnalyzeResult analyzeInvoiceResult = analyzeInvoicePoller.getFinalResult().getAnalyzeResult();
 
-        LOGGER.info("Document intelligence analysis completed.Start extracting data.." );
+        LOGGER.debug("Document intelligence:start extracting data.." );
 
         Map<String,String> scanData = new HashMap<>();
 

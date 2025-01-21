@@ -6,12 +6,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class TransactionService {
+public class TransactionServiceMock {
 
     private Map<String,List<PaymentTransaction>> lastTransactions= new HashMap<>();
     private Map<String,List<PaymentTransaction>> allTransactions= new HashMap<>();
 
-    public TransactionService(){
+    public TransactionServiceMock(){
 
         lastTransactions.put("1010", Arrays.asList(
                 new PaymentTransaction("11", "Payment of the bill 334398", "Mike ThePlumber", "0001", "1010", "BankTransfer", "100.00", "2024-4-01T12:00:00Z"),

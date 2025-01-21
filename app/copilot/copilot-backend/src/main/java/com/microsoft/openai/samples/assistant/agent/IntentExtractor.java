@@ -3,7 +3,6 @@ package com.microsoft.openai.samples.assistant.agent;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
-import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
@@ -12,14 +11,10 @@ import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatC
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
-import com.microsoft.semantickernel.services.chatcompletion.ChatMessageContent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class IntentAgent {
+public class IntentExtractor {
 
     private OpenAIAsyncClient client;
 
@@ -46,7 +41,7 @@ Don't add any comments in the output or other characters, just use json format.
             
     """;
 
-    public IntentAgent(OpenAIAsyncClient client, String modelId){
+    public IntentExtractor(OpenAIAsyncClient client, String modelId){
         this.client = client;
         this.chat = OpenAIChatCompletion.builder()
                 .withModelId(modelId)
@@ -57,24 +52,8 @@ Don't add any comments in the output or other characters, just use json format.
                 .withAIService(ChatCompletionService.class, chat)
                 .build();
     }
-    public IntentAgent(String azureClientKey, String clientEndpoint, String modelId){
-        this.client = new OpenAIClientBuilder()
-                .credential(new AzureKeyCredential(azureClientKey))
-                .endpoint(clientEndpoint)
-                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
-                .buildAsyncClient();
 
-        this.chat = OpenAIChatCompletion.builder()
-                .withModelId(modelId)
-                .withOpenAIAsyncClient(client)
-                .build();
-
-        kernel = Kernel.builder()
-                .withAIService(ChatCompletionService.class, chat)
-                .build();
-    }
-
-    public IntentResponse run(ChatHistory userChatHistory,AgentContext agentContext){
+    public IntentResponse run(ChatHistory userChatHistory){
         var agentChatHistory = new ChatHistory(INTENT_SYSTEM_MESSAGE);
         agentChatHistory.addAll(fewShotExamples());
         agentChatHistory.addAll(userChatHistory);
@@ -121,7 +100,9 @@ Don't add any comments in the output or other characters, just use json format.
                 .addUserMessage("can you buy stocks for me?")
                 .addAssistantMessage("{\"intent\": \"None\", \"clarify_sentence\":\"I'm sorry can't help with that.I can review your account details, transactions and help you with your payments\"")
                 .addUserMessage("can you pay this bill for me?")
-                .addAssistantMessage("{\"intent\": \"BillPayment\" }");
+                .addAssistantMessage("{\"intent\": \"BillPayment\" }")
+                .addUserMessage("when was last time I paid acme")
+                .addAssistantMessage("{\"intent\": \"TransactionHistory\" }");
     }
 
 }

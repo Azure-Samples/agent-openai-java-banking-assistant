@@ -1,13 +1,11 @@
 package com.microsoft.openai.samples.assistant.plugin;
 
-import com.microsoft.openai.samples.assistant.agent.HistoryReportingAgent;
 import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,7 +75,7 @@ public class InvoiceScanPlugin {
           scanData = new HashMap<>();
         }
 
-        LOGGER.info("Data extracted from invoice {}:{}", filePath,scanData);
+        LOGGER.info("SK scanInvoice plugin: Data extracted {}:{}", filePath,scanData);
         return scanData.toString();
 
     }

@@ -2,13 +2,8 @@
 package com.microsoft.openai.samples.assistant.agent;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
-import com.azure.ai.openai.OpenAIClientBuilder;
-import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
 import com.microsoft.openai.samples.assistant.agent.cache.ToolExecutionCacheUtils;
 import com.microsoft.openai.samples.assistant.agent.cache.ToolsExecutionCache;
-import com.microsoft.openai.samples.assistant.plugin.TransactionHistoryPlugin;
 import com.microsoft.openai.samples.assistant.plugin.LoggedUserPlugin;
 import com.microsoft.openai.samples.assistant.security.LoggedUserService;
 import com.microsoft.semantickernel.Kernel;
@@ -17,7 +12,6 @@ import com.microsoft.semantickernel.hooks.KernelHook;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
 import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
-import com.microsoft.semantickernel.plugin.KernelPluginFactory;
 import com.microsoft.semantickernel.samples.openapi.SemanticKernelOpenAPIImporter;
 import com.microsoft.semantickernel.services.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
@@ -29,8 +23,8 @@ import java.io.FileNotFoundException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class HistoryReportingAgent {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HistoryReportingAgent.class);
+public class TransactionsReportingAgent {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsReportingAgent.class);
     private OpenAIAsyncClient client;
 
     private Kernel kernel;
@@ -54,7 +48,7 @@ public class HistoryReportingAgent {
      %s
     """;
 
-    public HistoryReportingAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, ToolsExecutionCache<Object> toolsExecutionCache, String modelId, String transactionAPIUrl, String accountAPIUrl){
+    public TransactionsReportingAgent(OpenAIAsyncClient client, LoggedUserService loggedUserService, ToolsExecutionCache<Object> toolsExecutionCache, String modelId, String transactionAPIUrl, String accountAPIUrl){
         this.client = client;
         this.loggedUserService = loggedUserService;
         this.toolsExecutionCache = toolsExecutionCache;
@@ -66,12 +60,12 @@ public class HistoryReportingAgent {
         /**
          * Using native function to create a plugin
          */
-        //var plugin = KernelPluginFactory.createFromObject(new TransactionHistoryPlugin(), "TransactionHistoryPlugin");
+        //var plugin = KernelPluginFactory.createFromObject(new TransactionHistoryMockPlugin(), "TransactionHistoryMockPlugin");
 
         String transactionAPIYaml = null;
         try {
             transactionAPIYaml = EmbeddedResourceLoader.readFile("transaction-history.yaml",
-                    HistoryReportingAgent.class,
+                    TransactionsReportingAgent.class,
                     EmbeddedResourceLoader.ResourceLocation.CLASSPATH_ROOT);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Cannot find transaction-history.yaml file in the classpath",e);
@@ -89,7 +83,7 @@ public class HistoryReportingAgent {
         String accountAPIYaml = null;
         try {
             accountAPIYaml = EmbeddedResourceLoader.readFile("account.yaml",
-                    HistoryReportingAgent.class,
+                    TransactionsReportingAgent.class,
                     EmbeddedResourceLoader.ResourceLocation.CLASSPATH_ROOT);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Cannot find account-history.yaml file in the classpath",e);
@@ -111,7 +105,7 @@ public class HistoryReportingAgent {
                 .build();
 
         KernelHook.FunctionInvokedHook postExecutionHandler = event -> {
-            LOGGER.info("Post execution handler for {} function. Result won't be added to cache: {}", event.getFunction().getName(),event.getResult().getResult());
+            LOGGER.debug("Post execution handler for {} function. Result won't be added to cache: {}", event.getFunction().getName(),event.getResult().getResult());
             return event;
         };
 
@@ -159,6 +153,7 @@ public class HistoryReportingAgent {
 
          //get last message
          var message = messages.get(messages.size()-1);
+         LOGGER.info("======== TransactionsHistory Agent Response: {}",message.getContent());
          agentContext.setResult(message.getContent());
          }
 

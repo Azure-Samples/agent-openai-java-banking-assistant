@@ -21,7 +21,7 @@ public class UserService {
                         "Alice User",
                         "USD",
                         "2022-01-01",
-                        "1000.00",
+                        "5000",
                        null
                 )
         );
@@ -33,7 +33,7 @@ public class UserService {
                         "Bob User",
                         "EUR",
                         "2022-01-01",
-                        "2000,40",
+                        "10000",
                        null
                 )
         );
@@ -45,7 +45,7 @@ public class UserService {
                         "Charlie User",
                         "EUR",
                         "2022-01-01",
-                        "3000,20",
+                        "3000",
                         null
                 )
         );

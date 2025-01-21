@@ -1,20 +1,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.openai.samples.assistant.controller;
 
-import com.azure.ai.documentintelligence.DocumentIntelligenceClient;
-import com.azure.ai.openai.OpenAIAsyncClient;
 import com.microsoft.openai.samples.assistant.agent.*;
 
 
-import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
-import com.microsoft.openai.samples.assistant.security.LoggedUserService;
-import com.microsoft.semantickernel.services.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
 
-import com.microsoft.semantickernel.services.chatcompletion.ChatMessageContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-
-
-import java.util.List;
-
 @RestController
 public class ChatController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatController.class);
-    private final AgentRouter agentRouter;
+    private final RouterAgent agentRouter;
 
-    public ChatController(AgentRouter agentRouter){
+    public ChatController(RouterAgent agentRouter){
         this.agentRouter = agentRouter;
     }
 
@@ -59,7 +48,7 @@ public class ChatController {
         ChatHistory chatHistory = convertSKChatHistory(chatRequest);
 
 
-        LOGGER.info("Processing chat conversation..", chatHistory.getLastMessage().get().getContent());
+        LOGGER.debug("Processing chat conversation..", chatHistory.getLastMessage().get().getContent());
 
         var agentContext = new AgentContext();
         agentContext.put("requestContext", chatRequest.context());
