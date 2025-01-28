@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RouterAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterAgent.class);
-    private final IntentExtractor intentAgent;
+    private final IntentExtractor intentExtractor;
     private final PaymentAgent paymentAgent;
     private final TransactionsReportingAgent historyReportingAgent;
     private final AccountAgent accountAgent;
@@ -22,7 +22,7 @@ public class RouterAgent {
     private final ToolsExecutionCache toolsExecutionCache;
 
     public RouterAgent(LoggedUserService loggedUserService, ToolsExecutionCache toolsExecutionCache, OpenAIAsyncClient openAIAsyncClient, DocumentIntelligenceClient documentIntelligenceClient, BlobStorageProxy blobStorageProxy, @Value("${openai.chatgpt.deployment}") String gptChatDeploymentModelId, @Value("${transactions.api.url}") String transactionsAPIUrl, @Value("${accounts.api.url}") String accountsAPIUrl, @Value("${payments.api.url}") String paymentsAPIUrl ){
-        this.intentAgent = new IntentExtractor(openAIAsyncClient,gptChatDeploymentModelId);
+        this.intentExtractor = new IntentExtractor(openAIAsyncClient,gptChatDeploymentModelId);
         this.paymentAgent = new PaymentAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,documentIntelligenceClient,blobStorageProxy,transactionsAPIUrl,accountsAPIUrl,paymentsAPIUrl);
         this.historyReportingAgent = new TransactionsReportingAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,transactionsAPIUrl,accountsAPIUrl);
         this.accountAgent = new AccountAgent(openAIAsyncClient,loggedUserService,toolsExecutionCache,gptChatDeploymentModelId,accountsAPIUrl);
@@ -31,7 +31,7 @@ public class RouterAgent {
 
     public void run(ChatHistory chatHistory, AgentContext agentContext){
         LOGGER.info("======== Router Agent: Starting ========");
-        IntentResponse intentResponse = intentAgent.run(chatHistory);
+        IntentResponse intentResponse = intentExtractor.run(chatHistory);
 
         LOGGER.info("Intent Type for chat conversation is [{}]", intentResponse.getIntentType());
 
