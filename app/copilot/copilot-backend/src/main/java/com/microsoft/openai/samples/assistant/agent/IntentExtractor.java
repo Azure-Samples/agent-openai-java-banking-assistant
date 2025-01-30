@@ -102,7 +102,9 @@ Don't add any comments in the output or other characters, just use json format.
                 .addUserMessage("can you pay this bill for me?")
                 .addAssistantMessage("{\"intent\": \"BillPayment\" }")
                 .addUserMessage("when was last time I paid acme")
-                .addAssistantMessage("{\"intent\": \"TransactionHistory\" }");
+                .addAssistantMessage("{\"intent\": \"TransactionHistory\" }")
+                .addUserMessage("proceed with payment")
+                .addAssistantMessage("{\"intent\": \"BillPayment\" }");
     }
 
 }
