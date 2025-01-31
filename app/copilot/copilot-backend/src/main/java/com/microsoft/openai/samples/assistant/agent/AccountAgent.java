@@ -67,7 +67,7 @@ public class AccountAgent {
                     TransactionsReportingAgent.class,
                     EmbeddedResourceLoader.ResourceLocation.CLASSPATH_ROOT);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Cannot find account-history.yaml file in the classpath", e);
+            throw new RuntimeException("Cannot find account.yaml file in the classpath", e);
         }
         //Used to retrieve account id. Transaction API requires account id to retrieve transactions
         KernelPlugin openAPIImporterAccountPlugin = SemanticKernelOpenAPIImporter
