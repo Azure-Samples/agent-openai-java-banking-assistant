@@ -17,8 +17,8 @@
 	<properties>
 		<java.version>17</java.version>
 
-		<spring-cloud-azure.version>5.14.0</spring-cloud-azure.version>
-		<semantic-kernel.version>1.2.2</semantic-kernel.version>
+		<spring-cloud-azure.version>5.20.0</spring-cloud-azure.version>
+		<semantic-kernel.version>1.4.3</semantic-kernel.version>
 		<mockito-inline.version>4.5.1</mockito-inline.version>
 		<maven.compiler-plugin.version>3.11.0</maven.compiler-plugin.version>
 
@@ -125,7 +125,7 @@
 		<dependency>
 			<groupId>com.microsoft.openai.samples.assistant</groupId>
 			<artifactId>semantickernel-openapi-plugin</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
+			<version>1.4.3</version>
 		</dependency>
 
 	</dependencies>

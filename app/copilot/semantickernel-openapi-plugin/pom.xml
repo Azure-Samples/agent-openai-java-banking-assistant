@@ -10,12 +10,12 @@
 
     <artifactId>semantickernel-openapi-plugin</artifactId>
     <name>semantickernel-openapi-plugin</name>
-    <version>1.1.5-SNAPSHOT</version>
+    <version>1.4.3</version>
     <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>
-        <semantic-kernel.version>1.1.5</semantic-kernel.version>
+        <semantic-kernel.version>1.4.3</semantic-kernel.version>
     </properties>
 
     <dependencyManagement>
@@ -82,18 +82,8 @@
             <artifactId>semantickernel-aiservices-openai</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

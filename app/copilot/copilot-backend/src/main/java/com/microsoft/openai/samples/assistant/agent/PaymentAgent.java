@@ -93,7 +93,7 @@ public class PaymentAgent {
         //Used to retrieve transactions.
         KernelPlugin openAPIImporterTransactionPlugin = SemanticKernelOpenAPIImporter
                 .builder()
-                .withPluginName("TransactionHistoryMockPlugin")
+                .withPluginName("TransactionHistoryPlugin")
                 .withSchema(transactionsAPIYaml)
                 .withServer(transactionAPIUrl)
                 .build();
