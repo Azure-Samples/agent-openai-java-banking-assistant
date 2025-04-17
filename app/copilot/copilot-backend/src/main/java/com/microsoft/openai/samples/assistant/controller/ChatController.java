@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.openai.samples.assistant.controller;
 
-import com.microsoft.openai.samples.assistant.agent.*;
 
-
-import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
-
+import com.microsoft.openai.samples.assistant.langchain4j.agent.SupervisorAgent;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.UserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,14 +17,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 public class ChatController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatController.class);
-    private final RouterAgent agentRouter;
+    private final SupervisorAgent supervisorAgent;
 
-    public ChatController(RouterAgent agentRouter){
-        this.agentRouter = agentRouter;
+    public ChatController(SupervisorAgent supervisorAgent){
+        this.supervisorAgent = supervisorAgent;
     }
 
 
@@ -45,37 +48,31 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        ChatHistory chatHistory = convertSKChatHistory(chatRequest);
+        List<ChatMessage> chatHistory = convertToLangchain4j(chatRequest);
 
 
-        LOGGER.debug("Processing chat conversation..", chatHistory.getLastMessage().get().getContent());
+        LOGGER.debug("Processing chat conversation..", chatHistory.get(chatHistory.size()-1));
 
-        var agentContext = new AgentContext();
-        agentContext.put("requestContext", chatRequest.context());
-        agentContext.put("attachments", chatRequest.attachments());
-        agentContext.put("approach", chatRequest.approach());
+        supervisorAgent.invoke(chatHistory);
 
-        agentRouter.run(chatHistory,agentContext);
-
+        AiMessage generatedResponse = (AiMessage) chatHistory.get(chatHistory.size()-1);
         return ResponseEntity.ok(
-                ChatResponse.buildChatResponse(chatHistory, agentContext));
+                ChatResponse.buildChatResponse(generatedResponse));
     }
 
-    private ChatHistory convertSKChatHistory(ChatAppRequest chatAppRequest) {
-       ChatHistory chatHistory = new ChatHistory();
+    private List<ChatMessage> convertToLangchain4j(ChatAppRequest chatAppRequest) {
+       List<ChatMessage> chatHistory = new ArrayList<>();
          chatAppRequest.messages().forEach(
                historyChat -> {
                    if("user".equals(historyChat.role())) {
                      if(historyChat.attachments() == null || historyChat.attachments().isEmpty())
-                         chatHistory.addUserMessage(historyChat.content());
+                         chatHistory.add(UserMessage.from(historyChat.content()));
                      else
-                         chatHistory.addUserMessage(historyChat.content() + " " + historyChat.attachments().toString());
+                         chatHistory.add(UserMessage.from(historyChat.content() + " " + historyChat.attachments().toString()));
                    }
                    if("assistant".equals(historyChat.role()))
-                   chatHistory.addAssistantMessage(historyChat.content());
+                   chatHistory.add(AiMessage.from(historyChat.content()));
                });
-       //-chatHistory.addUserMessage(lastUserMessage.getContent());
-
        return chatHistory;
 
     }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.microsoft.openai.samples.assistant</groupId>
+        <artifactId>copilot-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>copilot-common</artifactId>
+
+    <dependencies>
+    <dependency>
+        <groupId>com.azure</groupId>
+        <artifactId>azure-ai-documentintelligence</artifactId>
+        <!-- 1.0.1 version from azure-sdk-bom have breaking changes. Need to fix that-->
+        <!-- <version>1.0.0-beta.2</version> -->
+    </dependency>
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20240303</version>
+    </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-blob</artifactId>
+        </dependency>
+    </dependencies>
+</project>

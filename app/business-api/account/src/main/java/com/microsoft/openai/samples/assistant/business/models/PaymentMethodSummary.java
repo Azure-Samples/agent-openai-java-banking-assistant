@@ -1,10 +1,13 @@
 package com.microsoft.openai.samples.assistant.business.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record PaymentMethodSummary(
-    String id,
-    String type,
-    String activationDate,
-    String expirationDate
+        @JsonProperty("id") String id,
+        @JsonProperty("type") String type,
+        @JsonProperty("activationDate") String activationDate,
+        @JsonProperty("expirationDate") String expirationDate
 ) {}
 

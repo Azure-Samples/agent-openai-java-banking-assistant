@@ -1,0 +1,94 @@
+openapi: 3.0.3
+info:
+  title: Transaction History and Reporting API
+  version: 1.0.0
+paths:
+  /transactions/{accountid}:
+    get:
+      summary: Get transactions list.
+      description: Gets the transactions lists. They can be filtered based on recipient name
+      operationId: getTransactionsByRecipientName
+      parameters:
+        - name: accountid
+          description: id of specific account.
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123456
+        - name: recipient_name
+          description: Name of the payee, recipient
+          in: query
+          required: false
+          schema:
+            type: string
+            example: contoso
+
+      responses:
+        '200':
+          description: A list of transactions for a specific recipient
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+    post:
+      operationId: notifyTransaction
+      summary: Notify the banking transaction so that it's being stored in the history
+      description: Notify the banking transaction so that it's being stored in the history
+      parameters:
+        - name: accountid
+          description: id of specific account.
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123456
+      requestBody:
+        required: true
+        description: transaction to notify
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        '200':
+          description: Payment request submitted successfully
+        '400':
+          description: Invalid request body
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'The unique identifier for the transaction'
+        description:
+          type: string
+          description: 'The description of the transaction which contains reason for the payment and other details'
+        type:
+          type: string
+          description: 'The transaction type expressed as income or outcome transaction'
+        recipientName:
+          type: string
+          description: 'The name of the recipient'
+        recipientBankReference:
+          type: string
+          description: 'The bank reference of the recipient'
+        accountId:
+          type: string
+          description: 'The account ID associated with the transaction'
+        paymentType:
+          type: string
+          description: 'The type of payment: creditcard, banktransfer, directdebit, visa, mastercard, paypal, etc.'
+        amount:
+          type: string
+          description: 'The amount of the transaction'
+        timestamp:
+          type: string
+          format: date-time
+          description: 'The timestamp of the transaction'
