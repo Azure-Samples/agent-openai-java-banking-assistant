@@ -75,6 +75,15 @@ public class SupervisorAgent {
 
 
     protected void singleTurnRouting(String nextAgent, List<ChatMessage> chatHistory) {
+        if("none".equalsIgnoreCase(nextAgent)){
+            LOGGER.info("Gracefully handle clarification.. ");
+            AiMessage clarificationMessage = AiMessage.builder().
+                    text(" I'm not sure about your request. Can you please clarify?")
+                    .build();
+            chatHistory.add(clarificationMessage);
+            return;
+        }
+
         Agent agent = agents.stream()
                 .filter(a -> a.getName().equals(nextAgent))
                 .findFirst()
