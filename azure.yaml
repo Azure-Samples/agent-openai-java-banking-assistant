@@ -8,19 +8,29 @@ services:
     project: app/copilot
     language: java
     host: containerapp
+    docker:
+      remoteBuild: true
   account:
     project: app/business-api/account
     language: java
     host: containerapp
+    docker:
+      remoteBuild: true
   payment:
     project: app/business-api/payment
     language: java
     host: containerapp
+    docker:
+      remoteBuild: true
   transaction:
     project: app/business-api/transactions-history
     language: java
     host: containerapp
+    docker:
+      remoteBuild: true
   web:
     project: app/frontend
     language: js
     host: containerapp
+    docker:
+      remoteBuild: true
