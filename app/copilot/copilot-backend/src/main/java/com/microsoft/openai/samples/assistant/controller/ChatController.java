@@ -53,9 +53,9 @@ public class ChatController {
 
         LOGGER.debug("Processing chat conversation..", chatHistory.get(chatHistory.size()-1));
 
-        supervisorAgent.invoke(chatHistory);
+        List<ChatMessage> agentsResponse = supervisorAgent.invoke(chatHistory);
 
-        AiMessage generatedResponse = (AiMessage) chatHistory.get(chatHistory.size()-1);
+        AiMessage generatedResponse = (AiMessage) agentsResponse.get(agentsResponse.size()-1);
         return ResponseEntity.ok(
                 ChatResponse.buildChatResponse(generatedResponse));
     }

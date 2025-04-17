@@ -16,6 +16,7 @@ import dev.langchain4j.model.input.PromptTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class SupervisorAgent {
     }
 
 
-    public void invoke(List<ChatMessage> chatHistory) {
+    public List<ChatMessage> invoke(List<ChatMessage> chatHistory) {
         LOGGER.info("------------- SupervisorAgent -------------");
 
         var internalChatMemory = buildInternalChat(chatHistory);
@@ -69,19 +70,21 @@ public class SupervisorAgent {
         LOGGER.info("Supervisor Agent handoff to [{}]", nextAgent);
 
      if (routing) {
-            singleTurnRouting(nextAgent, chatHistory);
+           return singleTurnRouting(nextAgent, chatHistory);
         }
+
+     return new ArrayList<>();
     }
 
 
-    protected void singleTurnRouting(String nextAgent, List<ChatMessage> chatHistory) {
+    protected List<ChatMessage> singleTurnRouting(String nextAgent, List<ChatMessage> chatHistory) {
         if("none".equalsIgnoreCase(nextAgent)){
             LOGGER.info("Gracefully handle clarification.. ");
             AiMessage clarificationMessage = AiMessage.builder().
                     text(" I'm not sure about your request. Can you please clarify?")
                     .build();
             chatHistory.add(clarificationMessage);
-            return;
+            return chatHistory;
         }
 
         Agent agent = agents.stream()
@@ -89,7 +92,7 @@ public class SupervisorAgent {
                 .findFirst()
                 .orElseThrow(() -> new AgentExecutionException("Agent not found: " + nextAgent));
 
-        agent.invoke(chatHistory);
+        return agent.invoke(chatHistory);
     }
 
 
