@@ -28,7 +28,7 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 
 ![](./docs/assets/robot-agents-small.png)
 
-# Multi Agents Banking Assistant with Java and Langchain4j
+# Multi Agents Banking Assistant with Java and [Langchain4j]
 
 [![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/azure-samples/agent-openai-java-banking-assistant/azure-dev.yaml?style=flat-square&label=Build)](https://github.com/azure-samples/agent-openai-java-banking-assistant/actions)
