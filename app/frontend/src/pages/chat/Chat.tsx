@@ -45,6 +45,7 @@ const Chat = () => {
     const [useSuggestFollowupQuestions, setUseSuggestFollowupQuestions] = useState<boolean>(false);
     const [useOidSecurityFilter, setUseOidSecurityFilter] = useState<boolean>(false);
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
+    const [threadId, setThreadId] = useState<string | undefined>(undefined); // Updated type to match ChatAppRequest
 
     const lastQuestionRef = useRef<string>("");
     const lastAttachementsRef = useRef<string[] | null>([]);
@@ -113,15 +114,18 @@ const Chat = () => {
 
         const token = client ? await getToken(client) : undefined;
 
+
         try {
+            /**
             const messages: ResponseMessage[] = answers.flatMap(a => [
                 { content: a[0], role: "user", attachments: a[1]},
                 { content: a[2].choices[0].message.content, role: "assistant" }
             ]);
 
-            const stream = streamAvailable && shouldStream;
+         */
+           const stream = streamAvailable && shouldStream;
             const request: ChatAppRequest = {
-                messages: [...messages, { content: questionContext.question, role: "user", attachments: questionContext.attachments }],
+                messages: [{ content: questionContext.question, role: "user", attachments: questionContext.attachments }],
                 stream: stream,
                 context: {
                     overrides: {
@@ -138,8 +142,8 @@ const Chat = () => {
                     }
                 },
                 approach: approach,
-                // ChatAppProtocol: Client must pass on any session state received from the server
-                session_state: answers.length ? answers[answers.length - 1][2].choices[0].session_state : null
+                session_state: answers.length ? answers[answers.length - 1][2].choices[0].session_state : null,
+                threadId: threadId // Include threadId in the request
             };
 
             const response = await chatApi(request, token?.accessToken);
@@ -147,14 +151,16 @@ const Chat = () => {
                 throw Error("No response body");
             }
             if (stream) {
-                const parsedResponse: ChatAppResponse = await handleAsyncRequest(questionContext.question,questionContext.attachments || [], answers, setAnswers, response.body);
-                setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse]]);
+                const parsedResponse: ChatAppResponse = await handleAsyncRequest(questionContext.question, questionContext.attachments || [], answers, setAnswers, response.body);
+                setAnswers([...answers, [questionContext.question, questionContext.attachments || [], parsedResponse]]);
+                setThreadId(parsedResponse.threadId || undefined); // Update threadId from the response
             } else {
                 const parsedResponse: ChatAppResponseOrError = await response.json();
                 if (response.status > 299 || !response.ok) {
                     throw Error(parsedResponse.error || "Unknown error");
                 }
-                setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse as ChatAppResponse]]);
+                setAnswers([...answers, [questionContext.question, questionContext.attachments || [], parsedResponse as ChatAppResponse]]);
+                setThreadId((parsedResponse as ChatAppResponse).threadId || undefined); // Update threadId from the response
             }
         } catch (e) {
             setError(e);
@@ -173,6 +179,7 @@ const Chat = () => {
         setStreamedAnswers([]);
         setIsLoading(false);
         setIsStreaming(false);
+        setThreadId(undefined); // Reset threadId
     };
 
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "smooth" }), [isLoading]);

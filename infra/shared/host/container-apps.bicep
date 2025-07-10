@@ -11,6 +11,8 @@ param logAnalyticsWorkspaceName string
 param applicationInsightsName string = ''
 param daprEnabled bool = false
 
+var containerRegistryResourceGroupEvaluated = !empty(containerRegistryResourceGroupName) ? resourceGroup(containerRegistryResourceGroupName) : resourceGroup()
+
 module containerAppsEnvironment 'container-apps-environment.bicep' = {
   name: '${name}-container-apps-environment'
   params: {
@@ -25,7 +27,7 @@ module containerAppsEnvironment 'container-apps-environment.bicep' = {
 
 module containerRegistry 'container-registry.bicep' = {
   name: '${name}-container-registry'
-  scope: !empty(containerRegistryResourceGroupName) ? resourceGroup(containerRegistryResourceGroupName) : resourceGroup()
+  scope: containerRegistryResourceGroupEvaluated
   params: {
     name: containerRegistryName
     location: location

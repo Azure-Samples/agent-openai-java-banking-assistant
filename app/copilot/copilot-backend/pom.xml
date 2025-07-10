@@ -20,7 +20,9 @@
 
 		<spring-cloud-azure.version>5.20.0</spring-cloud-azure.version>
 		<mockito-inline.version>4.5.1</mockito-inline.version>
-		<langchain4j.version>1.0.0-beta2</langchain4j.version>
+		<langchain4j.version>1.0.0</langchain4j.version>
+		<langchain4j-azure-openai.version>1.1.0-rc1</langchain4j-azure-openai.version>
+		<google-adk.version>0.2.1-SNAPSHOT</google-adk.version>
 	</properties>
 
 	<dependencyManagement>
@@ -43,6 +45,17 @@
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.google.adk</groupId>
+			<artifactId>google-adk</artifactId>
+			<version>${google-adk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.adk</groupId>
+			<artifactId>google-adk-contrib-langchain4j</artifactId>
+			<version>${google-adk.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -53,7 +66,7 @@
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-azure-open-ai</artifactId>
-			<version>${langchain4j.version}</version>
+			<version>${langchain4j-azure-openai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.azure</groupId>

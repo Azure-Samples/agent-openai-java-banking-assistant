@@ -5,7 +5,7 @@ package com.microsoft.openai.samples.assistant.config;
 import com.azure.ai.openai.OpenAIClient;
 
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ public class Langchain4JConfiguration {
     private String gptChatDeploymentModelId;
 
     @Bean
-    public ChatLanguageModel chatLanguageModel(OpenAIClient azureOpenAICLient) {
+    public ChatModel chatLanguageModel(OpenAIClient azureOpenAICLient) {
 
         return AzureOpenAiChatModel.builder()
                 .openAIClient(azureOpenAICLient)

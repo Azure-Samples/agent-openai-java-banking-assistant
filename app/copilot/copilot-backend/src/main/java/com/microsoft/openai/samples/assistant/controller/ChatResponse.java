@@ -9,9 +9,12 @@ import dev.langchain4j.data.message.AiMessage;
 import java.util.Collections;
 import java.util.List;
 
-public record ChatResponse(List<ResponseChoice> choices) {
+public record ChatResponse(
+        List<ResponseChoice> choices,
+        String threadId
+) {
 
-    public static ChatResponse buildChatResponse(AiMessage aiMessage) {
+    public static ChatResponse buildChatResponse(String agentResponse, String threadId) {
         List<String> dataPoints = Collections.emptyList();
         String thoughts = "";
         List<String> attachments = Collections.emptyList();
@@ -21,15 +24,19 @@ public record ChatResponse(List<ResponseChoice> choices) {
                         new ResponseChoice(
                                 0,
                                 new ResponseMessage(
-                                        aiMessage.text(),
+                                        agentResponse,
                                         ChatGPTMessage.ChatRole.ASSISTANT.toString(),
                                         attachments
-                                          ),
+                                ),
                                 new ResponseContext(thoughts, dataPoints),
                                 new ResponseMessage(
-                                        aiMessage.text(),
+                                        agentResponse,
                                         ChatGPTMessage.ChatRole.ASSISTANT.toString(),
-                                        attachments))));
+                                        attachments)
+                        )
+                ),
+                threadId
+        );
     }
 
 }
