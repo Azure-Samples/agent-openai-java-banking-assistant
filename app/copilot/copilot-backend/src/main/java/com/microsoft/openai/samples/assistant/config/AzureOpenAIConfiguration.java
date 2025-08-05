@@ -45,6 +45,21 @@ public class AzureOpenAIConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "openai.tracing.enabled", havingValue = "true")
+    public OpenAIClientBuilder openAItracingEnabledClientBuilder() {
+        String endpoint = "https://%s.openai.azure.com".formatted(openAIServiceName);
+
+        var httpLogOptions = new HttpLogOptions();
+        // httpLogOptions.setPrettyPrintBody(true);
+        httpLogOptions.setLogLevel(HttpLogDetailLevel.BODY);
+
+        return new OpenAIClientBuilder()
+                .endpoint(endpoint)
+                .credential(tokenCredential)
+                .httpLogOptions(httpLogOptions);
+    }
+
+    @Bean
     @ConditionalOnProperty(name = "openai.tracing.enabled", havingValue = "false")
     public OpenAIClient openAIDefaultClient() {
         String endpoint = "https://%s.openai.azure.com".formatted(openAIServiceName);
@@ -55,12 +70,21 @@ public class AzureOpenAIConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "openai.tracing.enabled", havingValue = "false")
+    public OpenAIClientBuilder openAIDefaultClientBuilder() {
+        String endpoint = "https://%s.openai.azure.com".formatted(openAIServiceName);
+        return new OpenAIClientBuilder()
+                .endpoint(endpoint)
+                .credential(tokenCredential);
+    }
+
+    @Bean
     @ConditionalOnProperty(name = "openai.tracing.enabled", havingValue = "true")
     public OpenAIAsyncClient tracingEnabledAsyncClient() {
         String endpoint = "https://%s.openai.azure.com".formatted(openAIServiceName);
 
         var httpLogOptions = new HttpLogOptions();
-        httpLogOptions.setPrettyPrintBody(true);
+        //httpLogOptions.setPrettyPrintBody(true);
         httpLogOptions.setLogLevel(HttpLogDetailLevel.BODY);
 
         return new OpenAIClientBuilder()

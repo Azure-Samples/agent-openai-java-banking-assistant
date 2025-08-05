@@ -13,8 +13,9 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <langchain4j.version>1.0.0-beta2</langchain4j.version>
+        <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <azure.sdk.version>1.2.33</azure.sdk.version>
+        <spring-ai.version>1.0.0</spring-ai.version>
     </properties>
 
     <dependencyManagement>
@@ -34,6 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -44,7 +46,7 @@
 
     <modules>
         <module>copilot-backend</module>
-        <module>langchain4j-agents</module>
+        <module>springai-agents</module>
         <module>copilot-common</module>
     </modules>
 
