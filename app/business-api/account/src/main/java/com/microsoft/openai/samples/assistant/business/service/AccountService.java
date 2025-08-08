@@ -39,7 +39,7 @@ public class AccountService {
                 "2022-01-01",
                 "10000",
                 Arrays.asList(new PaymentMethodSummary("345678", "BankTransfer", "2022-01-01", "9999-01-01"),
-                              new PaymentMethodSummary("55555", "Visa", "2022-01-01", "2026-01-01"))));
+                              new PaymentMethodSummary("55555", "Visa", "2024-01-01", "2028-01-01"))));
         this.accounts.put("1020", new Account(
                 "1020",
                 "charlie.user@contoso.com",
@@ -69,11 +69,11 @@ public class AccountService {
 
     public PaymentMethod getPaymentMethodDetails(String paymentMethodId) {
         if (paymentMethodId == null || paymentMethodId.isEmpty())
-            throw new IllegalArgumentException("AccountId is empty or null");
+            throw new IllegalArgumentException("Payment Method id is empty or null");
         try {
             Integer.parseInt(paymentMethodId);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("AccountId is not a valid number");
+            throw new IllegalArgumentException("Payment Method id is not a valid number");
         }
         // Return account data from the map
         return this.paymentMethods.get(paymentMethodId);
