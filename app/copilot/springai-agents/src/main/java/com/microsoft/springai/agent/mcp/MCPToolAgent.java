@@ -25,8 +25,6 @@ public abstract class MCPToolAgent extends AbstractReActAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCPToolAgent.class);
 
     protected List<ToolCallback> toolSpecifications;
-    //TODO: check if extendedExecutorMap is needed
-    //protected  Map<String, ToolExecutor> extendedExecutorMap;
     protected List<McpSyncClient> mcpClients;
     protected Map<String, McpSyncClient> tool2ClientMap;
 
@@ -35,7 +33,6 @@ public abstract class MCPToolAgent extends AbstractReActAgent {
         this.mcpClients = new ArrayList<>();
         this.tool2ClientMap = new HashMap<>();
         this.toolSpecifications = new ArrayList<>();
-        //this.extendedExecutorMap = new HashMap<>();
 
         mcpServerMetadata.forEach(metadata -> {
             //only SSE is supported
@@ -96,7 +93,6 @@ public abstract class MCPToolAgent extends AbstractReActAgent {
 
     @Override
     protected ToolExecutionResult executeToolRequests(ChatResponse chatResponse, Prompt prompt, ToolCallingManager toolCallingManager) {
-        ToolExecutionResult toolExecutionResult = toolCallingManager.executeToolCalls(prompt, chatResponse);
-        return toolExecutionResult;
+        return toolCallingManager.executeToolCalls(prompt, chatResponse);
     }
 }
