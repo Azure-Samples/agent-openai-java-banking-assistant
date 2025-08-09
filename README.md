@@ -19,7 +19,7 @@ products:
 - azure-monitor
 - azure-pipelines
 urlFragment: agent-openai-java-banking-assistant
-name: Multi Agents Banking Assistant with Java and Langchain4j
+name: Multi Agents Banking Assistant with Java and Spring AI
 description: A Java sample app emulating a personal banking AI-powered assistant to inquire about account balances, review recent transactions, or initiate payments
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
@@ -28,7 +28,7 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 
 ![](./docs/assets/robot-agents-small.png)
 
-# Multi Agent Banking Assistant with Java and [Langchain4j]
+# Multi Agent Banking Assistant with Java and [Spring AI]
 
 [![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/azure-samples/agent-openai-java-banking-assistant/azure-dev.yaml?style=flat-square&label=Build)](https://github.com/azure-samples/agent-openai-java-banking-assistant/actions)
@@ -60,7 +60,7 @@ Invoices samples are included in the data folder to make it easy to explore paym
 This project provides the following features and technical patterns:
  - Simple multi-agent supervisor architecture using **gpt-4o-mini** or **gpt-4o** on Azure Open AI.
  - Exposing your business API as MCP tools for your agents using [spring-ai-mcp](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html)
- - Agents tools configuration and automatic tools invocations with [Langchain4j](https://github.com/langchain4j/langchain4j).
+ - Agents tools configuration and automatic tools invocations with [Spring AI](https://docs.spring.io/spring-ai/reference/index.html).
  - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
  - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
  - Add a copilot app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
@@ -72,10 +72,10 @@ For complex agents conversation implementation, read more about [Autogen framewo
 ![HLA](docs/assets/HLA-MCP.png)
 The personal banking assistant is designed as a [vertical multi-agent system](./docs/multi-agents/introduction.md), with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
 
-- **Copilot Assistant Copilot App (Microservice)**: Serves as the central hub for processing user requests. It's a spring boot application implementing a vertical multi-agent architectures using **langchain4j** to create Agents equipped with tools. in Java the Agent Router to understand user intent from chat interactions and routes the request to the appropriate domain-specific agent.
+- **Copilot Assistant Copilot App (Microservice)**: Serves as the central hub for processing user requests. It's a spring boot application implementing a vertical multi-agent architectures using **Spring AI** to create Agents equipped with tools. in Java the Agent Router to understand user intent from chat interactions and routes the request to the appropriate domain-specific agent.
     - **Supervisor Agent**: Acts as a user proxy, interpreting user intent based on chat inputs and directing the request to the specific domain agent. This component ensures that user queries are efficiently handled by the relevant agent. Agents are engaged byt the supervisor in a single turn conversation meaning that only one is selected by the supervisor to answer to user task. It’s just doing routing logic, assuming the domain agent will either carry-on the task in one shot or will involve user feedback if data oversight or action approval (like payment submit) is required.
     
-    - **Account Agent**: Specializes in handling tasks related to banking account information, credit balance, and registered payment methods. It leverages specific Account service APIs to fetch and manage account-related data. Semantic Kernel HTTP plugin is used to create a tool definition from the rest api yaml contract (Open API specification) and automatically call the HTTP endpoint with input parameters extracted by gpt4 model from the chat conversation.
+    - **Account Agent**: Specializes in handling tasks related to banking account information, credit balance, and registered payment methods. It leverages specific Account service APIs to fetch and manage account-related data.
 
     - **Transactions Agent**: Focuses on tasks related to querying user bank movements, including income and outcome payments. This agent accesses account api to retrieve accountid and transaction history service to search for transactions and present them to the user.
 
@@ -393,4 +393,4 @@ trademarks or logos is subject to and must follow
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
 
-[Langchain4j]: https://github.com/langchain4j/langchain4j
+[Spring AI](https://docs.spring.io/spring-ai/reference/index.html)
