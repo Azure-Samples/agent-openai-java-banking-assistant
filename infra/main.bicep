@@ -86,8 +86,6 @@ param accountAppExists bool = false
 param paymentAppExists bool = false
 param transactionAppExists bool = false
 
-@description('Use Application Insights for monitoring and performance tracing')
-param useApplicationInsights bool = false
 
 var abbrs = loadJsonContent('shared/abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -115,7 +113,7 @@ resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' ex
 }
 
 // Monitor application with Azure Monitor
-module monitoring 'shared/monitor/monitoring.bicep' = if (useApplicationInsights) {
+module monitoring 'shared/monitor/monitoring.bicep' = {
   name: 'monitoring'
   scope: resourceGroup
   params: {
@@ -178,16 +176,25 @@ module copilot 'app/copilot.bicep' = {
         value: documentIntelligence.outputs.name
       }
       {
-        name: 'TRANSACTIONS_API_SERVER_URL'
+        name: 'TRANSACTION_MCP_URL'
         value: transaction.outputs.SERVICE_API_URI
       }
       {
-        name: 'PAYMENTS_API_SERVER_URL'
+        name: 'PAYMENT_MCP_URL'
         value: payment.outputs.SERVICE_API_URI
       }
       {
-        name: 'ACCOUNTS_API_SERVER_URL'
-        value: account.outputs.SERVICE_API_URI}
+        name: 'ACCOUNT_MCP_URL'
+        value: account.outputs.SERVICE_API_URI
+      }
+      {
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+        value: monitoring.outputs.applicationInsightsInstrumentationKey
+      }
+      {
+        name: 'SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE'
+        value: true
+      }
      
     ]
   }
@@ -229,7 +236,7 @@ module transaction 'app/transaction.bicep' = {
   }
 }
 
-// Business Transactions Api
+// Business Payment Api
 module payment 'app/payment.bicep' = {
   name: 'payment'
   scope: resourceGroup

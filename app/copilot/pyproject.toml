@@ -1,0 +1,38 @@
+[project]
+name = "banking-assistant-copilot-backend"
+version = "0.1.0"
+description = "A multi-agent orchestration exposed as chat service for banking assistant frontend"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "fastapi[all]==0.116.1",
+    "uvicorn==0.35.0",
+    "httpx==0.28.1",
+    "semantic-kernel==1.36.2",
+    "azure-identity==1.24.0",
+    "azure-storage-blob==12.26.0",
+    "azure-ai-documentintelligence==1.0.1",
+    "dependency-injector==4.48.1",
+    "mcp==1.13.1",
+    # OpenTelemetry
+    "opentelemetry-api==1.36.0",
+    "opentelemetry-sdk==1.36.0",
+    "azure-monitor-opentelemetry-exporter==1.0.0b41",
+    "azure-core-tracing-opentelemetry==1.0.0b12",
+    "prance==25.4.8.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.1",
+    "pytest-asyncio==1.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

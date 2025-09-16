@@ -19,6 +19,7 @@ import java.util.Map;
 
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
+import io.modelcontextprotocol.client.transport.HttpClientStreamableHttpTransport;
 import io.modelcontextprotocol.spec.McpClientTransport;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
@@ -33,7 +34,7 @@ public class AccountMCPClient {
 
 
 	public static void main(String[] args) {
-		var transport = new HttpClientSseClientTransport("http://localhost:8070");
+		 var transport = HttpClientStreamableHttpTransport.builder("http://localhost:8070").build();
 
 		var client = McpClient.sync(transport).build();
 

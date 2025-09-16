@@ -6,7 +6,7 @@ metadata:
 services:
   copilot:
     project: app/copilot
-    language: java
+    language: python
     host: containerapp
     docker:
       remoteBuild: true

@@ -1,0 +1,87 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "AccountMCPClient",
+            "request": "launch",
+            "mainClass": "org.springframework.ai.mcp.sample.client.AccountMCPClient",
+            "projectName": "account"
+        },
+        {
+            "type": "java",
+            "name": "Debug AccountApplication (dev)",
+            "request": "launch",
+            "mainClass": "com.microsoft.openai.samples.assistant.business.AccountApplication",
+            "projectName": "account",
+            "cwd": "${workspaceFolder}/app/business-api/account",
+            "env": {
+                "spring_profiles_active": "dev"
+            },
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Debug PaymentApplication (dev)",
+            "request": "launch",
+            "mainClass": "com.microsoft.openai.samples.assistant.business.PaymentApplication",
+            "projectName": "payment",
+            "cwd": "${workspaceFolder}/app/business-api/payment",
+            "env": {
+                "spring_profiles_active": "dev"
+            },
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Debug TransactionsHistoryApplication (dev)",
+            "request": "launch",
+            "mainClass": "com.microsoft.openai.samples.assistant.business.TransactionsHistoryApplication",
+            "projectName": "transactions-history",
+            "cwd": "${workspaceFolder}/app/business-api/transactions-history",
+            "env": {
+                "spring_profiles_active": "dev"
+            },
+            "console": "integratedTerminal"
+        },
+       
+        {
+            "name": "FastAPI: DEV Debug Copilot App",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--port", "8080"
+            ],
+            "env": {
+                "PROFILE": "dev",
+                "SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE": "true"
+            },
+            "jinja": true,
+            "cwd": "${workspaceFolder}/app/copilot",
+            "justMyCode": false
+
+        },
+        {
+            "name": "FastAPI: No Profile Debug Copilot App",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--port", "8080"
+            ],
+            "env": {
+                "SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE": "true"
+            },
+            "jinja": true,
+            "cwd": "${workspaceFolder}/app/copilot",
+            "justMyCode": false
+
+        }
+    ]
+}
