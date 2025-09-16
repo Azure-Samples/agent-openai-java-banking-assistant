@@ -28,7 +28,7 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 
 ![](./docs/assets/robot-agents-small.png)
 
-# Multi Agent Banking Assistant with Java and [Langchain4j]
+# Multi Agent Banking Assistant with Python and Semantic Kernel Agent Framework
 
 [![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/azure-samples/agent-openai-java-banking-assistant/azure-dev.yaml?style=flat-square&label=Build)](https://github.com/azure-samples/agent-openai-java-banking-assistant/actions)
@@ -44,9 +44,6 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 ![](./docs/assets/ui.gif)
 </div>
 
-> [!NOTE]  
-> Java Semantic Kernel version has been moved in a dedicated [branch](https://github.com/Azure-Samples/agent-openai-java-banking-assistant/tree/semantic-kernel)
-
 
 
 ## Overview
@@ -60,13 +57,12 @@ Invoices samples are included in the data folder to make it easy to explore paym
 This project provides the following features and technical patterns:
  - Simple multi-agent supervisor architecture using **gpt-4o-mini** or **gpt-4o** on Azure Open AI.
  - Exposing your business API as MCP tools for your agents using [spring-ai-mcp](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html)
- - Agents tools configuration and automatic tools invocations with [Langchain4j](https://github.com/langchain4j/langchain4j).
+ - Agents tools configuration and automatic tools invocations with [Semantic Kernel - Agent Framework](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/?pivots=programming-language-python).
  - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
  - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
  - Add a copilot app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
  - Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
 
-For complex agents conversation implementation, read more about [Autogen framework](https://github.com/microsoft/autogen).
 
 ### Architecture
 ![HLA](docs/assets/HLA-MCP.png)
