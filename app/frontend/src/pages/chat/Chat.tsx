@@ -45,6 +45,7 @@ const Chat = () => {
     const [useSuggestFollowupQuestions, setUseSuggestFollowupQuestions] = useState<boolean>(false);
     const [useOidSecurityFilter, setUseOidSecurityFilter] = useState<boolean>(false);
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
+    const [threadId, setThreadId] = useState<string | undefined>(undefined);
 
     const lastQuestionRef = useRef<string>("");
     const lastAttachementsRef = useRef<string[] | null>([]);
@@ -139,7 +140,8 @@ const Chat = () => {
                 },
                 approach: approach,
                 // ChatAppProtocol: Client must pass on any session state received from the server
-                session_state: answers.length ? answers[answers.length - 1][2].choices[0].session_state : null
+                session_state: answers.length ? answers[answers.length - 1][2].choices[0].session_state : null,
+                threadId: threadId
             };
 
             const response = await chatApi(request, token?.accessToken);
@@ -149,12 +151,14 @@ const Chat = () => {
             if (stream) {
                 const parsedResponse: ChatAppResponse = await handleAsyncRequest(questionContext.question,questionContext.attachments || [], answers, setAnswers, response.body);
                 setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse]]);
+                setThreadId(parsedResponse.threadId || undefined);
             } else {
                 const parsedResponse: ChatAppResponseOrError = await response.json();
                 if (response.status > 299 || !response.ok) {
                     throw Error(parsedResponse.error || "Unknown error");
                 }
                 setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse as ChatAppResponse]]);
+                setThreadId((parsedResponse as ChatAppResponse).threadId || undefined);
             }
         } catch (e) {
             setError(e);
@@ -173,6 +177,7 @@ const Chat = () => {
         setStreamedAnswers([]);
         setIsLoading(false);
         setIsStreaming(false);
+        setThreadId(undefined);
     };
 
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "smooth" }), [isLoading]);

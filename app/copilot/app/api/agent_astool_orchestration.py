@@ -1,13 +1,8 @@
 from app.models.chat import ChatMessage, ChatAppRequest, ChatResponse
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.agents import ChatHistoryAgentThread, GroupChatOrchestration, OrchestrationHandoffs
 from dependency_injector.wiring import Provide, inject
-from app.agents.account_agent import AccountAgent
-from app.agents.transactions_agent import TransactionHistoryAgent
-from app.agents.payment_agent import PaymentAgent
-from app.agents.supervisor_agent import SupervisorAgent
-from semantic_kernel.agents.runtime import InProcessRuntime
-from semantic_kernel.contents.chat_message_content import ChatMessageContent
+from app.agents.foundry.supervisor_agent_foundry import SupervisorAgent
+
+from agent_framework import AgentThread
 from app.config.observability import enable_trace
 
 import logging
@@ -19,12 +14,21 @@ class SupervisorOrchestrationService:
 
     self.supervisorAgent = supervisorAgent
 
-   @enable_trace
-   async def processMessage(self, thread : ChatHistoryAgentThread | None) -> str:
-        """Process a chat message using the injected Azure Chat Completion service."""
 
-        sk_supervisor_agent =  await self.supervisorAgent.build_sk_agent()
+   async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
+        """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
 
-        response = await sk_supervisor_agent.get_response(thread=thread)
+        thread = None
 
-        return response.content.content
+        if thread_id is None:
+            thread = AgentThread()
+        else:
+            thread = AgentThread(service_thread_id=thread_id)
+
+        await self.supervisorAgent.set_active_thread(thread)
+
+        supervisor_agent_ag =  await self.supervisorAgent.build_af_agent()
+
+        response = await supervisor_agent_ag.run(user_message, thread=thread)
+
+        return response.text, thread.service_thread_id

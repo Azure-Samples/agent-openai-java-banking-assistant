@@ -1,20 +1,19 @@
 from azure.core.credentials import TokenCredential
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
-from semantic_kernel.agents import ChatCompletionAgent, Agent
-from semantic_kernel.functions.kernel_plugin import KernelPlugin
-from semantic_kernel.connectors.mcp import MCPPluginBase
-from semantic_kernel.functions import KernelArguments
+from agent_framework.foundry import FoundryChatClient
+from azure.ai.projects import AIProjectClient
+from agent_framework import ChatAgent, MCPStreamableHTTPTool
 from app.helpers.document_intelligence_scanner import DocumentIntelligenceInvoiceScanHelper
-import logging
+from app.config.azure_credential import get_azure_credential_async
 from datetime import datetime
+
+import logging
 
 
 logger = logging.getLogger(__name__)
 
 class PaymentAgent :
     instructions = """
-   you are a personal financial advisor who help the user with their recurrent bill payments. The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking transactions history for a specific payee.
+    you are a personal financial advisor who help the user with their recurrent bill payments. The user may want to pay the bill uploading a photo of the bill, or it may start the payment checking transactions history for a specific payee.
         For the bill payment you need to know the: bill id or invoice number, payee name, the total amount.
         If you don't have enough information to pay the bill ask the user to provide the missing information.
         If the user submit a photo, always ask the user to confirm the extracted data from the photo.
@@ -28,9 +27,9 @@ class PaymentAgent :
         If the payment succeeds provide the user with the payment confirmation. If not provide the user with the error message.
         Use HTML list or table to display bill extracted data, payments, account or transaction details.
         Always use the below logged user details to retrieve account info:
-       '{{$user_mail}}'
+       {user_mail}
         Current timestamp:
-       '{{$current_date_time}}'
+       {current_date_time}
         Don't try to guess accountId,paymentMethodId from the conversation.When submitting payment always use functions to retrieve accountId, paymentMethodId.
         
         ### Output format
@@ -66,39 +65,50 @@ class PaymentAgent :
         
         """
     name = "PaymentAgent"
-    description = "This agent manages user payments related information such as submitting payment requests."
+    description = "This agent manages user payments related information such as submitting payment requests and bill payments."
 
-    def __init__(self, chatCompletionService: AzureChatCompletion, 
-                 account_mcp_plugin: MCPPluginBase, 
-                 transaction_mcp_plugin: MCPPluginBase, 
-                 payment_mcp_plugin: MCPPluginBase,
-                scan_invoice_helper: DocumentIntelligenceInvoiceScanHelper  ):
-        self.chatCompletionService = chatCompletionService
-        self.account_mcp_plugin = account_mcp_plugin
-        self.transaction_mcp_plugin = transaction_mcp_plugin
-        self.payment_mcp_plugin = payment_mcp_plugin
-        self.scan_invoice_helper = scan_invoice_helper
-
-
-    async def build_sk_agent(self)-> Agent:
-    
-      logger.info("Initializing MCP connection for payment api ")
-      # This is just an hack to make it work withoun running the whole orchestration 
-      # logic in 1 big async with block.
-      # I'm not sure when __aexit__ should be called here. I guess we should expose exit/dispose method
-      # on the agent and call it when the agent is not needed anymore.
-      await self.account_mcp_plugin.__aenter__()
-      await self.transaction_mcp_plugin.__aenter__()
-      await self.payment_mcp_plugin.__aenter__()
-
-   
-    #get the current time and date in python
-      current_date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      argument_overrides = KernelArguments(user_mail="bob.user@contoso.com",current_date_time=current_date_time)
-      return ChatCompletionAgent(
-            service=self.chatCompletionService,
-            name=PaymentAgent.name,
-            instructions=PaymentAgent.instructions,
-            plugins=[self.account_mcp_plugin,self.transaction_mcp_plugin,self.payment_mcp_plugin,self.scan_invoice_helper],
-            arguments=argument_overrides
+    def __init__(self, foundry_project_client: AIProjectClient,
+                  chat_deployment_name:str,
+                  account_mcp_server: MCPStreamableHTTPTool,
+                  transaction_mcp_server: MCPStreamableHTTPTool,
+                  payment_mcp_server: MCPStreamableHTTPTool,
+                  document_scanner_helper : DocumentIntelligenceInvoiceScanHelper,
+                  foundry_endpoint: str  ):
+        self.foundry_project_client = foundry_project_client
+        self.account_mcp_server = account_mcp_server
+        self.transaction_mcp_server = transaction_mcp_server
+        self.payment_mcp_server = payment_mcp_server    
+        self.foundry_endpoint = foundry_endpoint
+        self.document_scanner_helper = document_scanner_helper
+        
+        self.created_agent = foundry_project_client.agents.create_agent(
+            model=chat_deployment_name, name=PaymentAgent.name, description=PaymentAgent.description
         )
+
+
+    async def build_af_agent(self)-> ChatAgent:
+    
+      logger.info("Building request scoped transaction agent run ")
+      
+      user_mail="bob.user@contoso.com"
+      current_date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+      full_instruction = PaymentAgent.instructions.format(user_mail=user_mail, current_date_time=current_date_time)
+
+      credential = await get_azure_credential_async()  
+      
+      
+      logger.info("Initializing Account MCP server tools ")
+      await self.account_mcp_server.__aenter__()
+      
+      logger.info("Initializing Transaction MCP server tools ")
+      await self.transaction_mcp_server.__aenter__()
+
+      logger.info("Initializing Payment  MCP server tools ")
+      await self.payment_mcp_server.__aenter__()
+
+      chat_agent =  ChatAgent(
+            chat_client=FoundryChatClient(project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
+            instructions=full_instruction,
+            tools=[self.account_mcp_server,self.transaction_mcp_server,self.payment_mcp_server,self.document_scanner_helper.scan_invoice_plugin]
+        ) 
+      return chat_agent

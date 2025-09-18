@@ -59,7 +59,9 @@
             ],
             "env": {
                 "PROFILE": "dev",
-                "SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE": "true"
+                "AGENT_FRAMEWORK_ENABLE_OTEL": "true",
+                "AGENT_FRAMEWORK_ENABLE_SENSITIVE_DATA": "true",
+                "AGENT_FRAMEWORK_MONITOR_CONNECTION_STRING": "InstrumentationKey=19cfd90c-d8bf-48d8-9a4d-f14c9e1d5d80;IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/;ApplicationId=af7357f1-f38d-4969-a17f-7e3a9efe8bd1"
             },
             "jinja": true,
             "cwd": "${workspaceFolder}/app/copilot",
@@ -76,7 +78,7 @@
                 "--port", "8080"
             ],
             "env": {
-                "SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE": "true"
+                "AGENT_FRAMEWORK_ENABLE_OTEL": "true"
             },
             "jinja": true,
             "cwd": "${workspaceFolder}/app/copilot",

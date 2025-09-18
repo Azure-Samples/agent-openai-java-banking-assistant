@@ -34,3 +34,4 @@ class ChatChoice(BaseModel):
 
 class ChatResponse(BaseModel):
     choices: List[ChatChoice]
+    threadId: str

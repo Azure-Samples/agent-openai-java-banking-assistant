@@ -133,10 +133,6 @@ def setup_logging(profile: Optional[str] = None) -> None:
         else:
             print("Logging configured with default settings")
 
-        # If app insights is enabled configure azure monitoring logging
-        if settings.APPLICATIONINSIGHTS_CONNECTION_STRING:
-            print("Configuring Azure Monitor logging..")
-            _setup_azure_monitoring_logging()
     except Exception as e:
         print(f"Error configuring logging: {e}")
         # Fallback to basic configuration

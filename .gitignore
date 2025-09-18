@@ -1,6 +1,7 @@
 # Azure az webapp deployment details
 .azure
 *_env
+.agent-framework-venv
 
 # Java IDE
 .idea

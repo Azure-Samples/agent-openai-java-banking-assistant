@@ -7,7 +7,6 @@ client using the application's credential strategy.
 import logging
 from typing import Dict, Optional, Annotated
 from pathlib import Path
-from semantic_kernel.functions import kernel_function
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
 from app.config.settings import settings
@@ -145,21 +144,12 @@ class DocumentIntelligenceInvoiceScanHelper:
 
         return scan_data
 
-    @kernel_function(description="Extract the invoice or bill data scanning a photo or image")
+    #@kernel_function(description="Extract the invoice or bill data scanning a photo or image")
     def scan_invoice_plugin(
         self, 
         blob_name: Annotated[str, "the path to the file containing the image or photo"]
     ) -> Annotated[str, "Returns a JSON string containing extracted invoice fields like VendorName, CustomerName, InvoiceId, InvoiceDate, and InvoiceTotal"]:
-        """Semantic Kernel plugin function to scan invoice documents.
-        
-        This function exposes the scan method as a Semantic Kernel plugin,
-        allowing it to be used by AI agents for invoice processing.
-        
-        Args:
-            blob_name: Name of the blob containing the invoice document
-            
-        Returns:
-            JSON string representation of extracted invoice fields
+        """function to scan invoice and bill documents and extract relevant fields.
         """
         import json
         

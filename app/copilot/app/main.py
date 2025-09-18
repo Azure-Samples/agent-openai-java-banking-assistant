@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import auth_routers, chat_routers, content_routers, agent_handoff_orchestration
+from app.api import auth_routers, chat_routers, content_routers
 from app.config.settings import settings
 from app.config.logging import get_logger, setup_logging
 from app.config.observability import set_up_tracing
@@ -15,9 +15,6 @@ def create_app() -> FastAPI:
     # Get logger for this module
     logger = get_logger(__name__)
 
-    if settings.APPLICATIONINSIGHTS_CONNECTION_STRING:
-        logger.info("Setting up tracing with Azure Monitor...")
-       # set_up_tracing()
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     
@@ -27,7 +24,7 @@ def create_app() -> FastAPI:
     container = Container()
     
     # Wire dependencies to modules that need them
-    container.wire(modules=[agent_handoff_orchestration,chat_routers,content_routers])
+    container.wire(modules=[chat_routers,content_routers])
     
     # Store container in app state for potential cleanup
     app.state.container = container

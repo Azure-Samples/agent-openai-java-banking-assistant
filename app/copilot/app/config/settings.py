@@ -46,11 +46,14 @@ class Settings(BaseSettings):
     SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS : bool = Field(default=True)
     SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE : bool = Field(default=False)
   
-    # Azure AI services configuration
+    # Azure AI Foundry configuration
     # maps to environment variables described by the user
-    AZURE_OPENAI_SERVICE: str | None = Field(default=None)
-    AZURE_OPENAI_CHATGPT_DEPLOYMENT: str = Field(default="gpt-4o")
+
     AZURE_DOCUMENT_INTELLIGENCE_SERVICE: str | None = Field(default=None)
+    FOUNDRY_PROJECT_ENDPOINT: str  = Field(default="",description="Azure AI Foundry Project Endpoint (required)", min_length=1)
+    FOUNDRY_MODEL_DEPLOYMENT_NAME: str = Field(default="gpt-4o")
+    AZURE_OPENAI_ENDPOINT: str | None = Field(default=None)
+    AZURE_OPENAI_CHAT_DEPLOYMENT_NAME: str = Field(default="gpt-4o")
 
     # Azure services
     AZURE_STORAGE_ACCOUNT: str | None = Field(default=None)
