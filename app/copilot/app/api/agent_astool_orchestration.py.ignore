@@ -27,7 +27,7 @@ class SupervisorOrchestrationService:
 
         await self.supervisorAgent.set_active_thread(thread)
 
-        supervisor_agent_ag =  await self.supervisorAgent.build_af_agent()
+        supervisor_agent_ag =  await self.supervisorAgent.build_af_agent(thread_id)
 
         response = await supervisor_agent_ag.run(user_message, thread=thread)
 

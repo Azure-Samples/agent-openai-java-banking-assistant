@@ -27,19 +27,19 @@ class TransactionHistoryAgent :
 
     def __init__(self, foundry_project_client: AIProjectClient, 
                  chat_deployment_name:str,
-                 account_mcp_server: MCPStreamableHTTPTool,
-                 transaction_mcp_server: MCPStreamableHTTPTool,
+                 account_mcp_server_url: str,
+                 transaction_mcp_server_url: str,
                  foundry_endpoint: str  ):
         self.foundry_project_client = foundry_project_client
-        self.account_mcp_server = account_mcp_server
-        self.transaction_mcp_server = transaction_mcp_server
+        self.account_mcp_server_url = account_mcp_server_url
+        self.transaction_mcp_server_url = transaction_mcp_server_url
         self.foundry_endpoint = foundry_endpoint
         self.created_agent = foundry_project_client.agents.create_agent(
             model=chat_deployment_name, name=TransactionHistoryAgent.name, description=TransactionHistoryAgent.description
         )
 
 
-    async def build_af_agent(self)-> ChatAgent:
+    async def build_af_agent(self, thread_id: str | None) -> ChatAgent:
     
       logger.info("Building request scoped transaction agent run ")
       
@@ -50,14 +50,23 @@ class TransactionHistoryAgent :
       credential = await get_azure_credential_async()  
     
       logger.info("Initializing Account MCP server tools ")
-      await self.account_mcp_server.__aenter__()
+      #await self.account_mcp_server.__aenter__()
+      account_mcp_server = MCPStreamableHTTPTool(
+        name="Account MCP server client",
+        url=self.account_mcp_server_url
+     )
+      await account_mcp_server.connect()
      
       logger.info("Initializing Transaction MCP server tools ")
-      await self.transaction_mcp_server.__aenter__()
-      
+      transaction_mcp_server = MCPStreamableHTTPTool(
+        name="Transaction MCP server client",
+        url=self.transaction_mcp_server_url
+     )
+      await transaction_mcp_server.connect()
+
       chat_agent =  ChatAgent(
-            chat_client=FoundryChatClient(project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
+            chat_client=FoundryChatClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
             instructions=full_instruction,
-            tools=[self.account_mcp_server, self.transaction_mcp_server]
+            tools=[account_mcp_server, transaction_mcp_server]
         ) 
       return chat_agent

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Any
+from app.agents.foundry.supervisor_agent_foundry import SupervisorAgent
 from app.models.chat import ChatMessage, ChatAppRequest, ChatResponse, ChatResponseMessage, ChatChoice, ChatContext, ChatDelta
-from app.api.agent_astool_orchestration import SupervisorOrchestrationService
 from dependency_injector.wiring import Provide, inject
 from app.config.container import Container
 from app.config.observability import enable_trace
@@ -44,7 +44,7 @@ def _convert_string_to_chat_response(content: str, thread_id: str | None) -> Cha
 
 @router.post("/chat", response_model=ChatResponse)
 @inject
-async def chat(chat_request: ChatAppRequest, orchestration_service : SupervisorOrchestrationService = Depends(Provide[Container.supervisor_orchestration_service])):
+async def chat(chat_request: ChatAppRequest, supervisor_agent : SupervisorAgent = Depends(Provide[Container.supervisor_agent])):
     if chat_request.stream:
         raise HTTPException(status_code=400, detail="Requested application/json but also requested streaming. Use application/ndjson.")
     if not chat_request.messages:
@@ -58,7 +58,7 @@ async def chat(chat_request: ChatAppRequest, orchestration_service : SupervisorO
         last_message.content += " " + ",".join(last_message.attachments)
 
     # Use the agent orchestration service with dependency injection
-    response_content, thread_id = await orchestration_service.processMessage(last_message.content, chat_request.threadId)
+    response_content, thread_id = await supervisor_agent.processMessage(last_message.content, chat_request.threadId)
     
     # Convert string response to structured ChatResponse
     return _convert_string_to_chat_response(response_content,thread_id)

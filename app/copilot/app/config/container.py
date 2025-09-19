@@ -5,7 +5,6 @@ from dependency_injector import containers, providers
 from azure.ai.projects import AIProjectClient
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.storage.blob import BlobServiceClient
-from app.api.agent_astool_orchestration import SupervisorOrchestrationService
 from app.helpers.blob_proxy import BlobStorageProxy
 from app.helpers.document_intelligence_scanner import DocumentIntelligenceInvoiceScanHelper
 from app.config.azure_credential import get_azure_credential, get_azure_credential_async
@@ -60,20 +59,20 @@ class Container(containers.DeclarativeContainer):
     #MCP plugin need to be initialized using an async __aenter__ method and disposed using __aexit__
     #We will use it as a singleton for now, and let the agent to call __aenter__ when building the agent.
     # TO_DO Need to understand when to call __aexit__ for each plugin
-    account_mcp_server = MCPStreamableHTTPTool(
-        name="Account MCP server client",
-        url=f"{settings.ACCOUNT_MCP_URL}/mcp"
-    )
+    # account_mcp_server = MCPStreamableHTTPTool(
+    #     name="Account MCP server client",
+    #     url=f"{settings.ACCOUNT_MCP_URL}/mcp"
+    # )
 
-    transaction_mcp_server = MCPStreamableHTTPTool(
-        name="Transaction MCP server client",
-        url=f"{settings.TRANSACTION_MCP_URL}/mcp"
-    )
+    # transaction_mcp_server = MCPStreamableHTTPTool(
+    #     name="Transaction MCP server client",
+    #     url=f"{settings.TRANSACTION_MCP_URL}/mcp"
+    # )
 
-    payment_mcp_server = MCPStreamableHTTPTool(
-        name="Payment MCP server client",
-        url=f"{settings.PAYMENT_MCP_URL}/mcp"
-    )
+    # payment_mcp_server = MCPStreamableHTTPTool(
+    #     name="Payment MCP server client",
+    #     url=f"{settings.PAYMENT_MCP_URL}/mcp"
+    # )
     
     #Azure Agent Service based agents
 
@@ -85,7 +84,7 @@ class Container(containers.DeclarativeContainer):
         AccountAgent,
         foundry_project_client=_foundry_project_client,
         chat_deployment_name=settings.FOUNDRY_MODEL_DEPLOYMENT_NAME,
-        account_mcp_server=account_mcp_server,
+        account_mcp_server_url=f"{settings.ACCOUNT_MCP_URL}/mcp",
         foundry_endpoint=settings.FOUNDRY_PROJECT_ENDPOINT
     )
 
@@ -94,8 +93,8 @@ class Container(containers.DeclarativeContainer):
         TransactionHistoryAgent,
         foundry_project_client=_foundry_project_client,
         chat_deployment_name=settings.FOUNDRY_MODEL_DEPLOYMENT_NAME,
-        account_mcp_server=account_mcp_server,
-        transaction_mcp_server=transaction_mcp_server,
+        account_mcp_server_url=f"{settings.ACCOUNT_MCP_URL}/mcp",
+        transaction_mcp_server_url=f"{settings.TRANSACTION_MCP_URL}/mcp",
         foundry_endpoint=settings.FOUNDRY_PROJECT_ENDPOINT
     )
 
@@ -104,9 +103,9 @@ class Container(containers.DeclarativeContainer):
         PaymentAgent,
         foundry_project_client=_foundry_project_client,
         chat_deployment_name=settings.FOUNDRY_MODEL_DEPLOYMENT_NAME,
-        account_mcp_server=account_mcp_server,
-        transaction_mcp_server=transaction_mcp_server,
-        payment_mcp_server=payment_mcp_server,
+        account_mcp_server_url=f"{settings.ACCOUNT_MCP_URL}/mcp",
+        transaction_mcp_server_url=f"{settings.TRANSACTION_MCP_URL}/mcp",
+        payment_mcp_server_url=f"{settings.PAYMENT_MCP_URL}/mcp",
         document_scanner_helper=document_intelligence_scanner,
         foundry_endpoint=settings.FOUNDRY_PROJECT_ENDPOINT
     )
@@ -177,9 +176,9 @@ class Container(containers.DeclarativeContainer):
 
 
 
-    supervisor_orchestration_service = providers.Factory(
-        SupervisorOrchestrationService,
-        supervisorAgent=supervisor_agent)
+    # supervisor_orchestration_service = providers.Factory(
+    #     SupervisorOrchestrationService,
+    #     supervisorAgent=supervisor_agent)
     
 
    

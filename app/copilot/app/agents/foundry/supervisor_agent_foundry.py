@@ -26,7 +26,6 @@ class SupervisorAgent :
       - If the user request is related to initiate a payment request, upload a bill or invoice image for payment or manage an on-going payment process, you should route the request to PaymentAgent.
       - If the user request is not related to account, transactions or payments you should respond to the user that you are not able to help with the request.
 
-      
     """
     name = "SupervisorAgent"
     description = "This agent triages customer requests and routes them to the appropriate agent."
@@ -49,37 +48,53 @@ class SupervisorAgent :
       self.thread = AgentThread()
 
 
-
-    async def set_active_thread(self,thread: AgentThread):
-        self.thread = thread
-
-    async def build_af_agent(self)-> ChatAgent:
+    async def _build_af_agent(self, thread_id: str | None) -> ChatAgent:
       
       credential = await get_azure_credential_async()  
-      return ChatAgent(
-            chat_client=FoundryChatClient(project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.agent_id),
+      chat_agent = None
+      thread = None
+      if thread_id is None:
+          chat_agent = ChatAgent(
+            chat_client=FoundryChatClient( project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.agent_id),
             instructions=SupervisorAgent.instructions,
             tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent]
-        ) 
+          ) 
+          thread = chat_agent.get_new_thread()
+      else:
+         chat_agent = ChatAgent(
+            chat_client=FoundryChatClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.agent_id),
+            instructions=SupervisorAgent.instructions,
+            tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent]
+         ) 
+         thread = AgentThread(service_thread_id=thread_id) 
+      
+      self.thread = thread
+      return chat_agent
+    
+    async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
+      """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
 
+      agent = await self._build_af_agent(thread_id)
+      response = await agent.run(user_message, thread=self.thread)
+      return response.text, self.thread.service_thread_id
 
     async def route_to_account_agent(self, user_message: str) -> str:
        """ Route the conversation to Account Agent"""
-       af_account_agent = await self.account_agent.build_af_agent()
+       af_account_agent = await self.account_agent.build_af_agent(self.thread.service_thread_id)
 
        response = await af_account_agent.run(user_message, thread=self.thread)
        return response.text
     
     async def route_to_transaction_agent(self, user_message: str) -> str:
        """ Route the conversation to Transaction History Agent"""
-       af_transaction_agent = await self.transaction_agent.build_af_agent()
+       af_transaction_agent = await self.transaction_agent.build_af_agent(self.thread.service_thread_id)
 
        response = await af_transaction_agent.run(user_message, thread=self.thread)
        return response.text
     
     async def route_to_payment_agent(self, user_message: str) -> str:
        """ Route the conversation to Payment Agent"""
-       af_payment_agent = await self.payment_agent.build_af_agent()
+       af_payment_agent = await self.payment_agent.build_af_agent(self.thread.service_thread_id)
 
        response = await af_payment_agent.run(user_message, thread=self.thread)
        return response.text
