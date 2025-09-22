@@ -4,7 +4,7 @@ from azure.ai.projects import AIProjectClient
 from app.agents.foundry.account_agent_foundry import AccountAgent
 from app.agents.foundry.transaction_agent_foundry import TransactionHistoryAgent
 from app.agents.foundry.payment_agent_foundry import PaymentAgent
-from agent_framework import AgentThread
+from agent_framework import AgentThread, ChatMessageList
 from app.config.azure_credential import get_azure_credential_async
 import logging
 
@@ -70,9 +70,11 @@ class SupervisorAgent :
       
       self.thread = thread
       return chat_agent
-    
-    async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
-      """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
+
+    async def processMessage(self, user_message: str , thread_id : str | None, chat_message_list: ChatMessageList) -> tuple[str, str | None]:
+      """Process a chat message using the injected Azure Chat Completion service and return response and thread id.
+         Foundry based agents have built-in thread store implementation per thread id using cosmosdb.
+         chat_message_list is not used here but kept for interface consistency with azure chat based agents."""
 
       agent = await self._build_af_agent(thread_id)
       response = await agent.run(user_message, thread=self.thread)

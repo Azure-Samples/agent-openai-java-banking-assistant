@@ -1,8 +1,5 @@
-from azure.core.credentials import TokenCredential
 from agent_framework.azure import AzureChatClient
-from azure.ai.projects import AIProjectClient
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
-from app.config.azure_credential import get_azure_credential
 
 import logging
 
@@ -37,7 +34,7 @@ class AccountAgent :
             url=self.account_mcp_server_url)
       logger.info("Initializing Account MCP server tools ")
 
-      await account_mcp_server.__aenter__()
+      await account_mcp_server.connect()
       return self.azure_chat_client.create_agent(
            instructions=full_instruction,
            tools=[account_mcp_server])

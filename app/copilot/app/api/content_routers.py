@@ -4,7 +4,13 @@ from io import BytesIO
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.responses import StreamingResponse
 from dependency_injector.wiring import Provide, inject
-from app.config.container import Container
+
+# Foundry Agent based dependencies
+#from app.config.container_foundry import Container
+
+# Azure Chat based agents dependencies
+from app.config.container_azure_chat import Container
+
 from app.helpers.blob_proxy import BlobStorageProxy
 
 router = APIRouter()

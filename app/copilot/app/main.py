@@ -3,7 +3,10 @@ from app.api import auth_routers, chat_routers, content_routers
 from app.config.settings import settings
 from app.config.logging import get_logger, setup_logging
 from app.config.observability import set_up_tracing
-from app.config.container import Container
+# Foundry based dependency injection container
+#from app.config.container_foundry import Container
+# Azure Chat based dependency injection container
+from app.config.container_azure_chat import Container
 
 
 

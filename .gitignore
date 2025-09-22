@@ -2,6 +2,7 @@
 .azure
 *_env
 .agent-framework-venv
+*.env
 
 # Java IDE
 .idea

@@ -49,7 +49,7 @@ loggers:
 
   # MCP client - set to DEBUG for detailed logging
   mcp.client.streamable_http:
-    level: DEBUG
+    level: INFO
     handlers: [console]
     propagate: false
 

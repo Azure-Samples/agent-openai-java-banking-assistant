@@ -20,11 +20,17 @@ param storageResourceGroupLocation string = location
 param storageContainerName string = 'content'
 param storageSkuName string // Set in main.parameters.json
 
-param openAiServiceName string = ''
-param openAiResourceGroupName string = ''
+@description('The Azure AI Foundry resource group name. If ommited will be the same as the main resource group')
+param foundryResourceGroupName string = ''
+@description('The Azure AI Foundry resource name. If ommited will be generated')
+param foundryResourceName string = ''
+@description('The Azure AI Foundry Project name. If ommited will be generated')
+param aiProjectName string = ''
+
+
 // Look for the desired model in availability table. Default model is gpt-4o-mini:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
-@description('Location for the OpenAI resource group')
+@description('Location for the Foundry resource group')
 @allowed([
   'australiaeast'
   'brazilsouth'
@@ -54,16 +60,22 @@ param openAiResourceGroupName string = ''
     type: 'location'
   }
 })
-param openAiResourceGroupLocation string = 'eastus'
-param customOpenAiResourceGroupLocation string = ''
+param foundryResourceGroupLocation string = 'eastus'
+param customFoundryResourceGroupLocation string = ''
 
-param openAiSkuName string = 'S0'
-param openAiDeploymentCapacity int = 30
-param chatGptDeploymentName string // Set in main.parameters.json
-param chatGptDeploymentCapacity int = 60
-param chatGptDeploymentSkuName string= 'Standard'
-param chatGptModelName string = 'gpt-4o-mini'
-param chatGptModelVersion string = '2024-07-18'
+@description('Array of models to deploy')
+param models array = [
+  {
+    deploymentName: 'gpt-4.1'
+    name: 'gpt-4.1'
+    format: 'OpenAI'
+    version: '2025-04-14'
+    skuName: 'GlobalStandard'
+    capacity: 120
+  }
+
+]
+
 
 param documentIntelligenceServiceName string = ''
 param documentIntelligenceResourceGroupName string = ''
@@ -98,8 +110,8 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
-  name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
+resource foundryResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(foundryResourceGroupName)) {
+  name: !empty(foundryResourceGroupName) ? foundryResourceGroupName : resourceGroup.name
 }
 
 resource documentIntelligenceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(documentIntelligenceResourceGroupName)) {
@@ -164,12 +176,12 @@ module copilot 'app/copilot.bicep' = {
       }
      
       {
-        name: 'AZURE_OPENAI_SERVICE'
-        value:  openAi.outputs.name
+        name: 'FOUNDRY_PROJECT_ENDPOINT'
+        value:  '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
       }
       {
-        name: 'AZURE_OPENAI_CHATGPT_DEPLOYMENT'
-        value: chatGptDeploymentName
+        name: 'FOUNDRY_MODEL_DEPLOYMENT_NAME'
+        value: models[0].deploymentName
       }
       {
         name: 'AZURE_DOCUMENT_INTELLIGENCE_SERVICE'
@@ -188,11 +200,15 @@ module copilot 'app/copilot.bicep' = {
         value: account.outputs.SERVICE_API_URI
       }
       {
-        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+        name: 'AGENT_FRAMEWORK_MONITOR_CONNECTION_STRING'
         value: monitoring.outputs.applicationInsightsInstrumentationKey
       }
       {
-        name: 'SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE'
+        name: 'AGENT_FRAMEWORK_ENABLE_OTEL'
+        value: true
+      }
+      {
+        name: 'AGENT_FRAMEWORK_ENABLE_SENSITIVE_DATA'
         value: true
       }
      
@@ -278,33 +294,64 @@ module web 'app/web.bicep' = {
 }
 
 
-module openAi 'shared/ai/cognitiveservices.bicep' =  {
-  name: 'openai'
-  scope: openAiResourceGroup
-  params: {
-    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
-    location: !empty(customOpenAiResourceGroupLocation) ? customOpenAiResourceGroupLocation : openAiResourceGroupLocation
-    tags: tags
-    sku: {
-      name: openAiSkuName
-    }
-    deployments: [
-      {
-        name: chatGptDeploymentName
-        model: {
-          format: 'OpenAI'
-          name: chatGptModelName
-          version: chatGptModelVersion
-        }
-        sku: {
-          name: chatGptDeploymentSkuName
-          capacity: chatGptDeploymentCapacity
-        }
-      }
+// module openAi 'shared/ai/cognitiveservices.bicep' =  {
+//   name: 'openai'
+//   scope: openAiResourceGroup
+//   params: {
+//     name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+//     location: !empty(customOpenAiResourceGroupLocation) ? customOpenAiResourceGroupLocation : openAiResourceGroupLocation
+//     tags: tags
+//     sku: {
+//       name: openAiSkuName
+//     }
+//     deployments: [
+//       {
+//         name: chatGptDeploymentName
+//         model: {
+//           format: 'OpenAI'
+//           name: chatGptModelName
+//           version: chatGptModelVersion
+//         }
+//         sku: {
+//           name: chatGptDeploymentSkuName
+//           capacity: chatGptDeploymentCapacity
+//         }
+//       }
       
-    ]
+//     ]
+//   }
+// }
+
+module aiFoundry 'shared/ai/foundry.bicep' = {
+ name: 'ai-foundry'
+ scope: foundryResourceGroup
+  params: {
+    aiProjectName: !empty(aiProjectName) ? aiProjectName : 'proj-${resourceToken}'
+    aiProjectFriendlyName: 'Banking Assistant Project'
+    aiProjectDescription: 'Project for the Banking Assistant Copilot using Azure AI Foundry'
+    foundryResourceName: !empty(foundryResourceName) ? foundryResourceName : 'foundry-${resourceToken}'
+    location: foundryResourceGroupLocation
+    tags: tags
   }
 }
+
+@batchSize(1)
+module foundryModelDeployments 'shared/ai/foundry-model-deployment.bicep' = [for (model, index) in models: {
+  name: 'foundry-model-deployment-${model.name}-${index}'
+  scope: foundryResourceGroup
+   params: {
+    foundryResourceName: aiFoundry.outputs.accountName
+    deploymentName: model.deploymentName
+    modelName: model.name
+    modelFormat: model.format
+    modelVersion: model.version
+    modelSkuName: model.skuName
+    modelCapacity: model.capacity
+    tags: tags
+  }
+}]
+
+
 
 module documentIntelligence 'shared/ai/cognitiveservices.bicep' = {
   name: 'documentIntelligence'
@@ -352,12 +399,22 @@ module storage 'shared/storage/storage-account.bicep' = {
 
 // SYSTEM IDENTITIES
 
-module openAiRoleBackend 'shared/security/role.bicep' =  {
-  scope: openAiResourceGroup
-  name: 'openai-role-backend'
+module foundryCognitiveUserRoleBackend 'shared/security/role.bicep' =  {
+  scope: foundryResourceGroup
+  name: 'foundry-cognitive-user-role-backend'
   params: {
     principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+    principalType: 'ServicePrincipal'
+  }
+}
+
+module foundryAIDeveloperRoleBackend 'shared/security/role.bicep' =  {
+  scope: foundryResourceGroup
+  name: 'foundry-ai-developerrole-backend'
+  params: {
+    principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
     principalType: 'ServicePrincipal'
   }
 }
@@ -393,17 +450,15 @@ output AZURE_CONTAINER_REGISTRY_NAME string = containerApps.outputs.registryName
 
 // Shared by all OpenAI deployments
 
-output AZURE_OPENAI_CHATGPT_MODEL string = chatGptModelName
-// Specific to Azure OpenAI
-output AZURE_OPENAI_SERVICE string =  openAi.outputs.name
-output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name 
-output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = chatGptDeploymentName
+
+// Specific to Azure Foundry
+output FOUNDRY_PROJECT_ENDPOINT string =  '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
+output FOUNDRY_RESOURCE_NAME string = aiFoundry.outputs.accountName
+output FOUNDRY_CHATGPT_DEPLOYMENT string = models[0].deploymentName
 
 
 output AZURE_DOCUMENT_INTELLIGENCE_SERVICE string = documentIntelligence.outputs.name
 output AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP string = documentIntelligenceResourceGroup.name
-
-
 
 
 output AZURE_STORAGE_ACCOUNT string = storage.outputs.name
