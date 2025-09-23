@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.api import auth_routers, chat_routers, content_routers
 from app.config.settings import settings
 from app.config.logging import get_logger, setup_logging
-from app.config.observability import set_up_tracing
+from agent_framework.observability import setup_observability
 # Foundry based dependency injection container
 #from app.config.container_foundry import Container
 # Azure Chat based dependency injection container
@@ -18,6 +18,8 @@ def create_app() -> FastAPI:
     # Get logger for this module
     logger = get_logger(__name__)
 
+    # Setup agent framework observability
+    setup_observability()
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     

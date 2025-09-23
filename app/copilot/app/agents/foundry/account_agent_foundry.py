@@ -51,6 +51,7 @@ class AccountAgent :
       await account_mcp_server.connect()
 
       chat_agent =  ChatAgent(
+            name=AccountAgent.name,
             chat_client=FoundryChatClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
             instructions=full_instruction,
             tools=[account_mcp_server]

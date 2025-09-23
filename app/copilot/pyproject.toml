@@ -13,7 +13,8 @@ dependencies = [
     "azure-storage-blob==12.26.0",
     "azure-ai-documentintelligence==1.0.1",
     "dependency-injector==4.48.1",
-    "agent-framework[foundry,azure]"
+    "agent-framework[foundry,azure]",
+    "azure-ai-inference[opentelemetry]"
 ]
 
 [tool.uv]

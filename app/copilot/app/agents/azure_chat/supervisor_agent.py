@@ -50,6 +50,7 @@ class SupervisorAgent :
      
       return self.azure_chat_client.create_agent(
            instructions=SupervisorAgent.instructions,
+           name=SupervisorAgent.name,
            tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent])
 
     async def processMessage(self, user_message: str , thread_id : str | None, chat_message_list: ChatMessageList) -> tuple[str, str | None]:

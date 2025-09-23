@@ -37,5 +37,6 @@ class AccountAgent :
       await account_mcp_server.connect()
       return self.azure_chat_client.create_agent(
            instructions=full_instruction,
+           name=AccountAgent.name,
            tools=[account_mcp_server])
     

@@ -62,6 +62,7 @@ class SupervisorAgent :
           thread = chat_agent.get_new_thread()
       else:
          chat_agent = ChatAgent(
+            name=SupervisorAgent.name,
             chat_client=FoundryChatClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.agent_id),
             instructions=SupervisorAgent.instructions,
             tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent]
