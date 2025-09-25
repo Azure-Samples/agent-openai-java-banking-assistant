@@ -59,9 +59,9 @@
             ],
             "env": {
                 "PROFILE": "dev",
-                "ENABLE_OTEL": "true",
-                "ENABLE_SENSITIVE_DATA": "true",
-                "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=b0f680d4-3fd4-46f1-92b8-65c6a923809d;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/;ApplicationId=5e2cd9f7-9baf-4922-a17d-117a1b5988f2"
+                "ABC_ENABLE_OTEL": "true",
+                "ABC_ENABLE_SENSITIVE_DATA": "true",
+                "ABC_APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=b0f680d4-3fd4-46f1-92b8-65c6a923809d;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/;ApplicationId=5e2cd9f7-9baf-4922-a17d-117a1b5988f2"
             },
             "jinja": true,
             "cwd": "${workspaceFolder}/app/copilot",
@@ -84,6 +84,43 @@
             "cwd": "${workspaceFolder}/app/copilot",
             "justMyCode": false
 
+        }
+        ,
+      
+        {
+            "name": "Account MCP: DEV (Python Main)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "env": {
+                "PROFILE": "dev"
+            },
+            "cwd": "${workspaceFolder}/app/business-api/python/account",
+            "console": "integratedTerminal"
+        }
+        ,
+        {
+            "name": "Transaction MCP: DEV (Python Main)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "env": {
+                "PROFILE": "dev"
+            },
+            "cwd": "${workspaceFolder}/app/business-api/python/transaction",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Payment MCP: DEV (Python Main)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "env": {
+                "PROFILE": "dev",
+                "TRANSACTIONS_API_URL" : "http://localhost:8071"
+            },
+            "cwd": "${workspaceFolder}/app/business-api/python/payment",
+            "console": "integratedTerminal"
         }
     ]
 }

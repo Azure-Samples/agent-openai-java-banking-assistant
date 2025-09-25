@@ -4,11 +4,9 @@ from app.config.settings import settings
 from app.config.logging import get_logger, setup_logging
 from agent_framework.observability import setup_observability
 # Foundry based dependency injection container
-#from app.config.container_foundry import Container
+from app.config.container_foundry import Container
 # Azure Chat based dependency injection container
-from app.config.container_azure_chat import Container
-
-
+#from app.config.container_azure_chat import Container
 
 
 
@@ -19,7 +17,7 @@ def create_app() -> FastAPI:
     logger = get_logger(__name__)
 
     # Setup agent framework observability
-    setup_observability()
+    setup_observability(enable_sensitive_data=True,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     

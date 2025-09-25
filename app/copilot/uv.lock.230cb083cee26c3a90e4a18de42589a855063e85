@@ -9,7 +9,7 @@ resolution-markers = [
 [[package]]
 name = "agent-framework"
 version = "0.1.0b1"
-source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fmain&branch=main#36933de345cb266b4ca4d492614f5d0b3fcc0d52" }
+source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fmain&branch=main#230cb083cee26c3a90e4a18de42589a855063e85" }
 dependencies = [
     { name = "aiofiles" },
     { name = "azure-monitor-opentelemetry" },
@@ -36,7 +36,7 @@ foundry = [
 [[package]]
 name = "agent-framework-azure"
 version = "0.1.0b1"
-source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fazure&branch=main#36933de345cb266b4ca4d492614f5d0b3fcc0d52" }
+source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fazure&branch=main#230cb083cee26c3a90e4a18de42589a855063e85" }
 dependencies = [
     { name = "agent-framework" },
     { name = "azure-identity" },
@@ -45,7 +45,7 @@ dependencies = [
 [[package]]
 name = "agent-framework-foundry"
 version = "0.1.0b1"
-source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Ffoundry&branch=main#36933de345cb266b4ca4d492614f5d0b3fcc0d52" }
+source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Ffoundry&branch=main#230cb083cee26c3a90e4a18de42589a855063e85" }
 dependencies = [
     { name = "agent-framework" },
     { name = "aiohttp" },
@@ -163,25 +163,25 @@ wheels = [
 
 [[package]]
 name = "anyio"
-version = "4.11.0"
+version = "4.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "idna" },
     { name = "sniffio" },
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/78/7d432127c41b50bccba979505f272c16cbcadcc33645d5fa3a738110ae75/anyio-4.11.0.tar.gz", hash = "sha256:82a8d0b81e318cc5ce71a5f1f8b5c4e63619620b63141ef8c995fa0db95a57c4", size = 219094, upload-time = "2025-09-23T09:19:12.58Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/b4/636b3b65173d3ce9a38ef5f0522789614e590dab6a8d505340a4efe4c567/anyio-4.10.0.tar.gz", hash = "sha256:3f3fae35c96039744587aa5b8371e7e8e603c0702999535961dd336026973ba6", size = 213252, upload-time = "2025-08-04T08:54:26.451Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/b3/9b1a8074496371342ec1e796a96f99c82c945a339cd81a8e73de28b4cf9e/anyio-4.11.0-py3-none-any.whl", hash = "sha256:0287e96f4d26d4149305414d4e3bc32f0dcd0862365a4bddea19d7a1ec38c4fc", size = 109097, upload-time = "2025-09-23T09:19:10.601Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/12/e5e0282d673bb9746bacfb6e2dba8719989d3660cdb2ea79aee9a9651afb/anyio-4.10.0-py3-none-any.whl", hash = "sha256:60e474ac86736bbfd6f210f7a61218939c318f43f9972497381f1c5e930ed3d1", size = 107213, upload-time = "2025-08-04T08:54:24.882Z" },
 ]
 
 [[package]]
 name = "asgiref"
-version = "3.9.2"
+version = "3.9.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7f/bf/0f3ecda32f1cb3bf1dca480aca08a7a8a3bdc4bed2343a103f30731565c9/asgiref-3.9.2.tar.gz", hash = "sha256:a0249afacb66688ef258ffe503528360443e2b9a8d8c4581b6ebefa58c841ef1", size = 36894, upload-time = "2025-09-23T15:00:55.136Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/90/61/0aa957eec22ff70b830b22ff91f825e70e1ef732c06666a805730f28b36b/asgiref-3.9.1.tar.gz", hash = "sha256:a5ab6582236218e5ef1648f242fd9f10626cfd4de8dc377db215d5d5098e3142", size = 36870, upload-time = "2025-07-08T09:07:43.344Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/d1/69d02ce34caddb0a7ae088b84c356a625a93cd4ff57b2f97644c03fad905/asgiref-3.9.2-py3-none-any.whl", hash = "sha256:0b61526596219d70396548fc003635056856dba5d0d086f86476f10b33c75960", size = 23788, upload-time = "2025-09-23T15:00:53.627Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/3c/0464dcada90d5da0e71018c04a140ad6349558afb30b3051b4264cc5b965/asgiref-3.9.1-py3-none-any.whl", hash = "sha256:f3bba7092a48005b5f5bacd747d36ee4a5a61f4a269a6df590b43144355ebd2c", size = 23790, upload-time = "2025-07-08T09:07:41.548Z" },
 ]
 
 [[package]]
@@ -1318,7 +1318,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.109.0"
+version = "1.108.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1330,9 +1330,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/9f/d11cc7fb2d60af14a97dbef4e3c7b23917387995c257951fdc321d8efd0a/openai-1.109.0.tar.gz", hash = "sha256:701e26d13e3953524ba99f44cf5fbbda40eafd41ba15a8d85b76229a2693cfe5", size = 563971, upload-time = "2025-09-23T16:59:41.508Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/ff/1dc7bec988cfbab80c2b0ee61d5178915117a4f02f68777d528219e84866/openai-1.108.2.tar.gz", hash = "sha256:e6ce793e0ef8a52d343850a5411edbd5b21214f64a8d29cdca0fcb929e8e3155", size = 563898, upload-time = "2025-09-22T23:47:38.985Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/d3/d65e318e8d3b5845afaa5960d8da779988b4cb9f4e1ca82e588fed9c6a9d/openai-1.109.0-py3-none-any.whl", hash = "sha256:8c0910bdd4ee1274d5ff0354786bdd0bc79e68c158d5d2c19e24208b412e5792", size = 948421, upload-time = "2025-09-23T16:59:39.516Z" },
+    { url = "https://files.pythonhosted.org/packages/13/2d/1cb19289feef689206cd8995d7be6b5d76b7e8d64fd51438acecc11ee395/openai-1.108.2-py3-none-any.whl", hash = "sha256:4c7caa23845a49aebd8f65e01b35739b5b2df5e621d4666cbe55f0973fae81b7", size = 948390, upload-time = "2025-09-22T23:47:36.644Z" },
 ]
 
 [[package]]
@@ -2372,7 +2372,7 @@ wheels = [
 
 [[package]]
 name = "typer"
-version = "0.19.2"
+version = "0.19.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -2380,9 +2380,9 @@ dependencies = [
     { name = "shellingham" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/21/ca/950278884e2ca20547ff3eb109478c6baf6b8cf219318e6bc4f666fad8e8/typer-0.19.2.tar.gz", hash = "sha256:9ad824308ded0ad06cc716434705f691d4ee0bfd0fb081839d2e426860e7fdca", size = 104755, upload-time = "2025-09-23T09:47:48.256Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/ea/9cc57c3c627fd7a6a0907ea371019fe74c3ec00e3cf209a6864140a602ad/typer-0.19.1.tar.gz", hash = "sha256:cb881433a4b15dacc875bb0583d1a61e78497806741f9aba792abcab390c03e6", size = 104802, upload-time = "2025-09-20T08:59:22.692Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/22/35617eee79080a5d071d0f14ad698d325ee6b3bf824fc0467c03b30e7fa8/typer-0.19.2-py3-none-any.whl", hash = "sha256:755e7e19670ffad8283db353267cb81ef252f595aa6834a0d1ca9312d9326cb9", size = 46748, upload-time = "2025-09-23T09:47:46.777Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/fa/6473c00b5eb26a2ba427813107699d3e6f4e1a4afad3f7494b17bdef3422/typer-0.19.1-py3-none-any.whl", hash = "sha256:914b2b39a1da4bafca5f30637ca26fa622a5bf9f515e5fdc772439f306d5682a", size = 46876, upload-time = "2025-09-20T08:59:21.153Z" },
 ]
 
 [[package]]

@@ -2,17 +2,17 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Any
 
 # Foundry Agent based dependencies
-#from app.agents.foundry.supervisor_agent_foundry import SupervisorAgent
-#from app.config.container_foundry import Container
+from app.agents.foundry.supervisor_agent_foundry import SupervisorAgent
+from app.config.container_foundry import Container
 
 # Azure Chat based agents dependencies
-from app.agents.azure_chat.supervisor_agent import SupervisorAgent
-from app.config.container_azure_chat import Container
+#from app.agents.azure_chat.supervisor_agent import SupervisorAgent
+#from app.config.container_azure_chat import Container
 
 from app.models.chat import ChatAppRequest, ChatResponse, ChatResponseMessage, ChatChoice, ChatContext, ChatDelta
 from app.models.chat import ChatMessage as AppChatMessage
 from agent_framework._threads import ChatMessageList
-from agent_framework._types import ChatMessage, Role
+from agent_framework import ChatMessage, Role
 from dependency_injector.wiring import Provide, inject
 
 

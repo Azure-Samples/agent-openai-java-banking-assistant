@@ -1,0 +1,13 @@
+[project]
+name = "banking-assistant-account-mcp"
+version = "0.1.0"
+description = "Python MCP server for account business-api using fastmcp"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "fastmcp",
+    "pydantic"
+
+]
+

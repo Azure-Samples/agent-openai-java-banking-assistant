@@ -11,19 +11,19 @@ services:
     docker:
       remoteBuild: true
   account:
-    project: app/business-api/account
+    project: ./app/business-api/java/account
     language: java
     host: containerapp
     docker:
       remoteBuild: true
   payment:
-    project: app/business-api/payment
+    project: ./app/business-api/java/payment
     language: java
     host: containerapp
     docker:
       remoteBuild: true
   transaction:
-    project: app/business-api/transactions-history
+    project: ./app/business-api/java/transactions-history
     language: java
     host: containerapp
     docker:

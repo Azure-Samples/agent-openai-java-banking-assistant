@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Run Payment MCP",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/app/business-api/python/payment/main.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PROFILE": "dev"
+      }
+    }
+  ]
+}
