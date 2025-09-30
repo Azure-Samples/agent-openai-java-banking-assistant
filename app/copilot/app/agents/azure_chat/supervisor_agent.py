@@ -1,6 +1,7 @@
+from typing import Any
 from agent_framework import ChatAgent
-from agent_framework import AgentThread, ChatMessageList
-from agent_framework.azure import AzureChatClient
+from agent_framework.exceptions import AgentThreadException
+from agent_framework.azure import AzureOpenAIChatClient
 from app.agents.azure_chat.account_agent import AccountAgent
 from app.agents.azure_chat.transaction_agent import TransactionHistoryAgent
 from app.agents.azure_chat.payment_agent import PaymentAgent
@@ -30,18 +31,24 @@ class SupervisorAgent :
     name = "SupervisorAgent"
     description = "This agent triages customer requests and routes them to the appropriate agent."
 
+    """ A simple in-memory store [thread_id,serialized Thread state] to keep track of threads per user/session. 
+    In production, this should be replaced with a persistent store like a database or distributed cache.
+    """
+    thread_store: dict[str, dict[str, Any]] = {}
+
+    """ like the thread_store but only with supervisor generated messages. it's used for improve accuracy of agent selection avoiding to innclude messages from sub-agents."""
+    supervisor_thread_store: dict[str, dict[str, Any]] = {}
+
     def __init__(self, 
-                 azure_chat_client: AzureChatClient,
+                 azure_chat_client: AzureOpenAIChatClient,
                  account_agent: AccountAgent,
                  transaction_agent: TransactionHistoryAgent,
-                 payment_agent: PaymentAgent,
-                 thread: AgentThread = AgentThread()
+                 payment_agent: PaymentAgent
                                 ):
       self.azure_chat_client = azure_chat_client
       self.account_agent = account_agent
       self.transaction_agent = transaction_agent
       self.payment_agent = payment_agent
-      self.thread = thread
      
         
 
@@ -53,7 +60,7 @@ class SupervisorAgent :
            name=SupervisorAgent.name,
            tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent])
 
-    async def processMessage(self, user_message: str , thread_id : str | None, chat_message_list: ChatMessageList) -> tuple[str, str | None]:
+    async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
       """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
       #For azure chat based agents we need to provide the message history externally as there is no built-in memory thread implementation per thread id.
       
@@ -61,38 +68,63 @@ class SupervisorAgent :
       agent = await self._build_af_agent()
 
       processed_thread_id = thread_id
-      thread = None
-      # The AgentThread doesn't allow to provide an external service id when using external message_store so we need to manage the thread id externally.
-      if thread_id is None:
-         thread = agent.get_new_thread()
+      supervisor_resumed_thread =  agent.get_new_thread()
+      # The AgentThread doesn't allow to provide an external id when using azure openai chat completion agent. so we need to manage the thread id externally.
+      if processed_thread_id is None:
+         self.current_thread = agent.get_new_thread()
          processed_thread_id = str(uuid4())
+         SupervisorAgent.thread_store[processed_thread_id] = await  self.current_thread.serialize()
+         SupervisorAgent.supervisor_thread_store[processed_thread_id] = await supervisor_resumed_thread.serialize()
 
       else :
-        thread = AgentThread(message_store=chat_message_list)
+        serialized_thread = SupervisorAgent.thread_store.get(processed_thread_id, None)
+        supervisor_serialized_thread = SupervisorAgent.supervisor_thread_store.get(processed_thread_id, None)
+        
+        if serialized_thread is None or supervisor_serialized_thread is None:
+           raise AgentThreadException(f"Thread id {processed_thread_id} not found in thread stores")
+        # set the thread as class instance variable so that it can be shared by agents called in the tools
+        
+        # there is bug in agent framework. I'll use update_from_thread_state as workaround
+        # self.current_thread = await agent.deserialize_thread(serialized_thread)
+        resumed_thread =  agent.get_new_thread()
+        
+        await resumed_thread.update_from_thread_state(serialized_thread)
+        self.current_thread = resumed_thread
 
-      # set the thread as class instance variable so that it can be shared by agents called in the tools
-      self.thread = thread
+        
+        await supervisor_resumed_thread.update_from_thread_state(supervisor_serialized_thread)
 
-      response = await agent.run(user_message, thread=thread)
+      #save the original user emessage to it can be used by sub-agents. we don't want to use the generated message from supervisor agent as input for sub-agents.
+      self.user_message = user_message
+
+      response = await agent.run(user_message, thread=supervisor_resumed_thread)
+
+      #make sure to update the thread store with the latest thread state
+      SupervisorAgent.thread_store[processed_thread_id] = await self.current_thread.serialize()
+      SupervisorAgent.supervisor_thread_store[processed_thread_id] = await supervisor_resumed_thread.serialize()
+      
       return response.text, processed_thread_id
 
     async def route_to_account_agent(self, user_message: str) -> str:
        """ Route the conversation to Account Agent"""
        af_account_agent = await self.account_agent.build_af_agent()
 
-       response = await af_account_agent.run(user_message, thread=self.thread)
+      #Please note we are using the original user message and not the one generated by the supervisor agent.
+       response = await af_account_agent.run(self.user_message, thread=self.current_thread)
        return response.text
     
     async def route_to_transaction_agent(self, user_message: str) -> str:
        """ Route the conversation to Transaction History Agent"""
        af_transaction_agent = await self.transaction_agent.build_af_agent()
-
-       response = await af_transaction_agent.run(user_message, thread=self.thread)
+      
+      #Please note we are using the original user message and not the one generated by the supervisor agent.
+       response = await af_transaction_agent.run(self.user_message, thread=self.current_thread)
        return response.text
     
     async def route_to_payment_agent(self, user_message: str) -> str:
        """ Route the conversation to Payment Agent"""
        af_payment_agent = await self.payment_agent.build_af_agent()
-
-       response = await af_payment_agent.run(user_message, thread=self.thread)
+      
+      #Please note we are using the original user message and not the one generated by the supervisor agent.
+       response = await af_payment_agent.run(self.user_message, thread=self.current_thread)
        return response.text

@@ -1,4 +1,4 @@
-from agent_framework.azure import AzureChatClient
+from agent_framework.azure import AzureOpenAIChatClient
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class TransactionHistoryAgent :
     name = "TransactionHistoryAgent"
     description = "This agent manages user transactions related information such as banking movements and payments history"
 
-    def __init__(self, azure_chat_client: AzureChatClient,
+    def __init__(self, azure_chat_client: AzureOpenAIChatClient,
                  account_mcp_server_url: str,
                  transaction_mcp_server_url: str,
                   ):

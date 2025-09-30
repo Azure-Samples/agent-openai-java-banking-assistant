@@ -1,4 +1,4 @@
-from agent_framework.azure import AzureChatClient
+from agent_framework.azure import AzureOpenAIChatClient
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
 from app.helpers.document_intelligence_scanner import DocumentIntelligenceInvoiceScanHelper
 
@@ -65,7 +65,7 @@ class PaymentAgent :
     name = "PaymentAgent"
     description = "This agent manages user payments related information such as submitting payment requests and bill payments."
 
-    def __init__(self, azure_chat_client: AzureChatClient,
+    def __init__(self, azure_chat_client: AzureOpenAIChatClient,
                   account_mcp_server_url: str,
                   transaction_mcp_server_url: str,
                   payment_mcp_server_url: str,

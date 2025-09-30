@@ -1,5 +1,5 @@
 from azure.core.credentials import TokenCredential
-from agent_framework.foundry import FoundryChatClient
+from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects import AIProjectClient
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
 from app.config.azure_credential import get_azure_credential_async
@@ -52,7 +52,7 @@ class AccountAgent :
 
       chat_agent =  ChatAgent(
             name=AccountAgent.name,
-            chat_client=FoundryChatClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
+            chat_client=AzureAIAgentClient(thread_id=thread_id, project_endpoint=self.foundry_endpoint, async_credential=credential, agent_id=self.created_agent.id),
             instructions=full_instruction,
             tools=[account_mcp_server]
         ) 

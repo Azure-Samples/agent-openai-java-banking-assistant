@@ -16,7 +16,7 @@ from app.agents.azure_chat.payment_agent import PaymentAgent
 from app.agents.azure_chat.supervisor_agent import SupervisorAgent
 
 
-from agent_framework.azure import AzureChatClient
+from agent_framework.azure import AzureOpenAIChatClient
 from agent_framework import MCPStreamableHTTPTool
 
 
@@ -55,7 +55,7 @@ class Container(containers.DeclarativeContainer):
 
     # Azure Chat based agents
     _azure_chat_client = providers.Singleton(
-        AzureChatClient,
+        AzureOpenAIChatClient,
         credential=providers.Factory(get_azure_credential), 
         endpoint=settings.AZURE_OPENAI_ENDPOINT,deployment_name=settings.AZURE_OPENAI_CHAT_DEPLOYMENT_NAME
     )

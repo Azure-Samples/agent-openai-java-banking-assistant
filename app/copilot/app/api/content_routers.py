@@ -6,10 +6,10 @@ from fastapi.responses import StreamingResponse
 from dependency_injector.wiring import Provide, inject
 
 # Foundry Agent based dependencies
-from app.config.container_foundry import Container
+#from app.config.container_foundry import Container
 
 # Azure Chat based agents dependencies
-#from app.config.container_azure_chat import Container
+from app.config.container_azure_chat import Container
 
 from app.helpers.blob_proxy import BlobStorageProxy
 

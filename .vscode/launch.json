@@ -73,6 +73,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
+            "python": "./app/copilot/.venv/Scripts/python.exe",
             "args": [
                 "app.main:app",
                 "--port", "8080"

@@ -9,15 +9,12 @@ from app.helpers.blob_proxy import BlobStorageProxy
 from app.helpers.document_intelligence_scanner import DocumentIntelligenceInvoiceScanHelper
 from app.config.azure_credential import get_azure_credential, get_azure_credential_async
 from app.config.settings import settings
-# Azure Chat based agent dependencies
-#from app.agents.account_agent import AccountAgent
-#from app.agents.supervisor_agent import SupervisorAgent
+
 # Azure AI Foundry based agent dependencies
 from app.agents.foundry.account_agent_foundry import AccountAgent
 from app.agents.foundry.transaction_agent_foundry import TransactionHistoryAgent
 from app.agents.foundry.payment_agent_foundry import PaymentAgent
 from app.agents.foundry.supervisor_agent_foundry import SupervisorAgent
-from agent_framework.azure import AzureChatClient
 from agent_framework import MCPStreamableHTTPTool
 
 
@@ -56,23 +53,6 @@ class Container(containers.DeclarativeContainer):
 
      
 
-    #MCP plugin need to be initialized using an async __aenter__ method and disposed using __aexit__
-    #We will use it as a singleton for now, and let the agent to call __aenter__ when building the agent.
-    # TO_DO Need to understand when to call __aexit__ for each plugin
-    # account_mcp_server = MCPStreamableHTTPTool(
-    #     name="Account MCP server client",
-    #     url=f"{settings.ACCOUNT_MCP_URL}/mcp"
-    # )
-
-    # transaction_mcp_server = MCPStreamableHTTPTool(
-    #     name="Transaction MCP server client",
-    #     url=f"{settings.TRANSACTION_MCP_URL}/mcp"
-    # )
-
-    # payment_mcp_server = MCPStreamableHTTPTool(
-    #     name="Payment MCP server client",
-    #     url=f"{settings.PAYMENT_MCP_URL}/mcp"
-    # )
     
     #Azure Agent Service based agents
 
@@ -126,59 +106,5 @@ class Container(containers.DeclarativeContainer):
         foundry_endpoint=settings.FOUNDRY_PROJECT_ENDPOINT,
         agent_id=_foundry_supervisor_native_agent.id
     )
-
-    #####################################################################################################
-
-    # # Azure Chat based agents
-    # _azure_chat_client = providers.Singleton(
-    #     AzureChatClient,
-    #     credential=providers.Factory(get_azure_credential), 
-    #     endpoint=settings.AZURE_OPENAI_ENDPOINT,deployment_name=settings.AZURE_OPENAI_CHAT_DEPLOYMENT_NAME
-    # )
-
-    # #Account Agent with Azure chat based agents
-    # account_agent = providers.Singleton(
-    # AccountAgent,
-    # azure_chat_client=_azure_chat_client,
-    # account_mcp_server_url=f"{settings.ACCOUNT_MCP_URL}/mcp"
-    # )
-
-    
-    # #Supervisor Agent with Azure chat based agents
-    # supervisor_agent = providers.Singleton(
-    #     SupervisorAgent,
-    #     account_agent=account_agent
-    # )
-
-    # Transaction History Agent
-    # transaction_history_agent = providers.Singleton(
-    #     TransactionHistoryAgent,
-    #     chatCompletionService=azure_chat_completion,
-    #     account_mcp_plugin=account_mcp_plugin,
-    #     transaction_mcp_plugin=transaction_mcp_plugin)
-    
-    # #Payment Agent
-    # payment_agent = providers.Singleton(
-    #     PaymentAgent,
-    #     chatCompletionService=azure_chat_completion,
-    #     account_mcp_plugin=account_mcp_plugin,
-    #     transaction_mcp_plugin=transaction_mcp_plugin,
-    #     payment_mcp_plugin=payment_mcp_plugin,
-    #     scan_invoice_helper=document_intelligence_scanner)
-
-    # # Triage Agent to be used in handoff orchestration
-    # triage_agent = providers.Singleton(
-    #     TriageAgent,
-    #     chatCompletionService=azure_chat_completion
-    # )
-
-   
-
-
-
-    # supervisor_orchestration_service = providers.Factory(
-    #     SupervisorOrchestrationService,
-    #     supervisorAgent=supervisor_agent)
-    
 
    
