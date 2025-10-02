@@ -4,12 +4,12 @@
 .agent-framework-venv
 *.env
 */.env.dev
-.env.dev
+*.env.dev
 # Java IDE
 .idea
 *.iml
 
-app/copilot
+app/copilot/.env.dev
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
