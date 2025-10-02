@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, AsyncGenerator
 from agent_framework import ChatAgent
 from agent_framework.exceptions import AgentThreadException
 from agent_framework.azure import AzureOpenAIChatClient
@@ -60,10 +60,88 @@ class SupervisorAgent :
            name=SupervisorAgent.name,
            tools=[self.route_to_account_agent,self.route_to_transaction_agent,self.route_to_payment_agent])
 
+    async def processMessageStream(self, user_message: str , thread_id : str | None) -> AsyncGenerator[tuple[str, bool, str | None], None]:
+      """Process a chat message and stream the response.
+
+      Yields:
+          tuple[str, bool, str | None]: (content_chunk, is_final, thread_id)
+              - content_chunk: The text chunk to send
+              - is_final: Whether this is the final chunk
+              - thread_id: The thread ID (only set on final chunk)
+      """
+      try:
+          # Set up agent and thread (same as processMessage)
+          agent = await self._build_af_agent()
+
+          processed_thread_id = thread_id
+          supervisor_resumed_thread = agent.get_new_thread()
+
+          # Handle thread creation or resumption
+          if processed_thread_id is None:
+              self.current_thread = agent.get_new_thread()
+              processed_thread_id = str(uuid4())
+              SupervisorAgent.thread_store[processed_thread_id] = await self.current_thread.serialize()
+              SupervisorAgent.supervisor_thread_store[processed_thread_id] = await supervisor_resumed_thread.serialize()
+          else:
+              serialized_thread = SupervisorAgent.thread_store.get(processed_thread_id, None)
+              supervisor_serialized_thread = SupervisorAgent.supervisor_thread_store.get(processed_thread_id, None)
+              
+              if serialized_thread is None or supervisor_serialized_thread is None:
+                  raise AgentThreadException(f"Thread id {processed_thread_id} not found in thread stores")
+              
+              resumed_thread = agent.get_new_thread()
+              await resumed_thread.update_from_thread_state(serialized_thread)
+              self.current_thread = resumed_thread
+              await supervisor_resumed_thread.update_from_thread_state(supervisor_serialized_thread)
+
+          # Save the original user message
+          self.user_message = user_message
+
+          # Stream the response
+          full_response = ""
+
+          # Check if agent.run supports streaming
+          try:
+              # Try to use streaming if available
+              async for chunk in agent.run_stream(user_message, thread=supervisor_resumed_thread):
+                  if hasattr(chunk, 'text') and chunk.text:
+                      content = chunk.text
+                      full_response += content
+                      # Yield intermediate chunk
+                      yield (content, False, None)
+          except AttributeError:
+              # Fallback: If streaming not supported, simulate it
+              logger.warning("Agent streaming not supported, falling back to chunked response")
+              response = await agent.run(user_message, thread=supervisor_resumed_thread)
+              full_response = response.text
+              
+              # Simulate streaming by breaking into chunks
+              chunk_size = 5  # words per chunk
+              words = full_response.split()
+              
+              for i in range(0, len(words), chunk_size):
+                  chunk = " ".join(words[i:i+chunk_size])
+                  if i + chunk_size < len(words):
+                      chunk += " "
+                  yield (chunk, False, None)
+
+          # Update thread stores
+          SupervisorAgent.thread_store[processed_thread_id] = await self.current_thread.serialize()
+          SupervisorAgent.supervisor_thread_store[processed_thread_id] = await supervisor_resumed_thread.serialize()
+
+          # Yield final chunk with thread_id
+          yield ("", True, processed_thread_id)
+          
+      except Exception as e:
+          logger.error(f"Error in processMessageStream: {str(e)}", exc_info=True)
+          # Yield error message as content
+          error_message = f"I apologize, but I encountered an error while processing your request: {str(e)}"
+          full_response = error_message
+          yield (error_message, True, thread_id)
+
     async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
       """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
       #For azure chat based agents we need to provide the message history externally as there is no built-in memory thread implementation per thread id.
-      
       
       agent = await self._build_af_agent()
 

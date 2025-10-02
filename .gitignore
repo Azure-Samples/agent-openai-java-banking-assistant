@@ -3,7 +3,8 @@
 *_env
 .agent-framework-venv
 *.env
-
+*/.env.dev
+.env.dev
 # Java IDE
 .idea
 *.iml
