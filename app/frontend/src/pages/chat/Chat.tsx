@@ -38,7 +38,7 @@ const Chat = () => {
     const [retrieveCount, setRetrieveCount] = useState<number>(3);
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
-    const [shouldStream, setShouldStream] = useState<boolean>(false);
+    const [shouldStream, setShouldStream] = useState<boolean>(true);
     const [streamAvailable, setStreamAvailable] = useState<boolean>(true);
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [excludeCategory, setExcludeCategory] = useState<string>("");
@@ -65,38 +65,103 @@ const Chat = () => {
     const handleAsyncRequest = async (question: string, attachments: string[], answers: [string, string[],ChatAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
         let answer: string = "";
         let askResponse: ChatAppResponse = {} as ChatAppResponse;
+        let capturedThreadId: string | undefined = undefined;
+        let hasError = false;
 
         const updateState = (newContent: string) => {
             return new Promise(resolve => {
                 setTimeout(() => {
                     answer += newContent;
-                    const latestResponse: ChatAppResponse = {
-                        ...askResponse,
-                        choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
-                    };
-                    setStreamedAnswers([...answers, [question,attachments, latestResponse]]);
+                    
+                    // Check if askResponse.choices exists before accessing it
+                    const latestResponse: ChatAppResponse = askResponse.choices 
+                        ? {
+                            ...askResponse,
+                            threadId: capturedThreadId,
+                            choices: [{ 
+                                ...askResponse.choices[0], 
+                                message: { 
+                                    content: answer, 
+                                    role: askResponse.choices[0].message?.role || "assistant" 
+                            } 
+                        }]
+                        }
+                        : {
+                            threadId: capturedThreadId,
+                            choices: [{
+                                index: 0,
+                                message: {
+                                    content: answer,
+                                    role: "assistant"
+                                },
+                                context: {
+                                    thoughts: null,
+                                    data_points: []
+                                },
+                                session_state: null
+                            }]
+                        };
+                    
+                    setStreamedAnswers([...answers, [question, attachments, latestResponse]]);
                     resolve(null);
                 }, 33);
             });
         };
+        
         try {
             setIsStreaming(true);
             for await (const event of readNDJSONStream(responseBody)) {
+                // Check for error in response
+                if (event["error"]) {
+                    hasError = true;
+                    console.error("Stream error:", event["error"]);
+                }
+                
+                // Capture threadId from any event that has it
+                if (event["threadId"]) {
+                    capturedThreadId = event["threadId"];
+                }
+                
                 if (event["choices"] && event["choices"][0]["context"] && event["choices"][0]["context"]["data_points"]) {
+                    // Final chunk with full context
                     event["choices"][0]["message"] = event["choices"][0]["delta"];
                     askResponse = event;
+                    askResponse.threadId = capturedThreadId;
                     answer = askResponse["choices"][0]["message"]["content"];
-                } else if (event["choices"] && event["choices"][0]["delta"]["content"]) {
+                    // Update one last time with final response
+                    await updateState("");
+                } else if (event["choices"] && event["choices"][0]["delta"] && event["choices"][0]["delta"]["content"]) {
                     setIsLoading(false);
                     await updateState(event["choices"][0]["delta"]["content"]);
                 }
             }
+        } catch (error) {
+            console.error("Error reading stream:", error);
+            hasError = true;
+            // Add error message to answer
+            answer = answer || "An error occurred while streaming the response.";
+            await updateState(" [Error: Stream interrupted]");
         } finally {
             setIsStreaming(false);
         }
+        
         const fullResponse: ChatAppResponse = {
             ...askResponse,
-            choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
+            threadId: capturedThreadId,
+            choices: askResponse.choices 
+                ? [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
+                : [{
+                    index: 0,
+                    message: {
+                        content: answer,
+                        role: "assistant"
+                    },
+                    context: {
+                        thoughts: null,
+                        data_points: []
+                    },
+                    session_state: null
+                }]
         };
         return fullResponse;
     };
@@ -261,7 +326,7 @@ const Chat = () => {
     const approaches: IChoiceGroupOption[] = [
         {
             key: Approaches.JAVA_OPENAI_SDK,
-            text: "Java Azure Open AI SDK"
+            text: "Python Azure Open AI SDK"
         },
         /* Pending Semantic Kernel Memory implementation in V1.0.0
         {
@@ -270,7 +335,7 @@ const Chat = () => {
         },*/
         {
             key: Approaches.JAVA_SEMANTIC_KERNEL_PLANNER,
-            text: "Java Semantic Kernel - Orchestration"
+            text: "Python Agent Framework - Orchestration"
         }
     ];
 
@@ -278,7 +343,7 @@ const Chat = () => {
         <div className={styles.container}>
             <div className={styles.commandsContainer}>
                 <ClearChatButton className={styles.commandButton} onClick={clearChat} disabled={!lastQuestionRef.current || isLoading} />
-
+                <SettingsButton className={styles.commandButton} onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)} />
             </div>
             <div className={styles.chatRoot}>
                 <div className={styles.chatContainer}>
