@@ -100,13 +100,6 @@ class SupervisorAgent :
           # Stream the response
           full_response = ""
 
-          # Check if agent.run_stream is available
-          if not hasattr(agent, 'run_stream'):
-              logger.error("Agent does not support streaming. Please disable streaming in the client.")
-              error_message = "Streaming is not supported by this agent. Please disable streaming in your settings and try again."
-              yield (error_message, True, processed_thread_id)
-              return
-
           try:
               # Use streaming
               async for chunk in agent.run_stream(user_message, thread=supervisor_resumed_thread):
