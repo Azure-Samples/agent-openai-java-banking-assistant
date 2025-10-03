@@ -100,30 +100,26 @@ class SupervisorAgent :
           # Stream the response
           full_response = ""
 
-          # Check if agent.run supports streaming
+          # Check if agent.run_stream is available
+          if not hasattr(agent, 'run_stream'):
+              logger.error("Agent does not support streaming. Please disable streaming in the client.")
+              error_message = "Streaming is not supported by this agent. Please disable streaming in your settings and try again."
+              yield (error_message, True, processed_thread_id)
+              return
+
           try:
-              # Try to use streaming if available
+              # Use streaming
               async for chunk in agent.run_stream(user_message, thread=supervisor_resumed_thread):
                   if hasattr(chunk, 'text') and chunk.text:
                       content = chunk.text
                       full_response += content
                       # Yield intermediate chunk
                       yield (content, False, None)
-          except AttributeError:
-              # Fallback: If streaming not supported, simulate it
-              logger.warning("Agent streaming not supported, falling back to chunked response")
-              response = await agent.run(user_message, thread=supervisor_resumed_thread)
-              full_response = response.text
-              
-              # Simulate streaming by breaking into chunks
-              chunk_size = 5  # words per chunk
-              words = full_response.split()
-              
-              for i in range(0, len(words), chunk_size):
-                  chunk = " ".join(words[i:i+chunk_size])
-                  if i + chunk_size < len(words):
-                      chunk += " "
-                  yield (chunk, False, None)
+          except Exception as stream_error:
+              logger.error(f"Error during streaming: {str(stream_error)}", exc_info=True)
+              error_message = f"Streaming failed: {str(stream_error)}. Please try again or disable streaming."
+              yield (error_message, True, processed_thread_id)
+              return
 
           # Update thread stores
           SupervisorAgent.thread_store[processed_thread_id] = await self.current_thread.serialize()
@@ -136,7 +132,6 @@ class SupervisorAgent :
           logger.error(f"Error in processMessageStream: {str(e)}", exc_info=True)
           # Yield error message as content
           error_message = f"I apologize, but I encountered an error while processing your request: {str(e)}"
-          full_response = error_message
           yield (error_message, True, thread_id)
 
     async def processMessage(self, user_message: str , thread_id : str | None) -> tuple[str, str | None]:
