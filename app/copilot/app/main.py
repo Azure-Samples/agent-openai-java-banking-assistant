@@ -18,7 +18,7 @@ def create_app() -> FastAPI:
     logger = get_logger(__name__)
 
     # Setup agent framework observability
-    setup_observability(enable_sensitive_data=True,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
+    setup_observability(enable_sensitive_data=settings.ENABLE_OTEL,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     

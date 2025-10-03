@@ -43,8 +43,7 @@ class Settings(BaseSettings):
 
     #Logging and monitoring
     APPLICATIONINSIGHTS_CONNECTION_STRING: str | None = Field(default=None)
-    SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS : bool = Field(default=True)
-    SEMANTICKERNEL_EXPERIMENTAL_GENAI_ENABLE_OTEL_DIAGNOSTICS_SENSITIVE : bool = Field(default=False)
+    ENABLE_OTEL : bool = Field(default=True)
   
     # Azure AI Foundry configuration
     # maps to environment variables described by the user

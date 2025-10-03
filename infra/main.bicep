@@ -184,12 +184,20 @@ module copilot 'app/copilot.bicep' = {
         value: models[0].deploymentName
       }
       {
+        name: 'AZURE_OPENAI_ENDPOINT'
+        value:  aiFoundry.outputs.openAIEndpoint
+      }
+      {
+        name: 'AZURE_OPENAI_CHAT_DEPLOYMENT_NAME'
+        value: models[0].deploymentName
+      }
+      {
         name: 'AZURE_DOCUMENT_INTELLIGENCE_SERVICE'
         value: documentIntelligence.outputs.name
       }
       {
         name: 'TRANSACTION_MCP_URL'
-        value: transaction.outputs.SERVICE_API_URI
+        value: '${transaction.outputs.SERVICE_API_URI}/mcp'
       }
       {
         name: 'PAYMENT_MCP_URL'
@@ -200,16 +208,8 @@ module copilot 'app/copilot.bicep' = {
         value: account.outputs.SERVICE_API_URI
       }
       {
-        name: 'AGENT_FRAMEWORK_MONITOR_CONNECTION_STRING'
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
         value: monitoring.outputs.applicationInsightsInstrumentationKey
-      }
-      {
-        name: 'AGENT_FRAMEWORK_ENABLE_OTEL'
-        value: true
-      }
-      {
-        name: 'AGENT_FRAMEWORK_ENABLE_SENSITIVE_DATA'
-        value: true
       }
      
     ]

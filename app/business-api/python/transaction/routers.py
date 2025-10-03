@@ -2,14 +2,11 @@ from fastapi import APIRouter, HTTPException, status
 import logging
 
 from models import Transaction
-from services import TransactionService
+from services import transaction_service_singleton as service
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-# create a single service instance (in-memory sample data lives here)
-service = TransactionService()
 
 
 @router.post("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)

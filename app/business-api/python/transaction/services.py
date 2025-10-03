@@ -69,3 +69,6 @@ class TransactionService:
         if last_list is None:
             raise RuntimeError(f"Cannot find last transactions for account id: {account_id}")
         last_list.append(transaction)
+
+# create a single service instance (in-memory sample data lives here)
+transaction_service_singleton = TransactionService()

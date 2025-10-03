@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class PaymentService:
     def __init__(self, transaction_api_url: Optional[str] = None):
         # Prefer explicit constructor param. If not provided, read from env.
-        env_url = os.environ.get("TRANSACTIONS_API_URL")
+        env_url = os.environ.get("TRANSACTIONS_API_SERVER_URL")
         if transaction_api_url:
             self.transaction_api_url = transaction_api_url
         elif env_url:
@@ -20,7 +20,7 @@ class PaymentService:
         else:
             # Defensive: fail fast if the transaction API URL isn't configured.
             raise ValueError(
-                "TRANSACTIONS_API_URL is not configured. Provide `transaction_api_url` to PaymentService or set the TRANSACTIONS_API_URL environment variable."
+                "TRANSACTIONS_API_SERVER_URL is not configured. Provide `transaction_api_url` to PaymentService or set the TRANSACTIONS_API_URL environment variable."
             )
 
     def process_payment(self, payment: Payment):

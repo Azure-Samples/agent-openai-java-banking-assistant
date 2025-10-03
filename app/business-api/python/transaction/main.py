@@ -8,6 +8,7 @@ import logging
 # import the transaction router we just added
 from routers import router as transaction_routers
 
+logger = logging.getLogger(__name__)
 
 def create_app() -> FastAPI:
     # Initialize logging for the app
@@ -32,6 +33,6 @@ if __name__ == "__main__":
  
     profile = os.environ.get("PROFILE", "prod")
     port = 8071 if profile == "dev" else 8080
-
+    logger.info(f"Starting transaction service server with profile: {profile}, port: {port}")
     #run app as uvicorn server
     uvicorn.run("main:app", host="0.0.0.0", port=port)

@@ -47,11 +47,12 @@
     "models": {
       "value": [
         {
+          "deploymentName": "gpt-4.1",
           "name": "gpt-4.1",
           "format": "OpenAI",
           "version": "2025-04-14",
           "skuName": "GlobalStandard",
-          "capacity": 120
+          "capacity": 80
         }
       ]
     }

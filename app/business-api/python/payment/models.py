@@ -15,11 +15,11 @@ class Transaction(BaseModel):
 
 
 class Payment(BaseModel):
-    description: Optional[str] = None
+    description: str
     recipientName: Optional[str] = None
     recipientBankCode: Optional[str] = None
-    accountId: Optional[str] = None
-    paymentMethodId: Optional[str] = None
+    accountId: str
+    paymentMethodId: str
     paymentType: Optional[str] = None
-    amount: Optional[float] = None
-    timestamp: Optional[str] = None
+    amount: float
+    timestamp: str

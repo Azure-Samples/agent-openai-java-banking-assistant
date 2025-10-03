@@ -13,15 +13,8 @@ dependencies = [
     "azure-storage-blob==12.26.0",
     "azure-ai-documentintelligence==1.0.1",
     "dependency-injector==4.48.1",
-    "agent-framework-azure-ai",
-    "azure-ai-inference[opentelemetry]"
+    "agent-framework-azure-ai"
 ]
-
-[tool.uv]
-prerelease = "if-necessary-or-explicit"
-[tool.uv.sources]
-"agent-framework-core" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/core" }
-"agent-framework-azure-ai" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/azure-ai" }
 
 
 [project.optional-dependencies]

@@ -67,6 +67,7 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-previ
 
 
 output accountName string = account.name
+output openAIEndpoint string = 'https://${account.name}.openai.azure.com/'
 output endpoint string = account.properties.endpoints['AI Foundry API']
 output aiProjectId string = project.id
 output aiProjectName string = project.name

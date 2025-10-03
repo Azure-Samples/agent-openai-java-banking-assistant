@@ -4,49 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "type": "java",
-            "name": "AccountMCPClient",
-            "request": "launch",
-            "mainClass": "org.springframework.ai.mcp.sample.client.AccountMCPClient",
-            "projectName": "account"
-        },
-        {
-            "type": "java",
-            "name": "Debug AccountApplication (dev)",
-            "request": "launch",
-            "mainClass": "com.microsoft.openai.samples.assistant.business.AccountApplication",
-            "projectName": "account",
-            "cwd": "${workspaceFolder}/app/business-api/account",
-            "env": {
-                "spring_profiles_active": "dev"
-            },
-            "console": "integratedTerminal"
-        },
-        {
-            "type": "java",
-            "name": "Debug PaymentApplication (dev)",
-            "request": "launch",
-            "mainClass": "com.microsoft.openai.samples.assistant.business.PaymentApplication",
-            "projectName": "payment",
-            "cwd": "${workspaceFolder}/app/business-api/payment",
-            "env": {
-                "spring_profiles_active": "dev"
-            },
-            "console": "integratedTerminal"
-        },
-        {
-            "type": "java",
-            "name": "Debug TransactionsHistoryApplication (dev)",
-            "request": "launch",
-            "mainClass": "com.microsoft.openai.samples.assistant.business.TransactionsHistoryApplication",
-            "projectName": "transactions-history",
-            "cwd": "${workspaceFolder}/app/business-api/transactions-history",
-            "env": {
-                "spring_profiles_active": "dev"
-            },
-            "console": "integratedTerminal"
-        },
+       
        
         {
             "name": "FastAPI: DEV Debug Copilot App",
@@ -86,42 +44,6 @@
             "justMyCode": false
 
         }
-        ,
-      
-        {
-            "name": "Account MCP: DEV (Python Main)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "main.py",
-            "env": {
-                "PROFILE": "dev"
-            },
-            "cwd": "${workspaceFolder}/app/business-api/python/account",
-            "console": "integratedTerminal"
-        }
-        ,
-        {
-            "name": "Transaction MCP: DEV (Python Main)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "main.py",
-            "env": {
-                "PROFILE": "dev"
-            },
-            "cwd": "${workspaceFolder}/app/business-api/python/transaction",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Payment MCP: DEV (Python Main)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "main.py",
-            "env": {
-                "PROFILE": "dev",
-                "TRANSACTIONS_API_URL" : "http://localhost:8071"
-            },
-            "cwd": "${workspaceFolder}/app/business-api/python/payment",
-            "console": "integratedTerminal"
-        }
+       
     ]
 }

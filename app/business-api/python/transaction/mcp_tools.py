@@ -1,9 +1,8 @@
 from fastmcp import FastMCP
 import logging
-from services import TransactionService
+from services import transaction_service_singleton as service
 
 logger = logging.getLogger(__name__)
-service = TransactionService()
 mcp = FastMCP("Transaction MCP Server")
 
 
