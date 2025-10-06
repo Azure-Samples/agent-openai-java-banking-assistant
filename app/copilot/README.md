@@ -38,14 +38,14 @@ $env:GIT_LFS_SKIP_SMUDGE="1"
 # Install uv if you don't have it
 pip install uv
 
+# Create a virtual environment
+uv venv
+
+# Activate the virtual environment
+.\.venv\Scripts\Activate.ps1
+
 # Install all dependencies
 uv sync
-```
-
-#### 4. Activate the virtual environment
-
-```powershell
-.\.venv\Scripts\Activate.ps1
 ```
 
 #### 5. Configure environment variables
@@ -56,7 +56,6 @@ Update the `.env.dev` file with your Azure OpenAI connection details:
 # Azure OpenAI Settings
 AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
 AZURE_OPENAI_CHAT_DEPLOYMENT_NAME=gpt-4.1
-AZURE_OPENAI_SERVICE=your-service-name
 
 # Azure services (if needed)
 AZURE_DOCUMENT_INTELLIGENCE_SERVICE=your-doc-intel-service
@@ -72,6 +71,8 @@ PAYMENT_MCP_URL=http://localhost:8072
 
 **Option A: Using uvicorn directly**
 ```powershell
+# Set PROFILE env variable to "dev". This will make the app load .env.dev file instead of .env.
+$env:PROFILE="dev"
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -104,6 +105,8 @@ npm install
 ```powershell
 npm run dev
 ```
+The frontend will be available at:
+- **Frontend**: http://localhost:8081
 
 ---
 

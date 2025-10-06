@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # maps to environment variables described by the user
 
     AZURE_DOCUMENT_INTELLIGENCE_SERVICE: str | None = Field(default=None)
-    FOUNDRY_PROJECT_ENDPOINT: str  = Field(default="",description="Azure AI Foundry Project Endpoint (required)", min_length=1)
+    FOUNDRY_PROJECT_ENDPOINT: str | None = Field(default=None)
     FOUNDRY_MODEL_DEPLOYMENT_NAME: str = Field(default="gpt-4o")
     AZURE_OPENAI_ENDPOINT: str | None = Field(default=None)
     AZURE_OPENAI_CHAT_DEPLOYMENT_NAME: str = Field(default="gpt-4o")

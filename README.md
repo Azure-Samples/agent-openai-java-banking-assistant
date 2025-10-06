@@ -2,7 +2,7 @@
 page_type: sample
 languages:
 - azdeveloper
-- java
+- python
 - bicep
 - typescript
 - html
@@ -18,9 +18,9 @@ products:
 - document-intelligence
 - azure-monitor
 - azure-pipelines
-urlFragment: agent-openai-java-banking-assistant
-name: Multi Agents Banking Assistant with Java and Langchain4j
-description: A Java sample app emulating a personal banking AI-powered assistant to inquire about account balances, review recent transactions, or initiate payments
+urlFragment: agent-openai-python-banking-assistant
+name: Multi Agents Banking Assistant with Python and Microsoft Agent Framework
+description: A Python sample app emulating a personal banking AI-powered assistant to inquire about account balances, review recent transactions, or initiate payments
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 <!-- prettier-ignore -->
@@ -28,14 +28,8 @@ description: A Java sample app emulating a personal banking AI-powered assistant
 
 ![](./docs/assets/robot-agents-small.png)
 
-# Multi Agent Banking Assistant with Python and Semantic Kernel Agent Framework
+# Multi Agent Banking Assistant with Python and Microsoft Agent Framework
 
-[![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/azure-samples/agent-openai-java-banking-assistant/azure-dev.yaml?style=flat-square&label=Build)](https://github.com/azure-samples/agent-openai-java-banking-assistant/actions)
-![Java version](https://img.shields.io/badge/Java->=17-3c873a?style=flat-square)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-
-<!-- [![Watch how to use this sample on YouTube](https://img.shields.io/badge/YouTube-Watch-d95652.svg?style=flat-square&logo=youtube)]() -->
 
 :star: If you like this sample, star it on GitHub — it helps a lot!
 
@@ -53,52 +47,52 @@ Instead of navigating through traditional web interfaces and menus, users can si
 
 Invoices samples are included in the data folder to make it easy to explore payments feature. The payment agent equipped with OCR tools ( Azure Document Intelligence) will lead the conversation with the user to extract the invoice data and initiate the payment process. Other account fake data as transactions, payment methods and account balance are also available to be queried by the user. All data and services are exposed as external REST APIs and **MCP tools** consumed by the agents to provide the user with the requested information.
 
+<div align="center" >
+<p> <strong>This sample is powered by:</strong></p>
+
+
+<img src="./docs/assets/ag-banner.png" width="400" alt="Agent Framework Banner">
+</div>
+
 ## Features 
 This project provides the following features and technical patterns:
- - Simple multi-agent supervisor architecture using **gpt-4o-mini** or **gpt-4o** on Azure Open AI.
- - Exposing your business API as MCP tools for your agents using [spring-ai-mcp](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html)
- - Agents tools configuration and automatic tools invocations with [Semantic Kernel - Agent Framework](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/?pivots=programming-language-python).
+ - Simple multi-agent supervisor architecture using **gpt-4.1** on [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry)
+ - Exposing your business API as MCP tools for your agents using [fastmcp](https://gofastmcp.com/getting-started/welcome)
+ - Agents tools configuration and automatic tools invocations with [Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview).
  - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
  - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
- - Add a copilot app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
+ - Add an agentic app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
  - Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
 
 
 ### Architecture
-![HLA](docs/assets/HLA-MCP.png)
-The personal banking assistant is designed as a [vertical multi-agent system](./docs/multi-agents/introduction.md), with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
+![HLA](docs/assets/HLA-Agent-Framework.png)
+The personal banking assistant is designed as conversational multi-agent system with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
 
-- **Copilot Assistant Copilot App (Microservice)**: Serves as the central hub for processing user requests. It's a spring boot application implementing a vertical multi-agent architectures using **langchain4j** to create Agents equipped with tools. in Java the Agent Router to understand user intent from chat interactions and routes the request to the appropriate domain-specific agent.
-    - **Supervisor Agent**: Acts as a user proxy, interpreting user intent based on chat inputs and directing the request to the specific domain agent. This component ensures that user queries are efficiently handled by the relevant agent. Agents are engaged byt the supervisor in a single turn conversation meaning that only one is selected by the supervisor to answer to user task. It’s just doing routing logic, assuming the domain agent will either carry-on the task in one shot or will involve user feedback if data oversight or action approval (like payment submit) is required.
+- **Copilot Assistant Copilot App (Microservice)**: Serves as the central hub for processing user chat requests. It's a [FastAPI](https://fastapi.tiangolo.com/) app which uses  **agent-framework** to create Agents equipped with tools and orchestrate them using [hand-off pattern](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns#handoff-orchestration).
+    - **Supervisor Agent**: It's responsible to triage the user request, and delegate the task to the specialized domain agent. This component ensures that user queries are efficiently handled by the relevant agent. Agents are engaged by the supervisor in a single turn conversation meaning that only one is selected by the supervisor to answer to user task. It’s just doing routing logic and passing the control to the domain agent which
+    will either carry-on the task in one shot or will involve user feedback if data oversight or action approval (like payment submit) is required.
     
-    - **Account Agent**: Specializes in handling tasks related to banking account information, credit balance, and registered payment methods. It leverages specific Account service APIs to fetch and manage account-related data. Semantic Kernel HTTP plugin is used to create a tool definition from the rest api yaml contract (Open API specification) and automatically call the HTTP endpoint with input parameters extracted by gpt4 model from the chat conversation.
+    - **Account Agent**: Specializes in handling tasks related to banking account information, credit balance, and registered payment methods. It leverages specific Account service APIs to fetch and manage account-related data. The Microsoft Agent Framework is used to create account specific tools definition from the MCP server and automatically call the HTTP endpoint with input parameters extracted by gpt4 model from the chat conversation.
 
-    - **Transactions Agent**: Focuses on tasks related to querying user bank movements, including income and outcome payments. This agent accesses account api to retrieve accountid and transaction history service to search for transactions and present them to the user.
+    - **Transactions Agent**: Focuses on tasks related to querying user bank movements, including income and outcome payments. This agent accesses account mcp server to retrieve accountid and transaction history mcp server to search for transactions and present them to the user.
 
-    - **Payments Agent**: Dedicated to managing tasks related to submitting payments. It interacts with multiple APIs and tools, such as ScanInvoice (backed by Azure Document Intelligence), Account Service to retrieve account and payment methods info, Payment Service to submit payment processing and Transaction History service to check for previous paid invoices.
+    - **Payments Agent**: Focuses on managing tasks related to submitting payments. It interacts with multiple MCP servers and tools, such as ScanInvoice (backed by Azure Document Intelligence), Account Service to retrieve account and payment methods info, Payment Service to submit payment processing and Transaction History service to check for previous paid invoices.
 
-- **Existing Business APIs**: Interfaces with the backend systems to perform operations related to personal banking accounts, transactions, and invoice payments. These APIs are implemented as external spring boot microservices providing the necessary data and functionality consumed by agents to execute their tasks. They are exposed both as traditional RESTs API and as MCP tools (**spring-ai-mcp**) to be consumed by agents.
-    - **Account Service (Microservice)**: Provides functionalities like retrieving account details by username, fetching payment methods, and getting registered beneficiaries. This microservice supports all 3 agents.
+- **Existing Business APIs**: Interfaces with the backend systems to perform operations related to personal banking accounts, transactions, and invoice payments. These APIs are implemented as external spring boot microservices providing the necessary data and functionality consumed by agents to execute their tasks. They are exposed as MCP endpoints using [FastMCP](https://gofastmcp.com/getting-started/welcome) to be consumed by agents.
+    - **Account MCP Service (Microservice)**: Provides functionalities like retrieving account details by username, fetching payment methods, and getting registered beneficiaries. This microservice supports all 3 agents.
 
-    - **Payments Service (Microservice)**: Offers capabilities to submit payments and notify transactions. It is a critical component for the Payments Agent to execute payment-related tasks efficiently.
+    - **Payments MCP Service (Microservice)**: Offers capabilities to submit payments and notify transactions. It is a critical component for the Payments Agent to execute payment-related tasks efficiently.
 
-    - **Reporting Service (Microservice)**: Enables searching transactions and retrieving transactions by recipient. This service supports the Transactions Agent in providing detailed transaction reports to the user and the Payment Agent as it needs to check if an invoice has not been already paid.
+    - **Reporting MCP Service (Microservice)**: Enables searching transactions and retrieving transactions by recipient. This service supports the Transactions Agent in providing detailed transaction reports to the user and the Payment Agent as it needs to check if an invoice has not been already paid.
 
 ## Getting Started
 
-### Run in GitHub Codespaces or VS Code Dev Containers
-
-You can run this repo virtually by using GitHub Codespaces or VS Code Dev Containers.  Click on one of the buttons below to open this repo in one of those options.
-
-[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://codespaces.new/azure-samples/agent-openai-java-banking-assistant?hide_repo_select=true&ref=main&quickstart=true)
-[![Open in VS Code Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/azure-samples/agent-openai-java-banking-assistant/)
-
-All prerequisites are already installed in the container.  You can skip to the [Starting from scratch](#starting-from-scratch) section.
 
 ### Prerequisites
 
-* [Java 17](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17)
-* [Maven 3.8.x](https://maven.apache.org/download.cgi)
+* [Python >= 3.11](https://www.python.org/downloads/release/python-31113/)
+* [uv](https://github.com/astral-sh/uv)
 * [Azure Developer CLI](https://aka.ms/azure-dev/install)
 * [Node.js](https://nodejs.org/en/download/)
 * [Git](https://git-scm.com/downloads)
@@ -111,7 +105,7 @@ All prerequisites are already installed in the container.  You can skip to the [
 
 ### Starting from scratch
 
-You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t Azure-Samples/agent-openai-java-banking-assistant`.
+You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t Azure-Samples/agent-openai-python-banking-assistant`.
 
 Once you have the project available locally, run the following commands if you don't have any pre-existing Azure services and want to start from a fresh deployment.
 
@@ -128,47 +122,14 @@ Once you have the project available locally, run the following commands if you d
     ```
     
     * This will provision Azure resources and deploy this sample to those resources.
-    * The project has been tested with gpt4-o-mini model which is currently available in these regions: **eastus** (Default), **swedencentral**.  For an up-to-date list of regions and models, check [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models)
-    * The Azure Document Intelligence  new rest API is used which is currently available in these regions: **eastus**(Default), **westus2**, **westeurope**. More info [here](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp)
+    * The project has been tested with gpt-4o and gpt-4.1 model which is currently available with several deployment options these regions. The default is global standard. For more info on deployments and updated region availability check [here](https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/models-sold-directly-by-azure?pivots=azure-openai&tabs=global-standard-aoai%2Cstandard-chat-completions%2Cglobal-standard#model-summary-table-and-region-availability)
+
 
 3. After the application has been successfully deployed you will see a web app URL printed to the console.  Click that URL to interact with the application in your browser.  
 
 It will look like the following:
 
 !['Output from running azd up'](docs/assets/azd-success.png)
-
-
-### Deploying with existing Azure resources
-
-If you already have existing Azure resources, you can re-use those by setting `azd` environment values.
-
-#### Existing resource group
-
-1. Run `azd env set AZURE_RESOURCE_GROUP {Name of existing resource group}`
-2. Run `azd env set AZURE_LOCATION {Location of existing resource group (i.e eastus2)}`
-
-#### Existing OpenAI resource
-
-1. Run `azd env set AZURE_OPENAI_SERVICE {Name of existing OpenAI service}`
-2. Run `azd env set AZURE_OPENAI_RESOURCE_GROUP {Name of existing resource group that OpenAI service is provisioned to}`
-3. Run `azd env set AZURE_OPENAI_SERVICE_LOCATION {Location of existing resource (i.e eastus2)}`. Only needed if your OpenAI resource is in a different location than the one you'll pick for the `azd up` step.
-4. Run `azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT {Name of existing ChatGPT deployment}`. Only needed if your ChatGPT deployment is not the default 'gpt4-o-mini'.
-
-#### Existing Azure Document Intelligence
-
-1. Run `azd env set AZURE_DOCUMENT_INTELLIGENCE_SERVICE {Name of existing Azure Document Intelligence}`
-2. Run `azd env set AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP {Name of existing resource group with Azure Document Intelligence service}`
-3. If that resource group is in a different location than the one you'll pick for the `azd up` step,
-   then run `azd env set AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP_LOCATION {Location of existing service}`
-
-#### Other existing Azure resources
-
-You can also use existing Form Recognizer and Storage Accounts. See `./infra/main.parameters.json` for list of environment variables to pass to `azd env set` to configure those existing resources.
-
-#### Provision remaining resources
-
-Now you can run `azd up`, following the steps in [Deploying from scratch](#deploying-from-scratch) above.
-That will both provision resources and deploy the code.
 
 
 ### Redeploying
@@ -205,52 +166,32 @@ azd up
     }
 ```
 
-### Running locally
-
-1. Run
-
-    ```shell
-    az login
-    ```
-
-2. Change dir to `app`
-
-    ```shell
-    cd app
-    ```
-
-3. Run the `./start-compose.ps1` (Windows) or `./start-compose.sh` (Linux/Mac) scripts or run the "VS Code Task: Start App" to start the project locally.
-4. Wait for the docker compose to start all the containers (web, api, indexer) and refresh your browser to [http://localhost](http://localhost)
+### Running Agents locally
+Once you have created the Azure resources with `azd up` or `azd provision`, you can run all the apps locally (instead of using Azure Container Apps). For more details on how to run each app check:
+-  the [README.md](app/copilot/README.md) to run the copilot chat service and the front-end
+-  the [README.md](app/business-api/python/README.md) to run the simulated banking mcp servers.
 
 
 ## Guidance
 
-### Testing different gpt4 models and versions
-The default LLM used in this project is *gpt-4o-mini*. It's a cost-efficient small model with enhanced planning, reasoning capabilities which are required by this use case to reliably select the right agent based on the chat conversation and to properly handle tools call.However, in case of long chat or some words, the model might fail sometimes to detect the right user intent especially when he/she asks to pay a bill based on image upload. Based on our tests *gpt4-o* provides better results but it's more expensive and slower. To read more about the models and prices, check [here](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/). 
-
-You can test different models and versions by changing the , `AZURE_OPENAI_CHATGPT_MODEL`, `AZURE_OPENAI_CHATGPT_VERSION` and `AZURE_OPENAI_CHATGPT_DEPLOYMENT` environment variable to the desired model like below:
+### Testing different gpt models, versions and sku.
+The default LLM used in this project is *gpt-4.1* deployed with global standard on Azure AI Foundry.
+You can test different models and versions by changing the model sections in the [infra/main.parameters.json](infra/main.parameters.json). An example:
 
 ```shell
-azd env set AZURE_OPENAI_CHATGPT_MODEL gpt-4o
-azd env set AZURE_OPENAI_CHATGPT_VERSION 2024-05-13
-azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT gpt-4o
+"models": {
+      "value": [
+        {
+          "deploymentName": "gpt-4.1",
+          "name": "gpt-4.1",
+          "format": "OpenAI",
+          "version": "2025-04-14",
+          "skuName": "GlobalStandard",
+          "capacity": 80
+        }
+      ]
+    }
 ```
-### Enabling Application Insights
-
-Applications Insights is enabled by default. It allows to investigate each request tracing along with the logging of errors.
-
-If you want to disable it set the `AZURE_USE_APPLICATION_INSIGHTS` variable to false before running `azd up`
-
-1. Run `azd env set AZURE_USE_APPLICATION_INSIGHTS false`
-1. Run `azd up`
-
-To see the performance data, go to the Application Insights resource in your resource group, click on the "Investigate -> Performance" blade and navigate to any HTTP request to see the timing data.
-To inspect the performance of chat requests, use the "Drill into Samples" button to see end-to-end traces of all the API calls made for any chat request.
-Under "Trace & Events" panel you can review custom Java informational logs to better understand content of OpenAI requests and responses.
-
-![Tracing screenshot](docs/assets/transaction-tracing.png)
-
-To see any exceptions and server errors, navigate to the "Investigate -> Failures" blade and use the filtering tools to locate a specific exception. You can see Java stack traces on the right-hand side.
 
 ### Enabling authentication
 
@@ -258,72 +199,6 @@ By default, the web app on ACA will have no authentication or access restriction
 
 
 To then limit access to a specific set of users or groups, you can follow the steps from [Restrict your Microsoft Entra app to a set of users](https://learn.microsoft.com/entra/identity-platform/howto-restrict-your-app-to-a-set-of-users) by changing "Assignment Required?" option under the Enterprise Application, and then assigning users/groups access.  Users not granted explicit access will receive the error message -AADSTS50105: Your administrator has configured the application <app_name> to block users 
-
-### App Continuous Integration with GitHub Actions
-
-1. **Create a Service Principal for the github action pipeline**
-
-    Use [az ad sp create-for-rbac](https://learn.microsoft.com/en-us/cli/azure/ad/sp#az_ad_sp_create_for_rbac) to create the service principal:
-    
-    ```bash
-    groupId=$(az group show --name <resource-group-name>  --query id --output tsv)
-    az ad sp create-for-rbac --name "agent-openai-java-banking-assistant-pipeline-spi" --role contributor --scope $groupId --sdk-auth
-    ```
-    Output is similar to:
-    
-    ```json
-    {
-    "clientId": "xxxx6ddc-xxxx-xxxx-xxx-ef78a99dxxxx",
-    "clientSecret": "xxxx79dc-xxxx-xxxx-xxxx-aaaaaec5xxxx",
-    "subscriptionId": "xxxx251c-xxxx-xxxx-xxxx-bf99a306xxxx",
-    "tenantId": "xxxx88bf-xxxx-xxxx-xxxx-2d7cd011xxxx",
-    "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
-    "resourceManagerEndpointUrl": "https://management.azure.com/",
-    "activeDirectoryGraphResourceId": "https://graph.windows.net/",
-    "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
-    "galleryEndpointUrl": "https://gallery.azure.com/",
-    "managementEndpointUrl": "https://management.core.windows.net/"
-    } 
-    ```
-    
-    Save the JSON output because it is used in a later step. Also, take note of the clientId, which you need to update the service principal in the next section.
-
-2. **Assign ACRPush permission to service Principal**
-   
-   This step enables the GitHub workflow to use the service principal to [authenticate with your container registry](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-auth-service-principal) and to push a Docker image.
-   Get the resource ID of your container registry. Substitute the name of your registry in the following az acr show command:
-   ```bash
-   registryId=$(az acr show --name <registry-name> --resource-group <resource-group-name> --query id --output tsv)
-    ```
-
-   Use [az role assignment create](https://learn.microsoft.com/en-us/cli/azure/role/assignment#az_role_assignment_create) to assign the AcrPush role, which gives push and pull access to the registry. Substitute the client ID of your service principal:
-   ```bash
-   az role assignment create --assignee <ClientId> --scope $registryId --role AcrPush
-   ```
-
-3. **Add the service principal to your GitHub environment secrets**
-
- - Go to your forked repository in GitHub and create an [environment]((https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)) called 'Development' (yes this is the exact name; don't change it). If you want to change the environment name (also adding new branches and environments, change the current branch/env mapping) you can do that, but make sure to change the pipeline code accordingly in `.github/workflows/azure-dev.yml`.
- - Create 'Development' environment [secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) as below:
-    | Secret                | Value                                                                                      |
-    |-----------------------|--------------------------------------------------------------------------------------------|
-    | AZURE_CREDENTIALS     | The entire JSON output from the service principal creation step                            |
-    | SPI_CLIENT_ID         | The service principal client id used as username to login to Azure Container Registry      |
-    | SPI_CLIENT_SECRET     | The service principal client secret used as password to login to Azure Container Registry  |
- - Create 'Development' [environment variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-an-environment) as below:
-    | Variable                | Value                                                                                        |
-    |---------------------------|--------------------------------------------------------------------------------------------|
-    | ACR_NAME                  | The name of the Azure Container registry                                                   |
-    | RESOURCE_GROUP            | The name of the resource group where your Azure Container Environment has been deployed    |
- - Create [repository variables](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#creating-configuration-variables-for-a-repository) as below:
-    | Variable                | Value                                                                                        |
-    |---------------------------|--------------------------------------------------------------------------------------------|
-    | ACA_DEV_ENV_NAME                  | The name of the Azure Container Apps Environment                                       |
-    | COPILOT_ACA_DEV_APP_NAME      | The container app name for the copilot orchestrator app                                    |
-    | WEB_ACA_DEV_APP_NAME          | The container app name for the web frontend  app                                           |
-    | ACCOUNTS_ACA_DEV_APP_NAME     | The container app name for the business account api                                        |
-    | PAYMENTS_ACA_DEV_APP_NAME     | The container app name for the business payment api                                        |
-    | TRANSACTIONS_ACA_DEV_APP_NAME | The container app name for the business payment api                                        |
 
 
 ### Cost estimation
@@ -348,24 +223,30 @@ either by deleting the resource group in the Portal or running `azd down`.
 
 Here are some resources to learn more about multi-agent architectures and technologies used in this sample:
 
-- [Generative AI For Beginners](https://github.com/microsoft/generative-ai-for-beginners)
-- [Azure OpenAI Service](https://learn.microsoft.com/azure/ai-services/openai/overview)
-- [Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/java-1-0-release-candidate-for-semantic-kernel-now-available/)
-- [OpenAI's Bet on a Cognitive Architecture](https://blog.langchain.dev/openais-bet-on-a-cognitive-architecture/)
-- [THE LANDSCAPE OF EMERGING AI AGENT ARCHITECTURES FOR REASONING, PLANNING, AND TOOL CALLING: A SURVEY](https://arxiv.org/pdf/2404.11584)
-- [MicroAgents: Exploring Agentic Architecture with Microservices](https://devblogs.microsoft.com/semantic-kernel/microagents-exploring-agentic-architecture-with-microservices/)
-- [Chat + Enterprise data with Azure OpenAI and Azure AI Search](https://github.com/Azure-Samples/azure-search-openai-java)
-- [SK Agents Overview and High Level Design (.net)](https://github.com/microsoft/semantic-kernel/blob/ec26ce7cb70f933b52a62f0a4e1c7b98c49d590e/docs/decisions/0032-agents.md#usage-patterns)
+- [Microsoft Agent Framework](https://github.com/microsoft/agent-framework)
+- [AI agents For Beginners](https://github.com/microsoft/ai-agents-for-beginners)
+- [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry)
+- [Develop AI apps using Azure services](https://aka.ms/azai)
+- [Building Effective Agents - Anthropic](https://www.anthropic.com/engineering/building-effective-agents)
+- [AI agent orchestration patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
 
-You can also find [more Azure AI samples here](https://github.com/Azure-Samples/azureai-samples).
 
-## FAQ
+You can also find [more Azure Ai agents samples here](https://aka.ms/aiapps)
 
-You can find answers to frequently asked questions in the [FAQ](./docs/faq.md).
+
+## Getting Help
+
+If you get stuck or have any questions about building AI apps, join:
+
+[![Azure AI Foundry Discord](https://img.shields.io/badge/Discord-Azure_AI_Foundry_Community_Discord-blue?style=for-the-badge&logo=discord&color=5865f2&logoColor=fff)](https://aka.ms/foundry/discord)
+
+If you have product feedback or errors while building visit:
+
+[![Azure AI Foundry Developer Forum](https://img.shields.io/badge/GitHub-Azure_AI_Foundry_Developer_Forum-blue?style=for-the-badge&logo=github&color=000000&logoColor=fff)](https://aka.ms/foundry/forum)
 
 ## Troubleshooting
 
-If you have any issue when running or deploying this sample, please check the [troubleshooting guide](./docs/troubleshooting.md). If you can't find a solution to your problem, please [open an issue](https://github.com/Azure-Samples/agent-openai-java-banking-assistant/issues) in this repository.
+If you have any issue when running or deploying this sample [open an issue](https://https://github.com/Azure-Samples/agent-openai-python-banking-assistant/issues) in this repository.
 
 ## Contributing
 
