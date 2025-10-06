@@ -52,7 +52,14 @@ Invoices samples are included in the data folder to make it easy to explore paym
 
 
 <img src="./docs/assets/ag-banner.png" width="400" alt="Agent Framework Banner">
+
+
 </div>
+
+<br />
+
+For Semantic Kernel version check this [branch](https://github.com/Azure-Samples/agent-openai-python-banking-assistant/tree/semantic-kernel)
+
 
 ## Features 
 This project provides the following features and technical patterns:
