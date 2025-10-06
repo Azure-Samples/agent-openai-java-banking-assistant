@@ -45,7 +45,7 @@ uv venv
 .\.venv\Scripts\Activate.ps1
 
 # Install all dependencies
-uv sync
+uv sync --active --prerelease=allow 
 ```
 
 #### 5. Configure environment variables
