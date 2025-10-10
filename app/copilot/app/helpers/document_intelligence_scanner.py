@@ -12,6 +12,7 @@ from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
 from app.config.settings import settings
 from app.config.azure_credential import get_azure_credential
 from app.helpers.blob_proxy import BlobStorageProxy
+from agent_framework._tools import ai_function
 
 logger = logging.getLogger(__name__)
 
@@ -144,8 +145,11 @@ class DocumentIntelligenceInvoiceScanHelper:
 
         return scan_data
 
-    #@kernel_function(description="Extract the invoice or bill data scanning a photo or image")
-    def scan_invoice_plugin(
+    #@ai_function(
+    # name="scan_invoice_tool", 
+    # description="function to scan invoice and bill documents and extract relevant fields")
+    # approval_mode: "always_require"
+    def scan_invoice(
         self, 
         blob_name: Annotated[str, "the path to the file containing the image or photo"]
     ) -> Annotated[str, "Returns a JSON string containing extracted invoice fields like VendorName, CustomerName, InvoiceId, InvoiceDate, and InvoiceTotal"]:
@@ -161,5 +165,3 @@ class DocumentIntelligenceInvoiceScanHelper:
         except Exception as e:
             logger.error("Error scanning invoice with blob name [%s]: %s", blob_name, str(e))
             return json.dumps({"error": f"Failed to scan invoice: {str(e)}"})
-    
-    # semantic-kernel plugin for scan

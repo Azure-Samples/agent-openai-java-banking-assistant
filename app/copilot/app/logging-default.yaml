@@ -43,19 +43,24 @@ loggers:
 
   # OpenAI client - set to DEBUG for detailed logging
   openai._base_client:
-    level: DEBUG
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  httpx:
+    level: WARNING
     handlers: [console]
     propagate: false
 
   # MCP client - set to DEBUG for detailed logging
   mcp.client.streamable_http:
-    level: INFO
+    level: WARNING
     handlers: [console]
     propagate: false
 
   # Azure Identity - set to DEBUG for detailed authentication logging
   azure.identity:
-    level: DEBUG
+    level: WARNING
     handlers: [console]
     propagate: false
 

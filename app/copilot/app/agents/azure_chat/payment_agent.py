@@ -89,7 +89,6 @@ class PaymentAgent :
       
       
       logger.info("Initializing Account MCP server tools ")
-      #await self.account_mcp_server.__aenter__()
       account_mcp_server = MCPStreamableHTTPTool(
         name="Account MCP server client",
         url=self.account_mcp_server_url
@@ -110,7 +109,12 @@ class PaymentAgent :
      )
       await payment_mcp_server.connect()
 
-      return self.azure_chat_client.create_agent(
-           instructions=full_instruction,
-           name=PaymentAgent.name,
-           tools=[account_mcp_server, transaction_mcp_server, payment_mcp_server, self.document_scanner_helper.scan_invoice_plugin])
+      return ChatAgent(
+            chat_client=self.azure_chat_client,
+            instructions=full_instruction,
+            name=PaymentAgent.name,
+            tools=[account_mcp_server,
+                   transaction_mcp_server, 
+                   payment_mcp_server, 
+                   self.document_scanner_helper.scan_invoice]
+        )

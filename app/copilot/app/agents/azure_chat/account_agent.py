@@ -35,8 +35,10 @@ class AccountAgent :
       logger.info("Initializing Account MCP server tools ")
 
       await account_mcp_server.connect()
-      return self.azure_chat_client.create_agent(
-           instructions=full_instruction,
-           name=AccountAgent.name,
-           tools=[account_mcp_server])
+      return ChatAgent(
+            chat_client=self.azure_chat_client,
+            instructions=full_instruction,
+            name=AccountAgent.name,
+            tools=[account_mcp_server],
+        )
     

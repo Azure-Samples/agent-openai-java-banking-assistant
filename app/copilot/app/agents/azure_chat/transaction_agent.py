@@ -55,7 +55,9 @@ class TransactionHistoryAgent :
      )
       await transaction_mcp_server.connect()
 
-      return self.azure_chat_client.create_agent(
-           instructions=full_instruction,
-           name=TransactionHistoryAgent.name,
-           tools=[account_mcp_server, transaction_mcp_server])
+      return ChatAgent(
+            chat_client=self.azure_chat_client,
+            instructions=full_instruction,
+            name=TransactionHistoryAgent.name,
+            tools=[account_mcp_server, transaction_mcp_server],
+        )
