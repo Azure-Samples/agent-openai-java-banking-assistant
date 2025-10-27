@@ -39,6 +39,6 @@ class AccountAgent :
             chat_client=self.azure_chat_client,
             instructions=full_instruction,
             name=AccountAgent.name,
-            tools=[account_mcp_server],
+            tools=[account_mcp_server]
         )
     
