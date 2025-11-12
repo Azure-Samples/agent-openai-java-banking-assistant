@@ -21,9 +21,17 @@ def get_env_files() -> List[str]:
         f".env.{env}"  # Environment-specific file
         
     ]
-    
-    # Filter to only existing files
-    return [f for f in env_files if os.path.exists(f)]    
+
+    final_env_files = []
+    # print found env files only if path exists
+    print("Environment files loading:")    
+    for f in env_files:
+        print(f"Loading: {f}")
+        if os.path.exists(f):
+            final_env_files.append(f)
+            print(f"{f} Loaded")
+
+    return final_env_files
 
 class Settings(BaseSettings):
     """Application settings loaded from environment or environment-specific .env files.

@@ -7,7 +7,7 @@ import logging
 #from app.config.container_foundry import Container
 
 # Azure Chat based agents dependencies
-from app.agents.azure_chat.supervisor_agent import SupervisorAgent
+from app.agents.azure_chat.handoff.handoff_orchestrator import HandoffOrchestrator
 from app.config.container_azure_chat import Container
 
 from app.models.chat import ChatAppRequest, ChatResponse, ChatResponseMessage, ChatChoice, ChatContext, ChatDelta
@@ -113,30 +113,25 @@ def _format_stream_chunk(content: str, is_final: bool = False, thread_id: str | 
                 }
             }]
         }
+        response["threadId"] = thread_id
     
     return json.dumps(response) + "\n"
 
 
 async def _stream_response(
-    supervisor_agent: SupervisorAgent,
+    handoff_orchestrator: HandoffOrchestrator,
     user_message: str,
     thread_id: str | None
 ) -> AsyncGenerator[str, None]:
-    """Stream the response from the supervisor agent."""
+    """Stream the response from the handoff orchestrator."""
     full_content = ""
     final_thread_id = None
     
     try:
-        async for content, is_final, tid in supervisor_agent.processMessageStream(user_message, thread_id):
-            if is_final:
-                final_thread_id = tid
-                full_content += content
-                # Send final chunk with full message and thread_id
-                yield _format_stream_chunk(full_content, is_final=True, thread_id=final_thread_id)
-            else:
-                full_content += content
-                # Send streaming chunk
-                yield _format_stream_chunk(content, is_final=False)
+        async for content, is_final, tid in handoff_orchestrator.processMessageStream(user_message, thread_id):
+           
+          yield _format_stream_chunk(content=content, is_final=is_final, thread_id=tid)
+          
     except Exception as e:
         logger.error(f"Error during streaming: {str(e)}", exc_info=True)
         # Send error as a final chunk
@@ -168,7 +163,7 @@ async def _stream_response(
 
 @router.post("/chat")
 @inject
-async def chat(chat_request: ChatAppRequest, supervisor_agent: SupervisorAgent = Depends(Provide[Container.supervisor_agent])):
+async def chat(chat_request: ChatAppRequest, handoff_orchestrator: HandoffOrchestrator = Depends(Provide[Container.handoff_orchestrator])):
     if not chat_request.messages:
         raise HTTPException(status_code=400, detail="history cannot be null in Chat request")
     
@@ -183,22 +178,12 @@ async def chat(chat_request: ChatAppRequest, supervisor_agent: SupervisorAgent =
         try:
             # Return streaming response with NDJSON
             return StreamingResponse(
-                _stream_response(supervisor_agent, last_message.content, chat_request.threadId),
+                _stream_response(handoff_orchestrator, last_message.content, chat_request.threadId),
                 media_type="application/x-ndjson"
             )
         except Exception as e:
             logger.error(f"Error initiating stream: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
     else:
-        try:
-            # Return regular JSON response
-            response_content, thread_id = await supervisor_agent.processMessage(
-                last_message.content,
-                chat_request.threadId
-            )
+        raise HTTPException(status_code=500, detail=f"Synch mode not supported: ")
             
-            # Convert string response to structured ChatResponse
-            return _convert_string_to_chat_response(response_content, thread_id)
-        except Exception as e:
-            logger.error(f"Error processing message: {str(e)}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")

@@ -7,6 +7,20 @@
        
        
         {
+            "name": "DevUI",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_dev-ui.py",
+            "env": {
+                "PROFILE": "dev",
+                "PYTHONNOUSERSITE": "1"
+            },
+            "jinja": true,
+            "cwd": "${workspaceFolder}/app/copilot",
+            "justMyCode": false
+
+        },
+          {
             "name": "FastAPI: DEV Debug Copilot App",
             "type": "debugpy",
             "request": "launch",
@@ -23,7 +37,7 @@
             },
             "jinja": true,
             "cwd": "${workspaceFolder}/app/copilot",
-            "justMyCode": false
+            "justMyCode": true
 
         },
         {

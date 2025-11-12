@@ -51,7 +51,7 @@ class SupervisorAgent :
      
         
 
-    async def _build_af_agent(self) -> ChatAgent:
+    def _build_af_agent(self) -> ChatAgent:
       
       return ChatAgent(
             chat_client=self.azure_chat_client,
@@ -95,7 +95,7 @@ class SupervisorAgent :
       """
       try:
           # Set up agent and thread (same as processMessage)
-          agent = await self._build_af_agent()
+          agent = self._build_af_agent()
 
           processed_thread_id = thread_id
           supervisor_resumed_thread = agent.get_new_thread()
@@ -155,7 +155,7 @@ class SupervisorAgent :
       """Process a chat message using the injected Azure Chat Completion service and return response and thread id."""
       #For azure chat based agents we need to provide the message history externally as there is no built-in memory thread implementation per thread id.
       
-      agent = await self._build_af_agent()
+      agent = self._build_af_agent()
 
       processed_thread_id = thread_id
       supervisor_resumed_thread =  agent.get_new_thread()

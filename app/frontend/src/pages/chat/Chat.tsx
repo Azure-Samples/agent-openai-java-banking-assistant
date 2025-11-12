@@ -101,8 +101,7 @@ const Chat = () => {
                                 session_state: null
                             }]
                         };
-                    
-                    setStreamedAnswers([...answers, [question, attachments, latestResponse]]);
+                    setStreamedAnswers([...streamedAnswers, [question, attachments, latestResponse]]);
                     resolve(null);
                 }, 33);
             });
@@ -129,7 +128,7 @@ const Chat = () => {
                     askResponse.threadId = capturedThreadId;
                     answer = askResponse["choices"][0]["message"]["content"];
                     // Update one last time with final response
-                    await updateState("");
+                    //await updateState("");
                 } else if (event["choices"] && event["choices"][0]["delta"] && event["choices"][0]["delta"]["content"]) {
                     setIsLoading(false);
                     await updateState(event["choices"][0]["delta"]["content"]);
@@ -142,7 +141,7 @@ const Chat = () => {
             answer = answer || "An error occurred while streaming the response.";
             await updateState(" [Error: Stream interrupted]");
         } finally {
-            setIsStreaming(false);
+           // setIsStreaming(false);
         }
         
         const fullResponse: ChatAppResponse = {
@@ -215,7 +214,7 @@ const Chat = () => {
             }
             if (stream) {
                 const parsedResponse: ChatAppResponse = await handleAsyncRequest(questionContext.question,questionContext.attachments || [], answers, setAnswers, response.body);
-                setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse]]);
+                //setAnswers([...answers, [questionContext.question,questionContext.attachments || [], parsedResponse]]);
                 setThreadId(parsedResponse.threadId || undefined);
             } else {
                 const parsedResponse: ChatAppResponseOrError = await response.json();

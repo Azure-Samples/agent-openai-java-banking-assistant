@@ -8,7 +8,6 @@ from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
-from azure.monitor.opentelemetry.exporter import AzureMonitorLogExporter
 from opentelemetry.semconv.resource import ResourceAttributes
 
 from app.config.settings import settings
@@ -93,27 +92,7 @@ def load_logging_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
         # Return basic configuration on error
         return load_logging_config()
 
-def _setup_azure_monitoring_logging() -> None:
-    """Setup Azure monitoring logging."""
-    exporters = []
-    exporters.append(AzureMonitorLogExporter(connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING))
 
-    resource = Resource.create({ResourceAttributes.SERVICE_NAME: "multi-agent-copilot-app"})
-    # Create and set a global logger provider for the application.
-    logger_provider = LoggerProvider(resource=resource)
-    # Log processors are initialized with an exporter which is responsible
-    # for sending the telemetry data to a particular backend.
-    for log_exporter in exporters:
-        logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
-    # Sets the global default logger provider
-    set_logger_provider(logger_provider)
-
-    # Create a logging handler to write logging records, in OTLP format, to the exporter.
-    handler = LoggingHandler()
-    # Attach the handler to the root logger. `getLogger()` with no arguments returns the root logger.
-    # Events from all child loggers will be processed by this handler.
-    logger = logging.getLogger()
-    logger.addHandler(handler)
 
 def setup_logging(profile: Optional[str] = None) -> None:
     """Setup logging configuration based on the profile.

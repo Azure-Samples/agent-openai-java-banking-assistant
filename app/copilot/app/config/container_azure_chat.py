@@ -5,6 +5,7 @@ from dependency_injector import containers, providers
 from azure.ai.projects import AIProjectClient
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.storage.blob import BlobServiceClient
+from app.agents.azure_chat.handoff.handoff_orchestrator import HandoffOrchestrator
 from app.helpers.blob_proxy import BlobStorageProxy
 from app.helpers.document_intelligence_scanner import DocumentIntelligenceInvoiceScanHelper
 from app.config.azure_credential import get_azure_credential, get_azure_credential_async
@@ -83,7 +84,7 @@ class Container(containers.DeclarativeContainer):
     document_scanner_helper=document_intelligence_scanner
     )
 
-    #Supervisor Agent with Azure chat based agents. A per request instance is created as it holds the thread state
+    #Supervisor Agent implemented with agents-as-tools approach using Azure chat based agents. A per request instance is created as it holds the thread state
     supervisor_agent = providers.Factory(
         SupervisorAgent,
         azure_chat_client=_azure_chat_client,
@@ -92,5 +93,13 @@ class Container(containers.DeclarativeContainer):
         payment_agent=payment_agent
     )
 
+    #Supervisor Agent implemented using agent framework handoff built-in orchestration.with Azure chat based agents. A per request instance is created as based on recommendation from agent framework team about managing workflow instance.
+    handoff_orchestrator = providers.Factory(
+        HandoffOrchestrator,
+        azure_chat_client=_azure_chat_client,
+        account_agent=account_agent,
+        transaction_agent=transaction_agent,
+        payment_agent=payment_agent
+    )
 
    
