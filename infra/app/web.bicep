@@ -4,6 +4,8 @@ param tags object = {}
 
 param identityName string
 param apiBaseUrl string
+param transactionApiUrl string
+param accountApiUrl string
 param applicationInsightsName string
 param containerAppsEnvironmentName string
 param containerRegistryName string
@@ -32,8 +34,16 @@ module app '../shared/host/container-app-upsert.bicep' = {
         value: applicationInsights.properties.ConnectionString
       }
       {
-        name: 'REACT_APP_API_BASE_URL'
+        name: 'CHATKIT_BASE_URL'
         value: apiBaseUrl
+      }
+      {
+        name: 'TRANSACTION_API_BASE_URL'
+        value: transactionApiUrl
+      }
+      {
+        name: 'ACCOUNT_API_BASE_URL'
+        value: accountApiUrl
       }
       {
         name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'

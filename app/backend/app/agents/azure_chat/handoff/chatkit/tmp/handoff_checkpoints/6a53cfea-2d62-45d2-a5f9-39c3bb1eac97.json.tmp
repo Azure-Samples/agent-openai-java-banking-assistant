@@ -1,0 +1,16 @@
+{
+  "checkpoint_id": "6a53cfea-2d62-45d2-a5f9-39c3bb1eac97",
+  "workflow_id": "dc5b608a-17a1-4067-9179-fd00a5c59e3c",
+  "timestamp": "2025-11-20T09:39:00.413166+00:00",
+  "messages": {
+    "internal:handoff-user-input": [
+      {
+        "data": "That's everything I needed for the refund.",
+        "source_id": "internal:handoff-user-input",
+        "target_id": "handoff-user-input",
+        "type": "response",
+        "trace_contexts": null,
+        "source_span_ids": null,
+        "original_request": {
+          "conversation": [
+            

@@ -1,0 +1,20 @@
+FROM node:18-alpine AS build
+
+# make the 'app' folder the current working directory
+WORKDIR /app
+
+COPY . .
+
+
+# install project dependencies
+RUN npm install
+RUN npm run build
+
+FROM nginx:alpine
+
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/build .
+
+EXPOSE 80
+
+CMD ["/bin/sh", "-c", "nginx -g \"daemon off;\""]

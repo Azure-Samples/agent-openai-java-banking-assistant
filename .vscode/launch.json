@@ -10,23 +10,23 @@
             "name": "DevUI",
             "type": "debugpy",
             "request": "launch",
-            "program": "main_dev-ui.py",
+            "program": "app/main_dev-ui.py",
             "env": {
                 "PROFILE": "dev",
                 "PYTHONNOUSERSITE": "1"
             },
             "jinja": true,
-            "cwd": "${workspaceFolder}/app/copilot",
-            "justMyCode": false
+            "cwd": "${workspaceFolder}/app/backend",
+            "justMyCode": true
 
         },
           {
-            "name": "FastAPI: DEV Debug Copilot App",
+            "name": "DEV Debug Backend App",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "app.main:app",
+                "app.main_handoff:app",
                 "--port", "8080"
             ],
             "env": {
@@ -36,25 +36,45 @@
                 "ABC_APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=b0f680d4-3fd4-46f1-92b8-65c6a923809d;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/;ApplicationId=5e2cd9f7-9baf-4922-a17d-117a1b5988f2"
             },
             "jinja": true,
-            "cwd": "${workspaceFolder}/app/copilot",
+            "cwd": "${workspaceFolder}/app/backend",
             "justMyCode": true
 
         },
         {
-            "name": "FastAPI: No Profile Debug Copilot App",
+            "name": "Chatkit Backend App",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
-            "python": "./app/copilot/.venv/Scripts/python.exe",
             "args": [
-                "app.main:app",
+                "main_chatkit_server:app",
+                "--port", "8080"
+            ],
+            "env": {
+                "PROFILE": "dev",
+                "ABC_ENABLE_OTEL": "true",
+                "ABC_ENABLE_SENSITIVE_DATA": "true",
+                "ABC_APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=b0f680d4-3fd4-46f1-92b8-65c6a923809d;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/;ApplicationId=5e2cd9f7-9baf-4922-a17d-117a1b5988f2"
+            },
+            "jinja": true,
+            "cwd": "${workspaceFolder}/app/backend",
+            "justMyCode": true
+
+        },
+        {
+            "name": "No Profile Debug Backend App",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "python": "./app/backend/.venv/Scripts/python.exe",
+            "args": [
+                "app.main_handoff:app",
                 "--port", "8080"
             ],
             "env": {
                 "AGENT_FRAMEWORK_ENABLE_OTEL": "true"
             },
             "jinja": true,
-            "cwd": "${workspaceFolder}/app/copilot",
+            "cwd": "${workspaceFolder}/app/backend",
             "justMyCode": false
 
         }

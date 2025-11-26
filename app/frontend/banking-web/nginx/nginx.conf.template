@@ -1,0 +1,38 @@
+server {
+  listen       80;
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+  }
+  
+  location /api/transactions {
+    proxy_ssl_server_name on;
+    proxy_http_version 1.1;
+    proxy_pass $TRANSACTION_API_BASE_URL;
+  }
+  
+  location /api/accounts {
+    proxy_ssl_server_name on;
+    proxy_http_version 1.1;
+    proxy_pass $ACCOUNT_API_BASE_URL;
+  }
+
+  location /chatkit {
+    proxy_ssl_server_name on;
+    proxy_http_version 1.1;
+    proxy_pass $CHATKIT_BASE_URL;
+  }
+
+  location /upload {
+    proxy_ssl_server_name on;
+    proxy_http_version 1.1;
+    proxy_pass $CHATKIT_BASE_URL;
+  }
+
+  location /preview {
+    proxy_ssl_server_name on;
+    proxy_http_version 1.1;
+    proxy_pass $CHATKIT_BASE_URL;
+  }
+
+}

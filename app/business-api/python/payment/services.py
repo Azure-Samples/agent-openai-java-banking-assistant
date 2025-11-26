@@ -23,6 +23,7 @@ class PaymentService:
                 "TRANSACTIONS_API_SERVER_URL is not configured. Provide `transaction_api_url` to PaymentService or set the TRANSACTIONS_API_URL environment variable."
             )
 
+
     def process_payment(self, payment: Payment):
         # validations similar to Java implementation
         if not payment.accountId:
@@ -30,13 +31,9 @@ class PaymentService:
         if not payment.accountId.isdigit():
             raise ValueError("AccountId is not a valid number")
 
-        if (payment.paymentType or "").lower() != "transfer" and (not payment.paymentMethodId):
-            raise ValueError("paymentMethodId is empty or null")
+        if (payment.paymentType or "").lower() == "creditcard" and (not payment.cardId):
+            raise ValueError(" Credit card id is empty or null for payment type CreditCard")
 
-        if payment.paymentMethodId and not payment.paymentMethodId.isdigit():
-            raise ValueError("paymentMethodId is not a valid number")
-
-        # Pydantic v2: `json()` is deprecated. Use `model_dump_json()` instead.
         logger.info("Payment successful for: %s", payment.model_dump_json())
 
         transaction = self._convert_payment_to_transaction(payment)
@@ -56,11 +53,15 @@ class PaymentService:
         return Transaction(
             id=str(uuid.uuid4()),
             description=payment.description,
-            type="outcome",
+            flowType="outcome",
+            type="payment",
             recipientName=payment.recipientName,
             recipientBankReference=payment.recipientBankCode,
             accountId=payment.accountId,
             paymentType=payment.paymentType,
             amount=payment.amount,
             timestamp=payment.timestamp,
+            cardId=payment.cardId,
+            category=payment.category,
+            status=payment.status
         )

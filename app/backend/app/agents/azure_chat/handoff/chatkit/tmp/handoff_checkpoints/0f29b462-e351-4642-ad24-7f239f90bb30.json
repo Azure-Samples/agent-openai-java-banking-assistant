@@ -1,0 +1,86 @@
+{
+  "checkpoint_id": "0f29b462-e351-4642-ad24-7f239f90bb30",
+  "workflow_id": "dc5b608a-17a1-4067-9179-fd00a5c59e3c",
+  "timestamp": "2025-11-20T09:38:11.566184+00:00",
+  "messages": {
+    "input-conversation": [
+      {
+        "data": [
+          {
+            "__af_model__": "agent_framework._types:ChatMessage",
+            "strategy": "to_dict",
+            "value": {
+              "type": "chat_message",
+              "role": {
+                "type": "role",
+                "value": "user"
+              },
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "Hi, my order 12345 arrived damaged. I need a refund."
+                }
+              ],
+              "additional_properties": {}
+            }
+          }
+        ],
+        "source_id": "input-conversation",
+        "target_id": null,
+        "type": "standard",
+        "trace_contexts": null,
+        "source_span_ids": null,
+        "original_request": null
+      }
+    ]
+  },
+  "shared_state": {
+    "_executor_state": {
+      "handoff-coordinator": {
+        "conversation": [],
+        "round_index": 0,
+        "metadata": {}
+      },
+      "triage_agent": {
+        "cache": [],
+        "agent_thread": {
+          "type": "agent_thread_state",
+          "service_thread_id": null,
+          "chat_message_store_state": null
+        },
+        "pending_agent_requests": {},
+        "pending_responses_to_agent": []
+      },
+      "refund_agent": {
+        "cache": [],
+        "agent_thread": {
+          "type": "agent_thread_state",
+          "service_thread_id": null,
+          "chat_message_store_state": null
+        },
+        "pending_agent_requests": {},
+        "pending_responses_to_agent": []
+      },
+      "order_agent": {
+        "cache": [],
+        "agent_thread": {
+          "type": "agent_thread_state",
+          "service_thread_id": null,
+          "chat_message_store_state": null
+        },
+        "pending_agent_requests": {},
+        "pending_responses_to_agent": []
+      },
+      "input-conversation": {},
+      "handoff-user-input": {}
+    }
+  },
+  "pending_request_info_events": {},
+  "iteration_count": 0,
+  "metadata": {
+    "superstep": 0,
+    "checkpoint_type": "initial",
+    "graph_signature": "0fba4d3fb1cb7ab53d3642e1ab9a75153d1ebb9a3f9d84ca1234145d9fd2401a"
+  },
+  "version": "1.0"
+}

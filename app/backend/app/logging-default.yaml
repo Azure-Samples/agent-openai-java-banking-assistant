@@ -1,0 +1,74 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  default:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: default
+    stream: ext://sys.stdout
+
+loggers:
+
+  app:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+  app.api:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+  app.helpers:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+  app.agents:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+  app.common:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+  # Azure loggers - suppress INFO logs
+  azure.core.pipeline.policies.http_logging_policy:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  # OpenAI client - set to DEBUG for detailed logging
+  openai._base_client:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  httpx:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  # MCP client - set to DEBUG for detailed logging
+  mcp.client.streamable_http:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  # Azure Identity - set to DEBUG for detailed authentication logging
+  azure.identity:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  azure.monitor.opentelemetry.exporter.export._base:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console]

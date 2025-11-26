@@ -87,12 +87,12 @@ param documentIntelligenceSkuName string = 'S0'
 param containerAppsEnvironmentName string = ''
 param containerRegistryName string = ''
 
-param copilotContainerAppName string = ''
+param backendContainerAppName string = ''
 param webContainerAppName string = ''
 param accountContainerAppName string = ''
 param transactionContainerAppName string = ''
 param paymentContainerAppName string = ''
-param copilotAppExists bool = false
+param backendAppExists bool = false
 param webAppExists bool = false
 param accountAppExists bool = false
 param paymentAppExists bool = false
@@ -152,19 +152,19 @@ module containerApps 'shared/host/container-apps.bicep' = {
 }
 
 // Copilot backend
-module copilot 'app/copilot.bicep' = {
-  name: 'copilot'
+module backend 'app/backend.bicep' = {
+  name: 'backend'
   scope: resourceGroup
   params: {
-    name: !empty(copilotContainerAppName) ? copilotContainerAppName : '${abbrs.appContainerApps}copilot-${resourceToken}'
+    name: !empty(backendContainerAppName) ? backendContainerAppName : '${abbrs.appContainerApps}backend-${resourceToken}'
     location: location
     tags: tags
-    identityName: '${abbrs.managedIdentityUserAssignedIdentities}copilot-${resourceToken}'
+    identityName: '${abbrs.managedIdentityUserAssignedIdentities}backend-${resourceToken}'
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     corsAcaUrl: ''
-    exists: copilotAppExists
+    exists: backendAppExists
     env: [
       {
         name: 'AZURE_STORAGE_ACCOUNT'
@@ -205,7 +205,7 @@ module copilot 'app/copilot.bicep' = {
       }
       {
         name: 'ACCOUNT_MCP_URL'
-        value: account.outputs.SERVICE_API_URI
+        value: '${account.outputs.SERVICE_API_URI}/mcp'
       }
       {
         name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -285,7 +285,9 @@ module web 'app/web.bicep' = {
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
-    apiBaseUrl:  copilot.outputs.SERVICE_API_URI
+    apiBaseUrl:  backend.outputs.SERVICE_API_URI
+    transactionApiUrl: transaction.outputs.SERVICE_API_URI
+    accountApiUrl: account.outputs.SERVICE_API_URI
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
@@ -403,7 +405,7 @@ module foundryCognitiveUserRoleBackend 'shared/security/role.bicep' =  {
   scope: foundryResourceGroup
   name: 'foundry-cognitive-user-role-backend'
   params: {
-    principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: backend.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
     principalType: 'ServicePrincipal'
   }
@@ -413,7 +415,7 @@ module foundryAIDeveloperRoleBackend 'shared/security/role.bicep' =  {
   scope: foundryResourceGroup
   name: 'foundry-ai-developerrole-backend'
   params: {
-    principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: backend.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
     principalType: 'ServicePrincipal'
   }
@@ -423,17 +425,17 @@ module storageRoleBackend 'shared/security/role.bicep' = {
   scope: storageResourceGroup
   name: 'storage-role-backend'
   params: {
-    principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: backend.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
     principalType: 'ServicePrincipal'
   }
 }
 
-module documentIntelligenceRoleCopilot 'shared/security/role.bicep' = {
+module documentIntelligenceRoleBackend 'shared/security/role.bicep' = {
   scope: documentIntelligenceResourceGroup
-  name: 'documentIntelligence-role-copilot'
+  name: 'documentIntelligence-role-backend'
   params: {
-    principalId: copilot.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: backend.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
     principalType: 'ServicePrincipal'
   }

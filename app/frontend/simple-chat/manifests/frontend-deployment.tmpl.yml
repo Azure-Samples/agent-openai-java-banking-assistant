@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: frontend-deployment
+    namespace: azure-open-ai
+    labels:
+        app: frontend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: frontend
+    template:
+        metadata:
+            labels:
+                app: frontend
+        spec:
+            containers:
+                - name: frontend
+                  image: {{.Env.SERVICE_FRONTEND_IMAGE_NAME}}
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                      - containerPort: 80
+                  envFrom:
+                      - configMapRef:
+                            name: azd-env-configmap

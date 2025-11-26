@@ -4,8 +4,8 @@ name: personal-finance-assistance-python
 metadata:
   template: agent-openai-python-banking-assistant@1.0.0-alpha
 services:
-  copilot:
-    project: app/copilot
+  backend:
+    project: ./app/backend
     language: python
     host: containerapp
     docker:
@@ -29,8 +29,14 @@ services:
     docker:
       remoteBuild: true
   web:
-    project: app/frontend
+    project: app/frontend/banking-web
     language: js
     host: containerapp
     docker:
       remoteBuild: true
+#  web:
+#    project: app/frontend/simple-chat
+#    language: js
+#    host: containerapp
+#    docker:
+#      remoteBuild: true
