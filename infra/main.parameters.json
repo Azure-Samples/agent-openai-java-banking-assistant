@@ -58,19 +58,19 @@
     }
     ,
     "backendAppExists": {
-      "value": false
+      "value": true
     },
     "webAppExists": {
-      "value": false
+      "value": true
     },
     "accountAppExists": {
-      "value": false
+      "value": true
     },
     "paymentAppExists": {
-      "value": false
+      "value": true
     },
     "transactionAppExists": {
-      "value": false
+      "value": true
     }
   }
 

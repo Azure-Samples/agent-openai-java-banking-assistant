@@ -23,9 +23,8 @@ COPY app ./app
 # Expose port
 EXPOSE 8080
 
-
-# Start the app with chatkit server integration. This will work using banking-web as frontend.
+#un-comment/comment the CMD line below to enable/disable chatkit server integration. This will work using banking-web as frontend. Go to azure.yaml and make sure simple-chat frontend is commented out.
 CMD ["uvicorn", "app.main_chatkit_server:app", "--host", "0.0.0.0", "--port", "8080"]
 
-# Start the app with custom chat server. This will work using simple-chat as frontend.
+#un-comment/comment the CMD line below to enable/disable starting app with custom chat server implementation. This will require app/frontend/simple-chat as frontend. Go to azure.yaml and make sure banking-web frontend is commented out.
 #CMD ["uvicorn", "app.main_handoff:app", "--host", "0.0.0.0", "--port", "8080"]

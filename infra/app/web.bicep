@@ -33,6 +33,12 @@ module app '../shared/host/container-app-upsert.bicep' = {
         name: 'REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING'
         value: applicationInsights.properties.ConnectionString
       }
+      //used by simple-chat frontend
+      { 
+        name: 'REACT_APP_API_BASE_URL'
+        value: apiBaseUrl
+      }
+      // used by banking-web frontend
       {
         name: 'CHATKIT_BASE_URL'
         value: apiBaseUrl

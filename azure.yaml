@@ -28,15 +28,17 @@ services:
     host: containerapp
     docker:
       remoteBuild: true
+# Uncomment/comment below lines to use the chatkit based frontend.Go to app/backend/Dockerfile and make sure to select the appropriate CMD line as well.
   web:
     project: app/frontend/banking-web
     language: js
     host: containerapp
     docker:
       remoteBuild: true
-#  web:
-#    project: app/frontend/simple-chat
-#    language: js
-#    host: containerapp
-#    docker:
-#      remoteBuild: true
+# Uncomment/comment below lines to use the simple-chat frontend.Go to app/backend/Dockerfile and make sure to select the appropriate CMD line as well.
+  # web:
+  #   project: app/frontend/simple-chat
+  #   language: js
+  #   host: containerapp
+  #   docker:
+  #     remoteBuild: true

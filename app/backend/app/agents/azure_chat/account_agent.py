@@ -28,15 +28,10 @@ class AccountAgent :
       
       user_mail="bob.user@contoso.com"
       full_instruction = AccountAgent.instructions.format(user_mail=user_mail)
-
-      account_mcp_server = MCPStreamableHTTPTool(
-            name="Account MCP server client",
-            url=self.account_mcp_server_url,
-            approval_mode = { "always_require_approval": ["getAccountsByUserName"] })
       
-    #   account_mcp_server = MCPStreamableHTTPTool(
-    #             name="Account MCP server client",
-    #             url=self.account_mcp_server_url)
+      account_mcp_server = MCPStreamableHTTPTool(
+                name="Account MCP server client",
+                url=self.account_mcp_server_url)
       logger.info("Initializing Account MCP server tools ")
 
       await account_mcp_server.connect()

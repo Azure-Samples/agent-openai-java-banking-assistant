@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, DollarSign, CreditCard, TrendingUp, ArrowUpRight, ArrowDownRight, Wallet, PieChart as PieChartIcon } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
-
-
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { bffApi } from "@/mocks/bffApi";
 import { DashboardSummary } from "@/models/Dashboard";
@@ -113,13 +112,13 @@ export default function Dashboard() {
 						<Wallet className="h-4 w-4 text-primary" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-foreground">$3,651</div>
-						<p className="text-xs text-muted-foreground">Total balance across 3 cards</p>
-						<div className="mt-2 text-xs text-blue-600 hover:text-blue-800">
-							<a href="/credit-cards" className="flex items-center">
-								View cards <ArrowUpRight className="h-3 w-3 ml-1" />
-							</a>
-						</div>
+					<div className="text-2xl font-bold text-foreground">$3,651</div>
+					<p className="text-xs text-muted-foreground">Total balance across 3 cards</p>
+					<div className="mt-2 text-xs text-blue-600 hover:text-blue-800">
+						<Link to="/credit-cards" className="flex items-center">
+							View cards <ArrowUpRight className="h-3 w-3 ml-1" />
+						</Link>
+					</div>
 					</CardContent>
 				</Card>
 
@@ -129,16 +128,16 @@ export default function Dashboard() {
 						<PieChartIcon className="h-4 w-4 text-primary" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-foreground">$68,425</div>
-						<p className="text-xs text-green-500 flex items-center">
-							<ArrowUpRight className="h-3 w-3 mr-1" />
-							+15.3% portfolio gain
-						</p>
-						<div className="mt-2 text-xs text-blue-600 hover:text-blue-800">
-							<a href="/portfolio" className="flex items-center">
-								View portfolio <ArrowUpRight className="h-3 w-3 ml-1" />
-							</a>
-						</div>
+					<div className="text-2xl font-bold text-foreground">$68,425</div>
+					<p className="text-xs text-green-500 flex items-center">
+						<ArrowUpRight className="h-3 w-3 mr-1" />
+						+15.3% portfolio gain
+					</p>
+					<div className="mt-2 text-xs text-blue-600 hover:text-blue-800">
+						<Link to="/portfolio" className="flex items-center">
+							View portfolio <ArrowUpRight className="h-3 w-3 ml-1" />
+						</Link>
+					</div>
 					</CardContent>
 				</Card>
 			</div>

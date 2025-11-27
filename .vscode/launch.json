@@ -21,7 +21,7 @@
 
         },
           {
-            "name": "DEV Debug Backend App",
+            "name": "DEV - Custom Chat Server",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
@@ -41,12 +41,12 @@
 
         },
         {
-            "name": "Chatkit Backend App",
+            "name": "DEV - Chatkit Backend App",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "main_chatkit_server:app",
+                "app.main_chatkit_server:app",
                 "--port", "8080"
             ],
             "env": {
@@ -61,7 +61,7 @@
 
         },
         {
-            "name": "No Profile Debug Backend App",
+            "name": "No Profile - Custom Chat Server",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
