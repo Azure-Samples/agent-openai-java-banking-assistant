@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Settings, LogOut, User } from "lucide-react";
+import { ChevronDown, Settings, LogOut, User, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -37,8 +37,16 @@ export default function Navigation() {
 
   return (
     <nav className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-sm">
-      <div className="flex items-center space-x-4">
-        <h2 className="text-lg font-semibold text-slate-900">Home Banking Assistant Demo</h2>
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3">
+          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
+            <Building2 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 leading-tight">Home Banking Assistant</h2>
+            <p className="text-xs text-slate-500 leading-none">Demo Application</p>
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center space-x-4">

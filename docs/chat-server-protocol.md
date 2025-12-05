@@ -4,6 +4,13 @@
 
 This document defines the technical specification for a React-based chat user interface that manages streamed events from a chat server. The system implements a real-time conversational interface capable of handling Server-Sent Events (SSE) and JSON responses from a single unified endpoint.
 
+### Protocol Origins
+
+This chat protocol is a fork of **OpenAI's Chatkit**, an open-source framework for building conversational AI interfaces. We extend and adapt the core Chatkit architecture to better support agent-framework from msft and ass support for client managed widgets and  multi-agent workflows.
+
+**Credit**: The foundational event streaming model, thread management patterns, and API design are based on [OpenAI Chatkit](https://github.com/openai/chatkit-js). We are grateful to OpenAI for open-sourcing this protocol and enabling the community to build upon their excellent work.
+
+
 ## System Architecture
 
 ### Communication Protocol
@@ -570,6 +577,7 @@ interface ThreadsListReq {
 {
   "data": [
     {
+      "title": "can you pay this bill for me",
       "id": "thr_5a1bad4f",
       "created_at": "2025-11-27T14:23:46.724911",
       "status": {
@@ -582,6 +590,7 @@ interface ThreadsListReq {
       }
     },
     {
+      "title": "how much I have on my account",
       "id": "thr_aa16ec0c",
       "created_at": "2025-11-27T14:22:10.241056",
       "status": {
@@ -1071,6 +1080,11 @@ interface ToolChoice {
 5. **File Upload Validation**: Validate file types and sizes
 
 ## React Implementation Architecture
+#### Implementation Progress
+1. **Step 1 – Core Components**: Added the base chat surface (`app/frontend/banking-web/src/components/chat/*`). `ChatProvider` (demo data + streaming stub) wraps `ChatShell`, which composes `ShellHeader`, `ConversationPane`, `ProgressDock`, `StreamViewport`, and `Composer`. `CustomSupport.tsx` now renders this stack for live review.
+2. **Step 2 – Thread Management**: Enabled the header controls per spec. `ShellHeader` now starts new conversations and toggles a dedicated `HistoryView`, which replaces the conversation pane when active. `HistoryView` lists all threads, highlights the active one, and offers starter prompts when the list is empty. `ChatProvider` manages thread creation, selection, and history state (including starter prompts and summary snippets).
+3. **Step 3 – Attachments Management**: The composer now includes the plus-style attachment affordance to the left of the textarea (`Composer.tsx`). Users can add up to five local files, see inline cards (with remove controls), and send them together with or without text. Image uploads (PNG/JPEG/WebP/etc.) show live thumbnails in the composer and in-message attachment chips, while other formats fall back to the paperclip badge (with name + size). `ChatProvider` persists attachment metadata on each `ThreadItem`, allowing `StreamViewport` bubbles to render the same previews so stakeholders can exercise the entire upload flow before wiring it to the real backend endpoints.
+
 ### Stack Alignment
 - **Runtime**: React 18 + Vite (same as `frontend/banking-web`) ensuring fast HMR and tree-shakable builds.
 - **Styling**: Tailwind CSS with shadcn/ui component presets layered on Radix primitives for consistent theming, focus rings, and accessibility.
@@ -1158,9 +1172,11 @@ export function useThreadStream(request: ChatReq | null) {
 
 ### Attachment & Upload Workflow
 1. User selects files; `AttachmentTray` uses `FileReader` to show immediate previews (image `<img>` or file badge) using shadcn `HoverCard` for metadata and “×” removal via Radix `IconButton`.
-2. For each file, enqueue `attachments.create` mutation; on response, upload bytes to `upload_url` (Phase 2). While uploading, show progress ring using Radix `Progress`.
-3. Once server confirms, store `attachment_id` in composer state; sending the message moves previews into the thread bubble.
-4. Ghost messages simply hide the pending user bubble by toggling a `ghost` flag; the payload still reaches the server as required.
+2. For each file, post an `attachments.create` request (phase 1); on response, upload bytes to `upload_url` (Phase 2). While uploading, show progress ring using Radix `Progress`.
+3. Once server confirms, store `attachment_id` in composer state;
+4. when the user sends the message, `addUserMessage` includes all `attachment_id`s alongside text content.
+5. `StreamViewport` renders attachments in-message usingpreview logic as the composer, ensuring consistency. Make the size of image atatchements in StreamViewpoprt externally configurable via props. In the view port, the size should be bigger than in the composer.
+
 
 ### UI Callbacks & Context
 - Provide `ChatProvider` that accepts callbacks (`onThreadCreated`, `onMessageSent`, `onAttachmentAdded`, `onAttachmentRemoved`, `onError`, `onThreadDone`). The provider wires these callbacks into the mutation/stream reducers so host applications (e.g., other banking dashboards) can react without prop-drilling.

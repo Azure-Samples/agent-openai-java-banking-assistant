@@ -16,7 +16,8 @@ dependencies = [
     "agent-framework-azure-ai",
     "agent-framework-devui",
     "agent-framework-chatkit",
-    "azure-monitor-opentelemetry-exporter==1.0.0b44"
+    "azure-monitor-opentelemetry-exporter==1.0.0b45",
+    "azure-monitor-opentelemetry==1.8.2"
 ]
 
 [tool.uv]

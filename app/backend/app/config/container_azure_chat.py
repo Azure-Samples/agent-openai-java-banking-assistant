@@ -62,8 +62,8 @@ class Container(containers.DeclarativeContainer):
     
 
 
-    # Azure Chat based agents
-    _azure_chat_client = providers.Singleton(
+    # Azure Chat based agents. Unfortunately we can't create reusable singleton instance of AzureOpenAiChatCLient as it does not support token expiration management.
+    _azure_chat_client = providers.Factory(
         AzureOpenAIChatClient,
         credential=providers.Factory(get_azure_credential), 
         endpoint=settings.AZURE_OPENAI_ENDPOINT,deployment_name=settings.AZURE_OPENAI_CHAT_DEPLOYMENT_NAME

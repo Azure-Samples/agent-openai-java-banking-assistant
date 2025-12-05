@@ -1,82 +1,168 @@
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, Sparkles } from "lucide-react";
+import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, Sparkles, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ChatKit, useChatKit,ColorScheme } from "@openai/chatkit-react";
-import {
-  CHATKIT_API_URL,
-  CHATKIT_API_DOMAIN_KEY,
-  STARTER_PROMPTS,
-  PLACEHOLDER_INPUT,
-  GREETING,
-} from "../lib/config";
+
 import { useAgentResponse } from "@/context/AgentResponseContext";
+
+import { ChatProvider, ChatShell, type RetryConfig, type ShellHeaderConfig, type ComposerConfig, type ShellContainerConfig } from "@/components/chat";
+import type { StarterPrompt, ThreadItem, Thread } from "@/components/chat/types";
+
 
 
 export default function AIAgent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showInvitation, setShowInvitation] = useState(true);
+  const [dimensions, setDimensions] = useState({ width: 384, height: 500 }); // 96*4=384px (w-96)
+  const [isResizing, setIsResizing] = useState(false);
   const { triggerOnResponseEnd } = useAgentResponse();
+  const resizeRef = useRef<{ startX: number; startY: number; startWidth: number; startHeight: number } | null>(null);
 
-  const chatkit = useChatKit({
-    api: { url: CHATKIT_API_URL, 
-           domainKey: CHATKIT_API_DOMAIN_KEY,
-           uploadStrategy: { type: "two_phase" }  },
-    theme: {
-      colorScheme: "light",
-      color: {
-        grayscale: {
-          hue: 220,
-          tint: 6,
-          shade:  -4,
-       
-        },
-        surface: {
-            background: "#F0F4F8 ",
-            foreground: "#ffffff",
-        }
-        ,
-        accent: {
-          primary: "#0f172a",
-          level: 1,
-        },
-      },
-      radius: "round",
-    },
-    startScreen: {
-      greeting: GREETING,
-      prompts: STARTER_PROMPTS,
-    },
-    composer: {
-      placeholder: PLACEHOLDER_INPUT,
-      attachments: {
-        enabled: true,
-        accept: { "image/*": [".png", ".jpg", ".jpeg"] },
+  const chatServerUrl = import.meta.env.VITE_CHAT_SERVER_URL || "/chatkit";
+
+  const BANKING_STARTER_PROMPTS: StarterPrompt[] = [
+  {
+    id: "pay-bill",
+    title: "Pay a bill",
+    description: "Upload an invoice or share the details",
+    icon: "🧾",
+    content: "Pay my latest Alpine Utilities invoice for this month",
+  },
+  {
+    id: "card-trend",
+    title: "Review card spend",
+    description: "Summaries, trends, and anomalies",
+    icon: "💳",
+    content: "Summarize my Platinum Visa spending from the past 30 days",
+  },
+  {
+    id: "transactions-search",
+    title: "Investigate payments",
+    description: "Search through your payments based on various criteria.",
+    icon: "🛡️",
+    content: "when was last time I've paid contoso?",
+  },
+];
+  
+    // Configure which HTTP status codes should allow retry
+    // Default: [408, 429, 500, 502, 503, 504]
+    const retryConfig: RetryConfig = {
+      retryableStatusCodes: [408, 429, 500, 502, 503, 504],
+    };
+  
+    // Configure header appearance and visibility
+    // All properties are optional - omit to use defaults
+    const headerConfig: ShellHeaderConfig = {
+      showHeader: false,                        // Show/hide entire header
+      showIcon: false,                          // Show/hide left icon badge
+      // icon: Bot,                            // Custom icon (import from lucide-react)
+      showTitle: false,                         // Show/hide title label           // Custom title text
+      showActiveThread: false,                  // Show/hide active thread name
+      activeThreadFallback: "Untitled thread", // Text when no thread selected
+      showNewThreadButton: true,               // Show/hide new thread button
+      showHistoryButton: false,                 // Show/hide history toggle button
+      // customContent: <div>Custom Header</div> // Completely replace header content
+    };
+
+    // Configure composer appearance and behavior
+    // All properties are optional - omit to use defaults
+    const composerConfig: ComposerConfig = {
+      placeholder: "Type your message...",
+      buttonSize: "sm",                        // "sm" | "md" | "lg"
+      showAttachmentCounter: false,            // Show/hide attachment counter
+      maxAttachments: 5,                       // Maximum number of attachments
+      showAttachmentTitle: false,               // Show/hide attachment filename
+      showAttachmentSize: false,                // Show/hide attachment file size
+    };
+
+    // Configure shell container for embedded mode
+    // Remove border, rounded corners, and shadow since AIAgent Card provides them
+    const shellContainerConfig: ShellContainerConfig = {
+      showBorder: false,
+      showRoundedCorners: false,
+      showShadow: false,
+      backgroundColor: "bg-transparent",
+    };
+
+
+
+  const handleResponseEnd = (threadId: string) => {
+    console.log("Response ended for thread:", threadId);
+    // Call existing context callback if needed
+    triggerOnResponseEnd();
+    // Add your custom logic here
+  };
+
+  const handleThreadStarted = (threadId: string) => {
+    console.log("Thread started:", threadId);
+     triggerOnResponseEnd();
+  }
+
+
+  // Handle resize functionality
+  useEffect(() => {
+    let animationFrameId: number | null = null;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !resizeRef.current || isMinimized) return;
+
+      // Cancel any pending animation frame
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
       }
-    },
-    threadItemActions: {
-      feedback: true,
-    },
-    onClientTool: async (invocation) => {
-      console.log("Client tool invoked:", invocation);
-      return {};
-    },
-    onResponseEnd: () => {
-      console.log("Response ended");
-      triggerOnResponseEnd();
-    },
-    onThreadChange: () => {
-      console.log("Thread changed");
-    },
-    onError: ({ error }) => {
-      // ChatKit handles displaying the error to the user
-      console.error("ChatKit error", error);
-    },
-  });
 
+      // Use requestAnimationFrame for smooth, immediate updates
+      animationFrameId = requestAnimationFrame(() => {
+        if (!resizeRef.current) return;
+
+        const deltaX = resizeRef.current.startX - e.clientX;
+        const deltaY = resizeRef.current.startY - e.clientY;
+
+        const newWidth = Math.max(320, Math.min(800, resizeRef.current.startWidth + deltaX));
+        const newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeRef.current.startHeight + deltaY));
+
+        setDimensions({ width: newWidth, height: newHeight });
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      resizeRef.current = null;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'nwse-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isResizing, isMinimized]);
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startWidth: dimensions.width,
+      startHeight: dimensions.height,
+    };
+  };
   
   if (!isOpen) {
     return (
@@ -127,9 +213,25 @@ export default function AIAgent() {
   }
 
   return (
-    <Card className={`fixed bottom-6 right-6 bg-white border border-slate-200 shadow-professional-lg transition-all duration-300 animate-scale-in z-50 ${
-      isMinimized ? "h-16 w-80" : "h-[500px] w-96"
-    }`}>
+    <Card 
+      className="fixed bottom-6 right-6 bg-white border border-slate-200 shadow-professional-lg animate-scale-in z-50 rounded-2xl overflow-hidden"
+      style={{
+        width: isMinimized ? '320px' : `${dimensions.width}px`,
+        height: isMinimized ? '64px' : `${dimensions.height}px`,
+        transition: isResizing ? 'none' : 'all 300ms',
+      }}
+    >
+      {/* Resize Handle - Only visible when not minimized */}
+      {!isMinimized && (
+        <div
+          onMouseDown={handleResizeStart}
+          className="absolute top-0 left-0 w-6 h-6 cursor-nwse-resize hover:bg-blue-100 transition-colors group z-10"
+          title="Drag to resize"
+        >
+          <GripVertical className="h-4 w-4 text-slate-400 group-hover:text-blue-600 rotate-45 absolute top-1 left-1" />
+        </div>
+      )}
+      
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="flex items-center space-x-3">
@@ -164,13 +266,28 @@ export default function AIAgent() {
         </div>
       </div>
 
-      {/* ChatKit Container with proper height constraints */}
-     
-        <div className="h-[calc(500px-73px)] overflow-hidden">
-          <ChatKit control={chatkit.control} />
-        </div>
-  
-       
+      {/* ChatKit Container - hide when minimized but keep mounted to preserve state */}
+      <div 
+        className={`${isMinimized ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}
+        style={{ 
+          height: isMinimized ? '0' : `${dimensions.height - 73}px`,
+          transition: isResizing ? 'none' : 'all 300ms',
+        }}
+      >
+        <ChatProvider 
+          starterPrompts={BANKING_STARTER_PROMPTS} 
+          chatServerUrl={chatServerUrl}
+          retryConfig={retryConfig}
+          attachmentImageSize="lg"
+          maxVisibleAttachments={3}
+          composerConfig={composerConfig}
+          shellContainerConfig={shellContainerConfig}
+          onResponseEnd={handleResponseEnd}
+          onThreadStarted={handleThreadStarted}
+        >
+          <ChatShell headerConfig={headerConfig} />
+        </ChatProvider>
+      </div>
     </Card>
   );
 }

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers.chatkit import attachment_routers
-from app.routers.chatkit import chatkit_routers
+from app.routers.chatkit import chat_routers
 from app.config.settings import settings
 from app.config.logging import get_logger, setup_logging
 from agent_framework.observability import setup_observability
@@ -20,7 +20,8 @@ def create_app() -> FastAPI:
     logger = get_logger(__name__)
 
     # Setup agent framework observability
-    setup_observability(enable_sensitive_data=settings.ENABLE_OTEL,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
+    #commenting out for now due to incompatibility between agent-framework 1.0.0b251120 and opentelemetry-sdk 1.39
+    #setup_observability(enable_sensitive_data=settings.ENABLE_OTEL,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     
@@ -30,7 +31,7 @@ def create_app() -> FastAPI:
     container = Container()
     
     # Wire dependencies to modules that need them
-    container.wire(modules=[chatkit_routers,attachment_routers])
+    container.wire(modules=[chat_routers,attachment_routers])
     
     # Store container in app state for potential cleanup
     app.state.container = container
@@ -47,7 +48,7 @@ def create_app() -> FastAPI:
     app.router.lifespan_context = lifespan
 
     # Include routers
-    app.include_router(chatkit_routers.router, tags=["chat"])
+    app.include_router(chat_routers.router, tags=["chat"])
     app.include_router(attachment_routers.router, tags=["attachments"])
 
 

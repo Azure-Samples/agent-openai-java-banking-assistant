@@ -3,6 +3,7 @@
 from concurrent.futures import thread
 from typing import AsyncGenerator, AsyncIterable
 from app.common.chatkit.widgets import build_approval_request
+from app.common.chatkit.types import ClientWidgetItem, CustomThreadItemDoneEvent
 import uuid
 from datetime import datetime
 
@@ -21,6 +22,7 @@ from chatkit.types import (
     TaskItem,
     WidgetItem
 )
+
 
 #dictionary for tool call name <-> description mapper
 event_description_map = {
@@ -177,14 +179,29 @@ class ChatKitEventsHandler:
                     parsed_args = function_approval_content.function_call.parse_arguments()
                     function_approval_content.function_call.call_id
                     approval_request_widget = build_approval_request(tool_name=tool_name, tool_args=parsed_args, call_id=function_approval_content.function_call.call_id, request_id=function_approval_content.id)
-                    #function_result_task = CustomTask(title="ToolName[] " , icon="check-circle-filled", content=f"```py\n{parsed_args}\n```")
-                    #taskResultUpdate =  TaskItem(thread_id=thread_id,id="11111", task=function_result_task, created_at=datetime.now())
-                    widget_item = WidgetItem(
-                    id= f"wdg_{uuid.uuid4().hex[:8]}",
-                    thread_id=thread_id,
-                    created_at=datetime.now(),
-                    widget=approval_request_widget)
-                    yield ThreadItemDoneEvent(type="thread.item.done", item=widget_item)
+                   # Server Managed Widget Item
+                    # widget_item = WidgetItem(
+                    # id= f"wdg_{uuid.uuid4().hex[:8]}",
+                    # thread_id=thread_id,
+                    # created_at=datetime.now(),
+                    # widget=approval_request_widget)
+                    # yield ThreadItemDoneEvent(type="thread.item.done", item=widget_item)
+                    # Client Managed Widget Item
+                    client_widget_item = ClientWidgetItem(
+                        id= f"wdg_{uuid.uuid4().hex[:8]}",
+                        thread_id=thread_id,
+                        created_at=datetime.now(),
+                        name="tool_approval_request",
+                        args={
+                            "tool_name": tool_name,
+                            "tool_args": parsed_args,
+                            "call_id": function_approval_content.function_call.call_id,
+                            "request_id": function_approval_content.id
+                        }
+                    )
+                    #CustomThreadItemDoneEvent is a chatkit custom thread item type to support client widget. we disable pylance to avoid linting error
+                    yield CustomThreadItemDoneEvent(type="thread.item.done", item=client_widget_item) #type: ignore
+
 
             else:
                 event_description = event_description_map.get(event.__class__.__name__, event.__class__.__name__)

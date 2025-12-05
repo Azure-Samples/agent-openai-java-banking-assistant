@@ -53,6 +53,7 @@ def build_approval_request(tool_name: str, tool_args: dict[str, Any | None] | No
     return Card(
         key="approval_request",
         padding=0,
+        size="md",
         children=[
             Col(
                 align="center",

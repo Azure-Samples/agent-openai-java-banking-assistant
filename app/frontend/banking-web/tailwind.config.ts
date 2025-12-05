@@ -8,6 +8,14 @@ export default {
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
 	],
+	safelist: [
+		// Widget background colors
+		{ pattern: /^bg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)$/ },
+		// Widget text colors
+		{ pattern: /^text-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)-(50|100|200|300|400|500|600|700|800|900|950)$/ },
+		// Widget border colors
+		{ pattern: /^border-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)$/ },
+	],
 	prefix: "",
 	theme: {
 		container: {
@@ -92,5 +100,8 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		require("@tailwindcss/typography"),
+	],
 } satisfies Config;

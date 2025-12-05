@@ -8,15 +8,18 @@ It includes proper thread safety, user isolation, and follows the ChatKit Store 
 
 import sqlite3
 import uuid
-from typing import Any
+from typing import Any, TypeVar
 
 from chatkit.store import Store, NotFoundError
 from chatkit.types import (
     Attachment,
     Page,
-    ThreadItem,
     ThreadMetadata,
 )
+
+from app.common.chatkit.types import (
+    ThreadItem)
+
 from pydantic import BaseModel
 
 

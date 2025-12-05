@@ -88,6 +88,10 @@
   .animate-bounce-gentle {
     animation: bounceGentle 2s infinite;
   }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
 }
 
 @keyframes fadeIn {
@@ -108,6 +112,12 @@
 @keyframes bounceGentle {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
+}
+
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 /* Professional shadows and effects */
