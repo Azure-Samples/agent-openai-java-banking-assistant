@@ -4,8 +4,8 @@
 
 The widget system now supports two rendering modes:
 
-1. **Server-managed widgets** (default): Widgets are defined using a DSL on the server and rendered dynamically on the client
-2. **Client-managed widgets** (new): Pre-built React components are registered on the client and referenced by name from the server
+1. **Server-managed widgets** (chatkit default): Widgets are defined using a DSL on the server and rendered dynamically on the client
+2. **Client-managed widgets** (custom new): Pre-built React components are registered on the client and referenced by name from the server
 
 ## Server-Side: Sending Widgets
 

@@ -8,8 +8,68 @@ This document defines the technical specification for a React-based chat user in
 
 This chat protocol is a fork of **OpenAI's Chatkit**, an open-source framework for building conversational AI interfaces. We extend and adapt the core Chatkit architecture to better support agent-framework from msft and ass support for client managed widgets and  multi-agent workflows.
 
-**Credit**: The foundational event streaming model, thread management patterns, and API design are based on [OpenAI Chatkit](https://github.com/openai/chatkit-js). We are grateful to OpenAI for open-sourcing this protocol and enabling the community to build upon their excellent work.
+**Credit**: The foundational event streaming model, thread management patterns, and API design are based on [OpenAI Chatkit](https://github.com/openai/chatkit-js).
 
+
+## Features
+
+### User interface
+1. **Attachment Management**: When a user selects an attachment to upload, a preview thumbnail should be generated and displayed in the chat input area using the file bytes local to the browser, before the actual upload occurs. The thumbnail has a "x" icon on top left to remove it. Multiple attachments can be selected and previewed before sending the message. when the message is sent attachments are shown along with the text message.if it's a image attachment an image preview is provided in the user sent message, otherwise if it's a file attachment a badge with file name + extension is shown. when multiple attachments are sent, they are shown in a collapsed view with a "+X more" badge that can be expanded to see all attachments.
+2. **Thread Management**: Display create a new thread icon and thread history. Clicking the new thread icon creates a new thread and switches to it. Clicking the thread history icon replace the chat body with a list of past threads. User can select one of the past threads to load its history in the chat body.
+3. **Starter prompts**: Display a list of starter prompts when there are no threads. Clicking a prompt creates a new thread with that prompt as the first user message. A starter prompt can have an icon on the left and  a tittle
+4. **UI callbacks**: Provide UI callbacks for events like onMessageSent, onThreadCreated, onAttachmentAdded, onAttachmentRemoved, onError, onThreadDone etc.
+5. **Resizable chat component**: The chat component should be resizable by dragging its edges or corners.
+6. **Widget Rendering**: Widget components within the chat thread, supporting various widget types (e.g., cards, buttons, images). Widgets should be interactive and support actions like button clicks. Those are custom actions that get sent back to the server when clicked. see Custom Action request type for more details. The widget system supports two rendering modes:
+- **Server-managed widgets** (chatkit default): Widgets are defined using a DSL on the server and rendered dynamically on the client. See [here](./server-managed-widgets.md) for more details
+- **Client-managed widgets** (custom new): Pre-built React components are registered on the client and referenced by name from the server. See [here](./client-managed-widgets.md) for more details
+7. **Theming Support**: Support light and dark themes, with customizable colors and fonts.
+8. **Metadata Handling**: Allow passing custom metadata with thread creation and message sending requests.
+9. **Allow ghost user messages**: Allow sending an user message without displaying it in the chat thread. This is useful for system messages or background instructions. when this option is enabled, the user message is sent to the server but not rendered in the chat UI.
+10. 
+
+### Streaming Text Display
+
+1. **Typewriter Effect**: Render text deltas smoothly without janky re-renders
+2. **Debounced Updates**: Batch rapid deltas for performance
+3. **Cursor Indicator**: Show blinking cursor during active streaming. send message icon changes to a stop icon when streaming is in progress and `allow_cancel` is true
+4. **Markdown Parsing**: Parse markdown incrementally as text streams
+5. **HTML parsing**: text content can be both markdown or html. Parse and render accordingly
+
+### Error Handling
+
+1. **Error Display**: Show inline error messages with appropriate styling
+2. **Retry Mechanism**: Enable retry button when `allow_retry` is true
+3. **Graceful Degradation**: Handle connection losses gracefully
+4. **Timeout Handling**: Set reasonable timeouts for streaming responses
+
+### Progress Indication
+
+1. **task**: Displays a task text title, which will shimmer while it is the latest item in the thread. These titles are permanent members of the thread, and can use a custom icon, and can have optional expandable content (which is a markdown string). Use task for tool calls or arbitrary actions that you want to remain visible in the thread, and keep a record of. Tasks can initially be rendered as pending framing (e.g., "Fetching records...") and then updated to a past tense state (e.g., "Found 56 records).
+2. **workflow**: If you are running a multi-step task, you can group tasks together into a workflow. Workflow has two different styles, based on whether you pass a summary immediately, or at the very end of the workflow. The workflow summary is shown in the collapsed state of the workflow, and can either be a title + icon, or a duration (in seconds) that the workflow took to complete. you can expand/collapse the workflow to see all the individual tasks inside it. Use workflow when you are running complex, multi-step tasks that would be help to group and display to the user.
+3. **progress updates**: Show intermediate processing status. They're a great way to give ephemeral feedback to users about what is happening without littering the chat thread unnecessarily. Displays a non-persistent shimmer text title that will only display as long as it is the latest item in the thread. You can send multiple progress_update items and they will nicely rotate 
+4. **Cancel Support**: Display cancel button when streaming can be cancelled
+
+
+### Implementation Stack
+- **Runtime**: React 18 + Vite (same as `frontend/banking-web`) ensuring fast HMR and tree-shakable builds.
+- **Styling**: Tailwind CSS with shadcn/ui component presets layered on Radix primitives for consistent theming, focus rings, and accessibility.
+- **Utility Libraries**: `react-resizable-panels` for the draggable shell, `lucide-react` icon set, `sonner`/`@radix-ui/react-toast` for notices, and `@radix-ui/react-scroll-area` for virtualized panes.
+
+### High-Level Topology
+```
+<ChatShell>
+  ├─ <ShellHeader />            // new-thread button + thread-history toggle
+  └─ <ShellBody>
+    ├─ <HistoryView />       // replaces conversation pane when history icon active
+      └─ <StreamViewport />
+      └─ <ComposerDock />
+        ├─ <AttachmentTray />
+        └─ <Composer />
+</ChatShell>
+```
+- `ChatShell` stays resizable using `ResizablePanelGroup`, but thread controls now live in `ShellHeader` (a shadcn `Toolbar` with Radix `Tooltip` for icons).
+- The “history” icon toggles `HistoryView`, which temporarily replaces the conversation pane; selecting a thread hides history and rehydrates the stream.
+- `StreamViewport` Renders `ThreadItem` variants via shadcn `Card`, `Accordion`, `Tabs`, `Badge`, `Alert`, and Radix `Collapsible` for widgets/workflows. The SSE feed drives both progress, messages, widgets list simultaneously—`progress_update`, `task`, and `workflow` events land in the stream viewport as well.
 
 ## System Architecture
 
@@ -18,7 +78,6 @@ This chat protocol is a fork of **OpenAI's Chatkit**, an open-source framework f
 #### Endpoint Configuration
 - **Single Unified Endpoint**: All client-server communication flows through one endpoint
 - **Transport Protocols**: 
-  - JSON for non-streaming requests
   - Server-Sent Events (SSE) for real-time streaming updates
 - **Request Method**: POST for all operations
 
@@ -1020,172 +1079,5 @@ interface ToolChoice {
   id: string;
 }
 ```
-## Requirements
-
-### User interface
-1. **Attachment Management**: When a user selects an attachment to upload, a preview thumbnail should be generated and displayed in the chat input area using the file bytes local to the browser, before the actual upload occurs. The thumbnail has a "x" icon on top left to remove it. Multiple attachments can be selected and previewed before sending the message. when the message is sent attachments are shown along with the text message.if it's a image attachment an image preview is provided in the user sent message, otherwise if it's a file attachment a badge with file name + extension is shown. when multiple attachments are sent, they are shown in a collapsed view with a "+X more" badge that can be expanded to see all attachments.
-2. **Thread Management**: Display create a new thread icon and thread history. Clicking the new thread icon creates a new thread and switches to it. Clicking the thread history icon replace the chat body with a list of past threads. User can select one of the past threads to load its history in the chat body.
-3. **Starter prompts**: Display a list of starter prompts when there are no threads. Clicking a prompt creates a new thread with that prompt as the first user message. A starter prompt can have an icon on the left and  a tittle
-4. **UI callbacks**: Provide UI callbacks for events like onMessageSent, onThreadCreated, onAttachmentAdded, onAttachmentRemoved, onError, onThreadDone etc.
-5. **Resizable chat component**: The chat component should be resizable by dragging its edges or corners.
-6. **Widget Rendering**: Render widget components within the chat thread, supporting various widget types (e.g., cards, buttons, images). Widgets should be interactive and support actions like button clicks. those are custom actions that get sent back to the server when clicked. see Custom Action request type for more details.
-7. **Theming Support**: Support light and dark themes, with customizable colors and fonts.
-8. **Metadata Handling**: Allow passing custom metadata with thread creation and message sending requests.
-9. **Allow ghost user messages**: Allow sending an user message without displaying it in the chat thread. This is useful for system messages or background instructions. when this option is enabled, the user message is sent to the server but not rendered in the chat UI.
-10. 
-
-### Streaming Text Display
-
-1. **Typewriter Effect**: Render text deltas smoothly without janky re-renders
-2. **Debounced Updates**: Batch rapid deltas for performance
-3. **Cursor Indicator**: Show blinking cursor during active streaming. send message icon changes to a stop icon when streaming is in progress and `allow_cancel` is true
-4. **Markdown Parsing**: Parse markdown incrementally as text streams
-5. **HTML parsing**: text content can be both markdown or html. Parse and render accordingly
-
-### Error Handling
-
-1. **Error Display**: Show inline error messages with appropriate styling
-2. **Retry Mechanism**: Enable retry button when `allow_retry` is true
-3. **Graceful Degradation**: Handle connection losses gracefully
-4. **Timeout Handling**: Set reasonable timeouts for streaming responses
-
-### Progress Indication
-
-1. **task**: Displays a task text title, which will shimmer while it is the latest item in the thread. These titles are permanent members of the thread, and can use a custom icon, and can have optional expandable content (which is a markdown string). Use task for tool calls or arbitrary actions that you want to remain visible in the thread, and keep a record of. Tasks can initially be rendered as pending framing (e.g., "Fetching records...") and then updated to a past tense state (e.g., "Found 56 records).
-2. **workflow**: If you are running a multi-step task, you can group tasks together into a workflow. Workflow has two different styles, based on whether you pass a summary immediately, or at the very end of the workflow. The workflow summary is shown in the collapsed state of the workflow, and can either be a title + icon, or a duration (in seconds) that the workflow took to complete. you can expand/collapse the workflow to see all the individual tasks inside it. Use workflow when you are running complex, multi-step tasks that would be help to group and display to the user. Lots of flexibility and power here to play around with.
-3. **progress updates**: Show intermediate processing status. They're a great way to give ephemeral feedback to users about what is happening without littering the chat thread unnecessarily. Displays a non-persistent shimmer text title that will only display as long as it is the latest item in the thread. You can send multiple progress_update items and they will nicely rotate 
-4. **Cancel Support**: Display cancel button when streaming can be cancelled
-
-
-### Accessibility
-
-1. **Keyboard Navigation**: Full keyboard support for all interactions
-2. **Screen Reader Support**: ARIA labels and live regions for dynamic content
-3. **Focus Management**: Proper focus handling during streaming updates
-4. **High Contrast**: Support for high contrast mode
-
-### Performance Optimization
-
-1. **Virtual Scrolling**: Implement for long message threads
-2. **Memoization**: Use React.memo for message components
-3. **Lazy Loading**: Load thread history on demand
-4. **Debouncing**: Debounce rapid streaming updates
-
-## Security Considerations
-
-1. **XSS Prevention**: Sanitize markdown and user input
-2. **CORS Configuration**: Proper CORS headers for SSE
-3. **Authentication**: Token-based auth for API requests
-4. **Rate Limiting**: Client-side rate limiting for requests
-5. **File Upload Validation**: Validate file types and sizes
-
-## React Implementation Architecture
-#### Implementation Progress
-1. **Step 1 – Core Components**: Added the base chat surface (`app/frontend/banking-web/src/components/chat/*`). `ChatProvider` (demo data + streaming stub) wraps `ChatShell`, which composes `ShellHeader`, `ConversationPane`, `ProgressDock`, `StreamViewport`, and `Composer`. `CustomSupport.tsx` now renders this stack for live review.
-2. **Step 2 – Thread Management**: Enabled the header controls per spec. `ShellHeader` now starts new conversations and toggles a dedicated `HistoryView`, which replaces the conversation pane when active. `HistoryView` lists all threads, highlights the active one, and offers starter prompts when the list is empty. `ChatProvider` manages thread creation, selection, and history state (including starter prompts and summary snippets).
-3. **Step 3 – Attachments Management**: The composer now includes the plus-style attachment affordance to the left of the textarea (`Composer.tsx`). Users can add up to five local files, see inline cards (with remove controls), and send them together with or without text. Image uploads (PNG/JPEG/WebP/etc.) show live thumbnails in the composer and in-message attachment chips, while other formats fall back to the paperclip badge (with name + size). `ChatProvider` persists attachment metadata on each `ThreadItem`, allowing `StreamViewport` bubbles to render the same previews so stakeholders can exercise the entire upload flow before wiring it to the real backend endpoints.
-
-### Stack Alignment
-- **Runtime**: React 18 + Vite (same as `frontend/banking-web`) ensuring fast HMR and tree-shakable builds.
-- **Styling**: Tailwind CSS with shadcn/ui component presets layered on Radix primitives for consistent theming, focus rings, and accessibility.
-- **State/Data**: TanStack Query for imperative JSON requests, lightweight Zustand store (or React context) for real-time thread state, and `fetchEventSource` (SSE over POST) for streaming responses.
-- **Utility Libraries**: `react-resizable-panels` for the draggable shell, `lucide-react` icon set, `sonner`/`@radix-ui/react-toast` for notices, and `@radix-ui/react-scroll-area` for virtualized panes.
-
-### High-Level Topology
-```
-<ChatShell>
-  ├─ <ShellHeader />            // new-thread button + thread-history toggle
-  └─ <ShellBody>
-    ├─ <HistoryView />       // replaces conversation pane when history icon active
-      └─ <ConversationPane>    // default view when not showing history
-        ├─ <ProgressDock /> // now renders before messages to surface tasks/progress
-        ├─ <StreamViewport />
-      └─ <ComposerDock />
-        ├─ <AttachmentTray />
-        └─ <Composer />
-</ChatShell>
-```
-- `ChatShell` stays resizable using `ResizablePanelGroup`, but thread controls now live in `ShellHeader` (a shadcn `Toolbar` with Radix `Tooltip` for icons).
-- The “history” icon toggles `HistoryView`, which temporarily replaces the conversation pane; selecting a thread hides history and rehydrates the stream.
-- `ProgressDock` renders above the stream so users always see current tasks/progress updates before new tokens arrive. The SSE feed drives both the dock and the message list simultaneously—`progress_update`, `task`, and `workflow` events land in the dock while assistant messages, widgets, and other thread items land in the stream viewport.
-- `StreamViewport` continues to render `ThreadItem` variants via shadcn `Card`, `Accordion`, `Tabs`, `Badge`, `Alert`, and Radix `Collapsible` for widgets/workflows.
-
-### Data Flow
-1. **Command Bus** (`useChatClient`): wraps POST calls to the unified endpoint. Exposes `createThread`, `addUserMessage`, `retryAfterItem`, `customAction`, etc., each returning a `Promise` resolved through TanStack Query mutations so UI callbacks can respond to success/error.
-2. **Stream Service** (`useThreadStream(requestPayload)`): posts the exact JSON payload shown in the earlier request samples (keeping `thread_id` inside `params`) and consumes the SSE response via `fetchEventSource`, parsing discriminated unions defined in the Python event schema module into a normalized Zustand store keyed by `threadId`. The store shape mirrors the Pydantic models (threads, items, attachments, workflows, widgets) to keep React reconciliation minimal.
-3. **Selectors**: UI components subscribe to derived selectors (e.g., `selectActiveThreadItems`, `selectPendingTasks`) so the same stream simultaneously hydrates both `ProgressDock` (tasks/workflows/progress updates) and `StreamViewport` (messages, widgets, tool calls) without redundant renders.
-4. **Side Effects**: `client_effect`, `notice`, and `error` events fan out to Radix `Toast` providers and optional host callbacks (`onError`, `onNotice`).
-
-### Core Hooks / Services
-```ts
-// chat/streams/useThreadStream.ts
-import { useEffect } from 'react';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { useChatStore } from '../state/chatStore';
-
-export function useThreadStream(request: ChatReq | null) {
-  const upsertEvent = useChatStore((s) => s.upsertEvent);
-
-  useEffect(() => {
-    if (!request) return;
-    const controller = new AbortController();
-
-    fetchEventSource('/chatkit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request), // thread_id always lives inside request.params per protocol
-      signal: controller.signal,
-      onmessage: (event) => {
-        const payload = JSON.parse(event.data) as ThreadStreamEvent;
-        const threadId = request.params?.thread_id ?? payload.thread?.id;
-        if (threadId) {
-          upsertEvent(threadId, payload);
-        }
-      },
-      onerror: (error) => {
-        controller.abort();
-        useChatStore.getState().setConnectionState('error');
-        throw error;
-      },
-    });
-
-    return () => controller.abort();
-  }, [request, upsertEvent]);
-}
-```
-- `request` is any of the streaming payloads shown earlier (e.g., `ThreadsCreateReq`, `ThreadsAddUserMessageReq`), keeping `thread_id` inside `params` exactly like the documented samples.
-- `upsertEvent` routes each union member to specialized reducers (e.g., `handleAssistantDelta`, `handleWidgetUpdate`).
-- Mutations for JSON-only operations share a centralized `apiClient` built on `fetch` with `AbortController`, so cancel actions (surfaced via `allow_cancel`) terminate the same POST body contract.
-
-### shadcn + Radix Composition
-- **Message bubbles**: shadcn `Card` + `Markdown` component (rehype plugins) + Radix `ContextMenu` for quick actions (copy, retry, feedback).
-- **Attachments**: shadcn `Badge`, `AspectRatio`, and Radix `Dialog` for preview lightboxes. Collapsed multi-attachment badge uses `Popover` to reveal the remaining files.
-- **Widgets**: map server `widget` schema to shadcn primitives (`Card`, `Button`, `Separator`, `Toggle`). Button clicks marshal `customAction` payloads back to the endpoint.
-- **Workflows/tasks**: Radix `Accordion` with shadcn `Timeline` patterns to show expandable steps, icons from `lucide-react`, and shimmer animation via Tailwind for pending states.
-- **Starter prompts**: shadcn `Button` variants with left-aligned `lucide-react` icons; clicking triggers `createThread` + `useThreadStream` bootstrap.
-
-### Thread Creation & History UX
-- `ShellHeader` hosts two primary icon buttons (e.g., `Plus`, `History`). Both are shadcn `Button` components styled as icon ghosts with Radix `Tooltip` labels.
-- Clicking the **new-thread icon** immediately calls `createThread` (optionally prefilled via starter prompt). Once the API confirms, the conversation pane rehydrates with the fresh stream.
-- Clicking the **history icon** swaps the `ConversationPane` with `HistoryView`. This view lists past threads using shadcn `Card` tiles inside a Radix `ScrollArea`, showing title, timestamp, last item preview, and metadata badges. Selecting a tile emits `onThreadSelected`, hides the history view, and reattaches the SSE stream for the chosen thread.
-- Because history replaces the main body rather than existing in a sidebar, the layout stays compact and satisfies the requirement that the conversation pane is temporarily replaced whenever users browse history.
-
-### Attachment & Upload Workflow
-1. User selects files; `AttachmentTray` uses `FileReader` to show immediate previews (image `<img>` or file badge) using shadcn `HoverCard` for metadata and “×” removal via Radix `IconButton`.
-2. For each file, post an `attachments.create` request (phase 1); on response, upload bytes to `upload_url` (Phase 2). While uploading, show progress ring using Radix `Progress`.
-3. Once server confirms, store `attachment_id` in composer state;
-4. when the user sends the message, `addUserMessage` includes all `attachment_id`s alongside text content.
-5. `StreamViewport` renders attachments in-message usingpreview logic as the composer, ensuring consistency. Make the size of image atatchements in StreamViewpoprt externally configurable via props. In the view port, the size should be bigger than in the composer.
-
-
-### UI Callbacks & Context
-- Provide `ChatProvider` that accepts callbacks (`onThreadCreated`, `onMessageSent`, `onAttachmentAdded`, `onAttachmentRemoved`, `onError`, `onThreadDone`). The provider wires these callbacks into the mutation/stream reducers so host applications (e.g., other banking dashboards) can react without prop-drilling.
-- Expose a `useChat()` hook returning high-level commands plus derived state (active thread, streaming flag, cancel handler) for leaf components.
-
-### Theming, Accessibility, and Layout
-- Theme tokens reuse `banking-web` Tailwind config (`brand`, `muted`, `card`). shadcn’s `ThemeProvider` + `next-themes` toggles dark/light while Radix primitives ensure contrast and focus states.
-- Announce streaming updates via `aria-live="polite"` regions; blinking cursor implemented with Tailwind keyframes but disabled when OS prefers reduced motion.
-- Keyboard shortcuts: `/` focuses the composer, `Esc` cancels streaming when `allow_cancel` is true, and arrow navigation moves between thread previews; Radix `RovingFocusGroup` aids compliance.
-- Virtual scrolling leverages Radix `ScrollArea` + `react-virtual` to clip long histories without sacrificing accessibility.
 
 
