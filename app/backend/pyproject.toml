@@ -13,19 +13,20 @@ dependencies = [
     "azure-storage-blob==12.26.0",
     "azure-ai-documentintelligence==1.0.1",
     "dependency-injector==4.48.1",
-    "agent-framework-azure-ai",
-    "agent-framework-devui",
-    "agent-framework-chatkit",
-    "azure-monitor-opentelemetry-exporter==1.0.0b45",
-    "azure-monitor-opentelemetry==1.8.2"
+    "agent-framework-core==1.0.0b251211",
+    "agent-framework-azure-ai==1.0.0b251211",
+    "agent-framework-devui==1.0.0b251211",
+    "agent-framework-chatkit==1.0.0b251211",
+    "azure-monitor-opentelemetry-exporter==1.0.0b46",
+    "azure-monitor-opentelemetry==1.8.3"
 ]
 
 [tool.uv]
 prerelease = "if-necessary-or-explicit"
-[tool.uv.sources]
-"agent-framework-azure" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/azure-ai" }
-"agent-framework-chatkit" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/chatkit" }
-"agent-framework-core" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/core" }
+# [tool.uv.sources]
+# "agent-framework-azure" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/azure-ai" }
+# "agent-framework-chatkit" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/chatkit" }
+# "agent-framework-core" = { git = "https://github.com/microsoft/agent-framework.git", branch = "main", subdirectory = "python/packages/core" }
 
 [project.optional-dependencies]
 dev = [

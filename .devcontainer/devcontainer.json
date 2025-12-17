@@ -1,30 +1,19 @@
 {
-    "name": "Java 17 and maven 3.8.8 DevContainer to build Java RAG example with Azure AI",
-    "image": "mcr.microsoft.com/devcontainers/java:1-17-bullseye",
+    "name": "Home Banking Assistant Python Dev Container",
+    "image": "mcr.microsoft.com/devcontainers/python:dev-3.12",
     "features": {
-        "azure-cli": "latest",
-        "ghcr.io/azure/azure-dev/azd:latest": {
-            "version": "1.9.1"
-        },
-        "ghcr.io/devcontainers/features/java:1": {
-            "version": "none",
-            "installMaven": true,
-            "mavenVersion": "3.8.8"
-        },
+        "ghcr.io/devcontainers/features/azure-cli:1.2.9": {},
         "ghcr.io/devcontainers/features/node:1": {
-            "version": "20.5.0"
-        },
-        
+            "version": "22"
+        },       
         "ghcr.io/devcontainers/features/git:1": {
             "version": "2.39.1"
         },
-        "ghcr.io/devcontainers-contrib/features/typescript:2": {},
-        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-        "docker-in-docker": {
-            "version": "latest",
-            "moby": true,
-            "dockerDashComposeVersion": "v1"
-        }
+        "ghcr.io/devcontainers-extra/features/uv:1": {
+            "version": "latest"
+        },
+         "ghcr.io/azure/azure-dev/azd:latest": {}
+        
     },
     "customizations": {
         "vscode": {
@@ -32,9 +21,12 @@
                 "GitHub.vscode-github-actions",
                 "ms-azuretools.azure-dev",
                 "ms-azuretools.vscode-bicep",
-                "vscjava.vscode-java-pack",
                 "amodio.tsl-problem-matcher"
             ]
         }
+    },
+    "remoteUser": "vscode",
+    "hostRequirements": {
+        "memory": "8gb"
     }
 }

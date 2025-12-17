@@ -1,0 +1,143 @@
+name: Infra CI Pipeline 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "deploy/**"
+
+  workflow_dispatch:
+
+# To configure required secrets for connecting to Azure, simply run `azd pipeline config`
+
+# Set up permissions for deploying with secretless Azure federated credentials
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  validate-bicep:
+    name: "Infra Biceps Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Filter Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+            filters: |
+              app-service:
+                - 'deploy/app-service/**'
+              aks:
+                - 'deploy/aks/**'
+              aca:
+                - 'deploy/aca/**'
+      - name: Build App Service Bicep for linting
+        if: steps.changes.outputs.app-service == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/app-service/infra/main.bicep --stdout
+      
+      - name: Build AKS Bicep for linting
+        if: steps.changes.outputs.aks == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/aks/infra/main.bicep --stdout
+      
+      - name: Build ACA Bicep for linting
+        if: steps.changes.outputs.aca == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/aca/infra/main.bicep --stdout
+     
+      - name: Run Microsoft Security DevOps Analysis
+        uses: microsoft/security-devops-action@v1
+        id: msdo
+        continue-on-error: true
+        with:
+          tools: templateanalyzer
+
+      - name: Upload alerts to Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: github.repository == 'Azure-Samples/azure-search-openai-demo-java'
+        with:
+          sarif_file: ${{ steps.msdo.outputs.sarifFile }}
+
+
+#   deploy:
+#     name: "Deploy Infra and App using azd"
+#     runs-on: ubuntu-latest
+#     environment:
+#         name: "Development"
+#     env:
+#       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+#       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+#       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+#       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+    
+#       - name: Install azd
+#         uses: Azure/setup-azd@v0.1.0
+      
+#       - name: Log in with Azure (Federated Credentials)
+#         if: ${{ env.AZURE_CLIENT_ID != '' }}
+#         run: |
+#           azd auth login `
+#             --client-id "$Env:AZURE_CLIENT_ID" `
+#             --federated-credential-provider "github" `
+#             --tenant-id "$Env:AZURE_TENANT_ID"
+#         shell: pwsh
+
+#       - name: Log in with Azure (Client Credentials)
+#         if: ${{ env.AZURE_CREDENTIALS != '' }}
+#         run: |
+#           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+#           Write-Host "::add-mask::$($info.clientSecret)"
+
+#           azd auth login `
+#             --client-id "$($info.clientId)" `
+#             --client-secret "$($info.clientSecret)" `
+#             --tenant-id "$($info.tenantId)"
+#         shell: pwsh
+#         env:
+#           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+#       - name: Provision Infrastructure
+#         run: azd provision --no-prompt
+#         env:
+#           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+#           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+#           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+#           AZURE_FORMRECOGNIZER_RESOURCE_GROUP: ${{ vars.AZURE_FORMRECOGNIZER_RESOURCE_GROUP }}
+#           AZURE_FORMRECOGNIZER_SERVICE: ${{ vars.AZURE_FORMRECOGNIZER_RESOURCE_GROUP }}
+#           AZURE_OPENAI_RESOURCE_GROUP: ${{ vars.AZURE_FORMRECOGNIZER_SERVICE }}
+#           AZURE_OPENAI_SERVICE: ${{ vars.AZURE_OPENAI_SERVICE }}
+#           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+#           AZURE_SEARCH_SERVICE: ${{ vars.AZURE_SEARCH_SERVICE }}
+#           AZURE_SEARCH_SERVICE_RESOURCE_GROUP: ${{ vars.AZURE_SEARCH_SERVICE_RESOURCE_GROUP }}
+#           AZURE_STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+#           AZURE_STORAGE_RESOURCE_GROUP: ${{ vars.AZURE_STORAGE_RESOURCE_GROUP }}
+
+#       - name: Deploy Application
+#         run: azd deploy --no-prompt
+#         env:
+#           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+#           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+#           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+#           AZURE_FORMRECOGNIZER_RESOURCE_GROUP: ${{ vars.AZURE_FORMRECOGNIZER_RESOURCE_GROUP }}
+#           AZURE_FORMRECOGNIZER_SERVICE: ${{ vars.AZURE_FORMRECOGNIZER_RESOURCE_GROUP }}
+#           AZURE_OPENAI_RESOURCE_GROUP: ${{ vars.AZURE_FORMRECOGNIZER_SERVICE }}
+#           AZURE_OPENAI_SERVICE: ${{ vars.AZURE_OPENAI_SERVICE }}
+#           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+#           AZURE_SEARCH_SERVICE: ${{ vars.AZURE_SEARCH_SERVICE }}
+#           AZURE_SEARCH_SERVICE_RESOURCE_GROUP: ${{ vars.AZURE_SEARCH_SERVICE_RESOURCE_GROUP }}
+#           AZURE_STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+#           AZURE_STORAGE_RESOURCE_GROUP: ${{ vars.AZURE_STORAGE_RESOURCE_GROUP }}
+
+

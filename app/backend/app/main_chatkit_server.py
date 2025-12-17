@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
 
     # Setup agent framework observability
     #commenting out for now due to incompatibility between agent-framework 1.0.0b251120 and opentelemetry-sdk 1.39
-    #setup_observability(enable_sensitive_data=settings.ENABLE_OTEL,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
+    setup_observability(enable_sensitive_data=settings.ENABLE_OTEL,applicationinsights_connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
     logger.info(f"Creating FastAPI application: {settings.APP_NAME}")
     

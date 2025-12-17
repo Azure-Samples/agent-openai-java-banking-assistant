@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "agent-framework-azure-ai"
-version = "1.0.0b251120"
+version = "1.0.0b251211"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agent-framework-core" },
@@ -16,24 +16,28 @@ dependencies = [
     { name = "azure-ai-agents" },
     { name = "azure-ai-projects" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/27/e34fdf7d29087f67abe2dd0d44277db1373cd4bd43e4707f04000721606c/agent_framework_azure_ai-1.0.0b251120.tar.gz", hash = "sha256:4773652ab4716b03fe0d7a93095f57a7b76b1d008e85eee9f29ae97ff0c0ef54", size = 17096, upload-time = "2025-11-21T00:13:52.727Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/42/c6/417b7d8b9ad2aeb3ab041904bf32ad876a75b970bf46e63b3b5a3cd2f9db/agent_framework_azure_ai-1.0.0b251211.tar.gz", hash = "sha256:14a606fd16393766d11c7e7742bd5c15655352ce68fb13e8df8bcfcef7f90278", size = 17983, upload-time = "2025-12-11T19:03:26.445Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/78/409009465bd82d748947005b58b086e369e13affdc09a9a70afb41e48b0c/agent_framework_azure_ai-1.0.0b251120-py3-none-any.whl", hash = "sha256:f0b5fcfaa792ab53f8c4c1897b7f4e62fee3c15412e9f46278051b1fe9bc14e8", size = 18860, upload-time = "2025-11-21T00:13:51.581Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/02/c2992c27f0e6730dc30f34c7bc90509034f0f8504435d970c75fade3a2d9/agent_framework_azure_ai-1.0.0b251211-py3-none-any.whl", hash = "sha256:bc7676796b3ef06787ea4fdf1488f106c222b8ed1c4e1033cd4941abd81df2d6", size = 19767, upload-time = "2025-12-11T19:03:24.255Z" },
 ]
 
 [[package]]
 name = "agent-framework-chatkit"
-version = "1.0.0b251120"
-source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fchatkit&branch=main#01a04a3114f60744a5b32b6d394b7f1cc35e51f8" }
+version = "1.0.0b251211"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agent-framework-core" },
     { name = "openai-chatkit" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/0f/7e/eff595e8029d24ff66bd0b85f3f5546f03c52348dea82fdd7eaa6c8d0176/agent_framework_chatkit-1.0.0b251211.tar.gz", hash = "sha256:76d7600c1f6d4d627e6e27a24aa3459d1201eeee73fda8d8e1f573f34a5d1650", size = 12355, upload-time = "2025-12-11T19:03:23.664Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fe/09/acd75d30ac55f74f536e3ad0be0519ce81395d97dd2e85f421a4314f973b/agent_framework_chatkit-1.0.0b251211-py3-none-any.whl", hash = "sha256:316203abe573eed551ccb02953ff543caba9d7f57140eea242ab07268368302b", size = 11671, upload-time = "2025-12-11T19:03:13.244Z" },
+]
 
 [[package]]
 name = "agent-framework-core"
-version = "1.0.0b251120"
-source = { git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fcore&branch=main#01a04a3114f60744a5b32b6d394b7f1cc35e51f8" }
+version = "1.0.0b251211"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-identity" },
     { name = "mcp", extra = ["ws"] },
@@ -47,10 +51,14 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "typing-extensions" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/09/ae/533762a48837d9465c8f53c08ddc7b5ef8a62e414581fff84ee622eaca33/agent_framework_core-1.0.0b251211.tar.gz", hash = "sha256:79408a682eeb158795a2dfb2e477fd72d2da06c174f563209e139f43cdb7dfbb", size = 303790, upload-time = "2025-12-11T19:03:27.52Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/60/d3ddfa62587d62f22b147feb102c7f6890e2dac7369a3688b1c0ebfcaeea/agent_framework_core-1.0.0b251211-py3-none-any.whl", hash = "sha256:699e3d7ac54c22d57e213b17ecff9cd2aac4b2337507988e4895d9933d191367", size = 348124, upload-time = "2025-12-11T19:03:43.033Z" },
+]
 
 [[package]]
 name = "agent-framework-devui"
-version = "1.0.0b251120"
+version = "1.0.0b251211"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agent-framework-core" },
@@ -58,9 +66,9 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/2b/3cdfad6949ff16863c66adbc0443a55b0648d09ef58943cee7a9d4f13894/agent_framework_devui-1.0.0b251120.tar.gz", hash = "sha256:d4b862c620391f436cc53d56b50299d89bfc5e9f5e4221b1dbd7f3dea80ec83e", size = 333257, upload-time = "2025-11-21T00:14:05.891Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/76/969099cba289a5f72d7cc8e107c349d62f7ac233d17ea0fd6745135a090d/agent_framework_devui-1.0.0b251211.tar.gz", hash = "sha256:403e6fd7841683ab38e8bac6d706f984c66e47ff8fac2aa17a3265e728ba59a4", size = 345506, upload-time = "2025-12-11T19:03:42.075Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/81/37/e2ba31aa7ad81218c4fc2f3dc9badc65625ad360e973a5ce5c6ac99d9efc/agent_framework_devui-1.0.0b251120-py3-none-any.whl", hash = "sha256:1a7429dbcd573d4bb142e364e63f77140154fedc007f41c3e777be1caca91d15", size = 338260, upload-time = "2025-11-21T00:14:04.765Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/68/2f0d42ef3eb9bbeaea98d976f1f79ab6b2d273e1964e6fba4c01cb6a3d2d/agent_framework_devui-1.0.0b251211-py3-none-any.whl", hash = "sha256:6c23a38b2e08a0d5b5c3dbce55f0cbe650eef5dfbaff23863efb26a27e6b11c6", size = 350647, upload-time = "2025-12-11T19:03:29.403Z" },
 ]
 
 [[package]]
@@ -314,7 +322,7 @@ wheels = [
 
 [[package]]
 name = "azure-monitor-opentelemetry"
-version = "1.6.3"
+version = "1.8.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
@@ -330,27 +338,26 @@ dependencies = [
     { name = "opentelemetry-resource-detector-azure" },
     { name = "opentelemetry-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/e4/5e777cf955eded9d24a120a1661efdf2cb1448dd66bdc326314d19df413b/azure_monitor_opentelemetry-1.6.3.tar.gz", hash = "sha256:714f351cb1ffc797239786a5148e6bfa6b1b0fabfd2a0923c2fb15fda04faa45", size = 44843, upload-time = "2024-11-04T20:34:44.07Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/a9/f335c32e76e3bac3fbbd7977980f62a7deec5191e984517bdbb38539dfd1/azure_monitor_opentelemetry-1.8.3.tar.gz", hash = "sha256:4aa10f6712db653f618e14e3701de7a2f96669a8f2fea6fb22125077da4ea91c", size = 55177, upload-time = "2025-12-05T00:16:41.491Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/62/d1f8dfc2164da2865827da7e0dd268920550364a472073fadca9c4765fee/azure_monitor_opentelemetry-1.6.3-py3-none-any.whl", hash = "sha256:011d5d2fffc8fb542dad06861ebaf1f74523944c52b9e0e3bb8195d0acc236b4", size = 22759, upload-time = "2024-11-04T20:34:45.259Z" },
+    { url = "https://files.pythonhosted.org/packages/57/4f/138e2f1eddce9b8dda1cccccb5eb3819c1d4d5ea843fbf09ecc3d810641b/azure_monitor_opentelemetry-1.8.3-py3-none-any.whl", hash = "sha256:647248328bb03f8044918411d57c661230277958559f067892bd79f98ce8f69c", size = 27687, upload-time = "2025-12-05T00:16:42.819Z" },
 ]
 
 [[package]]
 name = "azure-monitor-opentelemetry-exporter"
-version = "1.0.0b44"
+version = "1.0.0b46"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
     { name = "azure-identity" },
-    { name = "fixedint" },
     { name = "msrest" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-sdk" },
     { name = "psutil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/9a/acb253869ef59482c628f4dc7e049323d0026a9374adf7b398d0b04b6094/azure_monitor_opentelemetry_exporter-1.0.0b44.tar.gz", hash = "sha256:9b0f430a6a46a78bf757ae301488c10c1996f1bd6c5c01a07b9d33583cc4fa4b", size = 271712, upload-time = "2025-10-14T00:27:20.869Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/57/4dd223fcded4955f85ecfae721802cf4bc5a9a95efd8a9a00271f80d4e6b/azure_monitor_opentelemetry_exporter-1.0.0b46.tar.gz", hash = "sha256:a2fd5837c41b5b10316b089ccbe694fc8a69c23db92a5555b298b1eec3eb38bd", size = 277957, upload-time = "2025-12-04T21:22:41.654Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4a/46/31809698a0d50559fde108a4f4cb2d9532967ae514a113dba39763e048b7/azure_monitor_opentelemetry_exporter-1.0.0b44-py2.py3-none-any.whl", hash = "sha256:82d23081bf007acab8d4861229ab482e4666307a29492fbf0bf19981b4d37024", size = 198516, upload-time = "2025-10-14T00:27:22.379Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/f9/5b1273d134743b59a271000c08ea3b686f184bfbd73e5ab3a7feae2d0e5f/azure_monitor_opentelemetry_exporter-1.0.0b46-py2.py3-none-any.whl", hash = "sha256:12935e72dcad4a162636eaa5f861e106fcdc3c19928e79cd58b52653fe15625a", size = 200542, upload-time = "2025-12-04T21:22:43.003Z" },
 ]
 
 [[package]]
@@ -375,6 +382,7 @@ source = { editable = "." }
 dependencies = [
     { name = "agent-framework-azure-ai" },
     { name = "agent-framework-chatkit" },
+    { name = "agent-framework-core" },
     { name = "agent-framework-devui" },
     { name = "azure-ai-documentintelligence" },
     { name = "azure-identity" },
@@ -395,13 +403,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agent-framework-azure-ai" },
-    { name = "agent-framework-chatkit", git = "https://github.com/microsoft/agent-framework.git?subdirectory=python%2Fpackages%2Fchatkit&branch=main" },
-    { name = "agent-framework-devui" },
+    { name = "agent-framework-azure-ai", specifier = "==1.0.0b251211" },
+    { name = "agent-framework-chatkit", specifier = "==1.0.0b251211" },
+    { name = "agent-framework-core", specifier = "==1.0.0b251211" },
+    { name = "agent-framework-devui", specifier = "==1.0.0b251211" },
     { name = "azure-ai-documentintelligence", specifier = "==1.0.1" },
     { name = "azure-identity", specifier = "==1.24.0" },
-    { name = "azure-monitor-opentelemetry", specifier = "==1.6.3" },
-    { name = "azure-monitor-opentelemetry-exporter", specifier = "==1.0.0b44" },
+    { name = "azure-monitor-opentelemetry", specifier = "==1.8.3" },
+    { name = "azure-monitor-opentelemetry-exporter", specifier = "==1.0.0b46" },
     { name = "azure-storage-blob", specifier = "==12.26.0" },
     { name = "dependency-injector", specifier = "==4.48.1" },
     { name = "fastapi", extras = ["all"], specifier = "==0.116.1" },
@@ -859,15 +868,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a4/b9/9a8c3fd59958c1c8027bc075af11722cdc62c4968bb277e841d131232289/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_armv7l.whl", hash = "sha256:382bfe82c026086487cb17fee12f4c1e2b4e67ce230f2e04487d3e7ddfd69031", size = 1042911, upload-time = "2025-11-26T02:35:21.857Z" },
     { url = "https://files.pythonhosted.org/packages/e2/2f/c3f30963b47022134b8a231c12845f4d7cfba520f59bbc1a82468aea77c7/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:908d2b9a1ff3d549cc304b32f95706a536da8f0bcb0bc0f9e4c1cce39b80e218", size = 1047464, upload-time = "2025-11-26T02:35:39.376Z" },
     { url = "https://files.pythonhosted.org/packages/9e/8a/218ab6d9a2bab3b07718e6cd8405529600edc1e9c266320e8524c8f63251/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:1aa7dbde2d2d73eb5b6203d0f74875cb66350f0f1b4325b4839fc8fbbf5d074e", size = 997309, upload-time = "2025-11-26T02:35:57.722Z" },
-]
-
-[[package]]
-name = "fixedint"
-version = "0.1.6"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/32/c6/b1b9b3f69915d51909ef6ebe6352e286ec3d6f2077278af83ec6e3cc569c/fixedint-0.1.6.tar.gz", hash = "sha256:703005d090499d41ce7ce2ee7eae8f7a5589a81acdc6b79f1728a56495f2c799", size = 12750, upload-time = "2020-06-20T22:14:16.544Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/6d/8f5307d26ce700a89e5a67d1e1ad15eff977211f9ed3ae90d7b0d67f4e66/fixedint-0.1.6-py3-none-any.whl", hash = "sha256:b8cf9f913735d2904deadda7a6daa9f57100599da1de57a7448ea1be75ae8c9c", size = 12702, upload-time = "2020-06-20T22:14:15.454Z" },
 ]
 
 [[package]]

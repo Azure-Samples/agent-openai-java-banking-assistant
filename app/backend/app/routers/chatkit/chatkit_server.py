@@ -6,6 +6,7 @@ from agent_framework_chatkit import ThreadItemConverter
 from chatkit.actions import Action
 from chatkit.server import ChatKitServer,agents_sdk_user_agent_override
 from chatkit.errors import CustomStreamError, StreamError, ErrorCode
+from agent_framework.observability import get_tracer
 
 
 from chatkit.types import (
@@ -132,48 +133,49 @@ class BankingAssistantChatKitServer(ChatKitServer[dict[str, Any]]):
             return
 
         logger.info(f"Processing message for thread: {thread.id}")
+        with get_tracer().start_as_current_span(f"Banking Assistant - {thread.id}") as current_span:
 
-        try:
-            
-            #Extracting the attachments id. Only one is supported right now
-            attachment_ids = []
-            if input_user_message.attachments :
-                attachment_ids = [attachment.id for attachment in input_user_message.attachments]
-                logger.info(f"User message has attachments: {attachment_ids}")
+            try:
+                
+                #Extracting the attachments id. Only one is supported right now
+                attachment_ids = []
+                if input_user_message.attachments :
+                    attachment_ids = [attachment.id for attachment in input_user_message.attachments]
+                    logger.info(f"User message has attachments: {attachment_ids}")
 
-            # Convert ChatKit user message to Agent Framework ChatMessage using ThreadItemConverter
-            agent_messages = await self.converter.to_agent_input(input_user_message)
+                # Convert ChatKit user message to Agent Framework ChatMessage using ThreadItemConverter
+                agent_messages = await self.converter.to_agent_input(input_user_message)
 
-            if not agent_messages:
-                logger.warning("No messages after conversion")
-                return
+                if not agent_messages:
+                    logger.warning("No messages after conversion")
+                    return
 
-            logger.info(f"Running agent with {len(agent_messages)} message(s)")
+                logger.info(f"Running agent with {len(agent_messages)} message(s)")
 
 
-            #get last message
-            last_message = agent_messages[-1]
+                #get last message
+                last_message = agent_messages[-1]
 
-            expanded_text_with_attachements = last_message.text
-            
+                expanded_text_with_attachements = last_message.text
+                
 
-            if attachment_ids:
-                expanded_text_with_attachements += (f" [attachment_id: {attachment_ids[0]}]")
-            
-            af_events = self.handoff_orchestrator.processMessageStream(expanded_text_with_attachements, thread.id)
+                if attachment_ids:
+                    expanded_text_with_attachements += (f" [attachment_id: {attachment_ids[0]}]")
+                
+                af_events = self.handoff_orchestrator.processMessageStream(expanded_text_with_attachements, thread.id)
 
-            chatkit_event_handler = ChatKitEventsHandler()
+                chatkit_event_handler = ChatKitEventsHandler()
 
-            async for event in chatkit_event_handler.handle_events(thread.id, af_events):
-                yield event
+                async for event in chatkit_event_handler.handle_events(thread.id, af_events):
+                    yield event
 
-           # Update thread title based on first user message if not already set
-            if not thread.title or thread.title == "New thread":
-                await self._update_thread_title(thread, input_user_message, context)
+            # Update thread title based on first user message if not already set
+                if not thread.title or thread.title == "New thread":
+                    await self._update_thread_title(thread, input_user_message, context)
 
-        except Exception as e:
-            logger.error(f"Error processing message for thread {thread.id}: {e}", exc_info=True)
-            yield ErrorEvent(message = f"An error occurred while processing your message for thread {thread.id}")
+            except Exception as e:
+                logger.error(f"Error processing message for thread {thread.id}: {e}", exc_info=True)
+                yield ErrorEvent(message = f"An error occurred while processing your message for thread {thread.id}")
 
     #this is called by chatkit server when a custom action is received from the client like the ones defined in widgets.
     async def action(
@@ -190,27 +192,28 @@ class BankingAssistantChatKitServer(ChatKitServer[dict[str, Any]]):
         """
 
         logger.info(f"Received action: {action.type} for thread: {thread.id}")
+        with get_tracer().start_as_current_span(f"Banking Assistant - {thread.id}") as current_span:
 
-        try:
-            if action.type == "approval":
-                # Extract city information from the action payload
-                approved = action.payload.get("approved", False)
-                call_id = action.payload.get("call_id", None)
-                request_id = action.payload.get("request_id", None)
-                tool_name = action.payload.get("tool_name", None)
+            try:
+                if action.type == "approval":
+                    # Extract city information from the action payload
+                    approved = action.payload.get("approved", False)
+                    call_id = action.payload.get("call_id", None)
+                    request_id = action.payload.get("request_id", None)
+                    tool_name = action.payload.get("tool_name", None)
 
-            # Manage last user message. what about thread ? 
-                af_events = self.handoff_orchestrator.processToolApprovalResponse(thread.id,approved,call_id=call_id, request_id=request_id, tool_name=tool_name)
+                # Manage last user message. what about thread ? 
+                    af_events = self.handoff_orchestrator.processToolApprovalResponse(thread.id,approved,call_id=call_id, request_id=request_id, tool_name=tool_name)
 
-                chatkit_event_handler = ChatKitEventsHandler()
+                    chatkit_event_handler = ChatKitEventsHandler()
 
-                async for event in chatkit_event_handler.handle_events(thread.id, af_events):
-                    yield event
+                    async for event in chatkit_event_handler.handle_events(thread.id, af_events):
+                        yield event
 
-           
-        except Exception as e:
-            logger.error(f"Error processing message for thread {thread.id}: {e}", exc_info=True)
-            yield ErrorEvent(message = f"An error occurred while processing your message for thread {thread.id}")
+                
+            except Exception as e:
+                logger.error(f"Error processing message for thread {thread.id}: {e}", exc_info=True)
+                yield ErrorEvent(message = f"An error occurred while processing your message for thread {thread.id}")
 
 
 ########################## ChatKit Server Customization ##############################

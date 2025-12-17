@@ -180,7 +180,7 @@ azd up
 
 ### Running Agents locally
 Once you have created the Azure resources with `azd up` or `azd provision`, you can run all the apps locally (instead of using Azure Container Apps). For more details on how to run each app check:
--  the [README.md](app/copilot/README.md) to run the copilot chat service and the front-end
+-  the [README.md](app/backend/README.md) to run the agents backend and the front-end
 -  the [README.md](app/business-api/python/README.md) to run the simulated banking mcp servers.
 
 

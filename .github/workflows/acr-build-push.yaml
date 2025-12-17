@@ -1,0 +1,56 @@
+name: Reusable ACR Build and Push workflow
+on:
+    workflow_call:
+      inputs:
+        env-name:
+          required: true
+          type: string
+        image-name:
+          required: true
+          type: string
+        app-folder-path:
+          required: true
+          type: string
+
+# Set up permissions for deploying with secretless Azure federated credentials
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        environment: ${{inputs.env-name}}
+        
+        steps:
+        - name: Log in to Azure with service principal
+          if: ${{ vars.AZURE_CLIENT_ID == '' }}
+          uses: azure/login@v2
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        - name: Log in Azure Container Registry
+          if: ${{ vars.AZURE_CLIENT_ID == '' }}
+          uses: azure/docker-login@v2
+          with:
+            login-server: ${{vars.ACR_NAME}}.azurecr.io
+            username: ${{ secrets.SPI_CLIENT_ID   }}
+            password: ${{ secrets.SPI_CLIENT_SECRET }}
+        - name: Log in with Azure (Federated Credentials)
+          if: ${{ vars.AZURE_CLIENT_ID != '' }}
+          uses: azure/login@v2
+          with:
+            client-id: ${{ vars.AZURE_CLIENT_ID }}
+            tenant-id: ${{ vars.AZURE_TENANT_ID }}
+            subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}       
+        - name: Login to Azure Container Registry (Federated Credentials)
+          if: ${{ vars.AZURE_CLIENT_ID != '' }}  
+          run: az acr login --name ${{vars.ACR_NAME}}
+        - uses: actions/checkout@v2
+        - name: Build and Push to ACR
+          run: |
+            echo "Building image [${{ inputs.image-name }}] and environment [${{ inputs.env-name }}]"
+            cd ${{ inputs.app-folder-path }}
+            docker build . -t ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            docker push ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}
+            echo "image successfully pushed: ${{vars.ACR_NAME}}.azurecr.io/${{inputs.image-name}}:${{github.sha}}"
