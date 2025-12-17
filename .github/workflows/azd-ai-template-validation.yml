@@ -13,7 +13,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     name: Validation steps
-    environment: 'ai-template-validation'
+    environment: 'banking-assistant-python-ai-template-validation'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,12 +25,11 @@ jobs:
         id: validation
         env:
           AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} 
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-          AZURE_ENV_NAME: '${{ vars.AZURE_ENV_NAME }}val'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_ENV_NAME: '${{ vars.AZURE_ENV_NAME }}'
+
 
       - name: print result
         run: cat ${{ steps.validation.outputs.resultFile }}
