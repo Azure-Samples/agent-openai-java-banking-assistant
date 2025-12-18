@@ -1,5 +1,5 @@
 import type { ActionConfig, Spacing, Border, Borders, ThemeColor } from "./types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils";
 
 /**
  * Convert spacing object to Tailwind classes

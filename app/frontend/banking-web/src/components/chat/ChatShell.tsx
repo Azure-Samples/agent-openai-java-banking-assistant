@@ -3,7 +3,7 @@ import { StreamViewport } from "./StreamViewport";
 import { HistoryView } from "./HistoryView";
 import { Composer } from "./Composer";
 import { useChat } from "./ChatProvider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils";
 
 interface ChatShellProps {
   headerConfig?: ShellHeaderConfig;

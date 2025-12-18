@@ -61,7 +61,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils";
 import { useChat } from "./ChatProvider";
 import { Markdown } from "./Markdown";
 import { useDebounce } from "./useDebounce";

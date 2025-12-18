@@ -1,0 +1,35 @@
+name: AZD AI Template validation
+# Run when manually triggered
+on:
+  workflow_dispatch: 
+  
+# Set up permissions for deploying with secretless Azure federated credentials
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validation steps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate AZD template
+        uses: microsoft/template-validation-action@Latest
+        with: 
+          validateAzd: true
+          useDevContainer: false
+        id: validation
+        env:
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: print result
+        run: cat ${{ steps.validation.outputs.resultFile }}

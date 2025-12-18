@@ -1,0 +1,68 @@
+name: Infra CI Pipeline 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "deploy/**"
+
+  workflow_dispatch:
+
+# To configure required secrets for connecting to Azure, simply run `azd pipeline config`
+
+# Set up permissions for deploying with secretless Azure federated credentials
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  validate-bicep:
+    name: "Infra Biceps Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Filter Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+            filters: |
+              app-service:
+                - 'deploy/app-service/**'
+              aks:
+                - 'deploy/aks/**'
+              aca:
+                - 'deploy/aca/**'
+      - name: Build App Service Bicep for linting
+        if: steps.changes.outputs.app-service == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/app-service/infra/main.bicep --stdout
+      
+      - name: Build AKS Bicep for linting
+        if: steps.changes.outputs.aks == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/aks/infra/main.bicep --stdout
+      
+      - name: Build ACA Bicep for linting
+        if: steps.changes.outputs.aca == 'true'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: az config set bicep.use_binary_from_path=false && az bicep build -f deploy/aca/infra/main.bicep --stdout
+     
+      - name: Run Microsoft Security DevOps Analysis
+        uses: microsoft/security-devops-action@v1
+        id: msdo
+        continue-on-error: true
+        with:
+          tools: templateanalyzer
+
+      - name: Upload alerts to Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: github.repository == 'Azure-Samples/agent-openai-python-banking-assistant'
+        with:
+          sarif_file: ${{ steps.msdo.outputs.sarifFile }}
