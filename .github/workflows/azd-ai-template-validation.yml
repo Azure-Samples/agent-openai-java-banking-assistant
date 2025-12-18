@@ -13,7 +13,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     name: Validation steps
-    environment: 'banking-assistant-python-ai-template-validation'
+    environment: 'ai-template-validation'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
