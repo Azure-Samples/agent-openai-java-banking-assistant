@@ -222,7 +222,7 @@ The sample does not cover the following aspects, essential to the security of th
 
 - **No isolation of user conversations**: After app deployment on Azure, the platform does not isolate conversations or other persisted state by end user.
 - **No authentication or authorization of end users**: Access to webapp is granted via role assignment in the subscription ( see [Restrict Acccess to public webapp](#restrict-access-to-public-webapp)). The aspect of end user authentication/authorization must be addressed as a separate app concern;
-- **No persisted session management**: Conversations are stored in memory and will be lost on each app restart.
+
 
 When deploying to production with real customer data, consider implementing:
 
