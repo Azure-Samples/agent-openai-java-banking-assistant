@@ -205,61 +205,31 @@ You can test different models and versions by changing the model sections in the
     }
 ```
 
+### Restrict access to public webapp
+
+By default, the web app on ACA will have no authentication or access restrictions enabled, meaning anyone with routable network access to the web app can chat with your personal assistant.You can require authentication to your Microsoft Entra by following the [Add app authentication](https://learn.microsoft.com/en-us/azure/container-apps/authentication) tutorial and set it up against the deployed web app.
+
+
+To then limit access to a specific set of users or groups, you can follow the steps from [Restrict your Microsoft Entra app to a set of users](https://learn.microsoft.com/entra/identity-platform/howto-restrict-your-app-to-a-set-of-users) by changing "Assignment Required?" option under the Enterprise Application, and then assigning users/groups access.  Users not granted explicit access will receive the error message -AADSTS50105: Your administrator has configured the application <app_name> to block users 
 
 ### Security Considerations
 
 > [!IMPORTANT]
-> **This sample is a proof-of-concept**. Before deploying to production environments or using with real customer data, you **MUST** implement comprehensive authentication and authorization mechanisms to ensure secure access control and data protection.
+> **This sample is a proof-of-concept and does not implement app authentication or authorization**. 
 
-#### Multi-User, Multi-Account, Multi-Tenant Support
 
-For production deployments, especially in banking and financial services contexts, you must implement robust security controls to support:
+The sample does not cover the following aspects, essential to the security of the solution:
 
-1. **User Authentication & Identity Management**: Integrate with your organization's identity provider (Microsoft Entra ID, Okta, Auth0, etc.) to ensure proper user authentication. Each user session must be authenticated and validated before accessing any banking services or agents.
+- **No isolation of user conversations**: After app deployment on Azure, the platform does not isolate conversations or other persisted state by end user.
+- **No authentication or authorization of end users**: Access to webapp is granted via role assignment in the subscription ( see [Restrict Acccess to public webapp](#restrict-access-to-public-webapp)). The aspect of end user authentication/authorization must be addressed as a separate app concern;
+- **No persisted session management**: Conversations are stored in memory and will be lost on each app restart.
 
-2. **Multi-Account Access Control**: Users often have access to multiple bank accounts (personal, joint, business). Your implementation must:
-   - Verify that authenticated users can only access accounts they are authorized to view
-   - Implement account-level authorization checks before any agent retrieves or modifies data
-   - Maintain strict isolation between different user accounts and sessions
+When deploying to production with real customer data, consider implementing:
 
-3. **Multi-Tenant Isolation**: If deploying this solution across multiple organizations or banking institutions:
-   - Ensure complete data isolation between tenants
-   - Implement tenant-aware routing and data access patterns
-   - Use separate data stores or logical partitions per tenant
-   - Validate tenant context in every API call and agent interaction
-
-#### Identity Provider Integration
-
-If your organization has an internal identity provider or uses enterprise identity management:
-
-1. **Token Acquisition & Validation**:
-   - Integrate with your identity provider's OAuth 2.0/OIDC flows to obtain user tokens
-   - Validate tokens on every request using proper token validation libraries
-   - Verify token signatures, expiration, issuer, and audience claims
-   - Implement token refresh mechanisms for long-running sessions
-
-2. **Claims-Based Access Control**:
-   - Extract and validate user claims from identity tokens
-   - Use claims to enforce fine-grained authorization policies
-   - Implement role-based access control (RBAC) or attribute-based access control (ABAC)
-   
-   Examples of claims you might want to consider in banking context are:
-
-   - **`account_ids`**: List of account identifiers the user is authorized to access
-   - **`account_roles`**: Roles per account (e.g., "owner", "authorized_signer", "view_only")
-   - **`customer_id`**: Unique customer identifier in the banking system
-   - **`transaction_limits`**: Maximum transaction amounts the user can authorize
-   - **`risk_profile`**: User risk classification (e.g., "low", "medium", "high")
-   - **`mfa_verified`**: Multi-factor authentication completion status
-   - **`region`**: Geographic region for regulatory compliance (GDPR, local banking regulations)
-   - **`account_types`**: Types of accounts accessible (e.g., "checking", "savings", "credit", "loan")
-   - **`approved_operations`**: Specific operations allowed (e.g., "view_balance", "transfer", "pay_invoice", "manage_beneficiaries")
-
-4. **Authorization Enforcement**:
-   - Validate claims at both the API gateway level and within agent tool executions
-   - Ensure agents cannot access data outside the user's authorized scope
-   - Log all access attempts and authorization decisions for audit trails
-   - Implement rate limiting and anomaly detection based on user claims
+- **End-user authentication and authorization integrated with your identity provider**
+- **Conversation and data isolation per user and per account**
+- **Audit logging of all access and operations**
+- **Compliance with applicable regulations (PCI-DSS, GDPR, local banking regulations)**
 
 
 
