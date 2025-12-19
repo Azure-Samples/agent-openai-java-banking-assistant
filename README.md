@@ -27,79 +27,83 @@ description: A Python sample app emulating a personal banking AI-powered assista
 <div align="center">
 
 ![](./docs/assets/robot-agents-small.png)
-
-# Multi Agent Banking Assistant with Python and Microsoft Agent Framework
-
-
-:star: If you like this sample, star it on GitHub — it helps a lot!
-
-[Overview](#overview) • [Architecture](#agents-concepts-and-architectures) • [Get started](#getting-started) •  [Resources](#resources) • [FAQ](#faq) • [Troubleshooting](#troubleshooting)
-
-![](./docs/assets/banking-web.gif)
 </div>
 
+# Multi Agent Banking Assistant
+A banking personal assistant designed to revolutionize the way users interact with their bank account information, transaction history, and payment functionalities. Utilizing the power of generative AI within a multi-agent architecture, this assistant aims to provide a seamless, conversational interface through which users can effortlessly access and manage their financial data.
 
+Even if specific to banking scenarios, this sample can be used for other business use cases as technical reference architecture concerning customer support chatbots or virtual assistants using Microsoft Agent Framework to implement supervisor based orchestration for multiple domains agents that need to integrate with business domains API through MCP. AI-powered assistants in other domains by adapting the agents tools and backend services to your specific business needs.
 
-## Overview
-The core use case of this Proof of Concept (PoC) revolves around a banking personal assistant designed to revolutionize the way users interact with their bank account information, transaction history, and payment functionalities. Utilizing the power of generative AI within a multi-agent architecture, this assistant aims to provide a seamless, conversational interface through which users can effortlessly access and manage their financial data.
-
-Instead of navigating through traditional web interfaces and menus, users can simply converse with the AI-powered assistant to inquire about their account balances, review recent transactions, or initiate payments. This approach not only enhances user experience by making financial management more intuitive and accessible but also leverages the existing workload data and APIs to ensure a reliable and secure service.
-
-Invoices samples are included in the data folder to make it easy to explore payments feature. The payment agent equipped with OCR tools ( Azure Document Intelligence) will lead the conversation with the user to extract the invoice data and initiate the payment process. Other account fake data as transactions, payment methods and account balance are also available to be queried by the user. All data and services are exposed as external REST APIs and **MCP tools** consumed by the agents to provide the user with the requested information.
-
-<div align="center" >
-<p> <strong>This sample is powered by:</strong></p>
-
-
-<img src="./docs/assets/ag-banner.png" width="400" alt="Agent Framework Banner">
-
-
-</div>
-
-<br />
-
-For Semantic Kernel version check this [branch](https://github.com/Azure-Samples/agent-openai-python-banking-assistant/tree/semantic-kernel)
-
-
-## Features 
-This project provides the following features and technical patterns:
- - Multi-agent supervisor architecture using **gpt-4.1** on [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry)
- - Exposing your business API as MCP tools for your agents using [fastmcp](https://gofastmcp.com/getting-started/welcome)
- - Agents tools configuration and hand-off agents orchestration using [Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview).
- - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
- - Rich agents human-in-the-loop (HITL) experience supporting agents progress notification and tool approval using [Open AI chatkit protocol](https://platform.openai.com/docs/guides/chatkit).
- - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
- - Add an agentic app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
- - Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
-
-
-### Architecture
-![HLA](docs/assets/HLA-Agent-Framework.png)
-The home banking assistant is designed as conversational multi-agent system with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). The architecture consists of the following key components:
-
-- **Agents App (Microservice)**: Serves as the central hub for processing user chat requests. It's a [FastAPI](https://fastapi.tiangolo.com/) app which uses  **agent-framework** to create Agents equipped with tools and orchestrate them using [hand-off pattern](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns#handoff-orchestration).
-    - **Supervisor Agent**: It's responsible to triage the user request, and delegate the task to the specialized domain agent. This component ensures that user queries are efficiently handled by the relevant agent. Agents are engaged by the supervisor in a single turn conversation meaning that only one is selected by the supervisor to answer to user task. 
-    
-    - **Account Agent**: Specializes in handling tasks related to banking account information, credit balance, and registered payment methods. It leverages specific Account service APIs to fetch and manage account-related data. The Microsoft Agent Framework is used to create account specific tools definition from the MCP server and automatically call the HTTP endpoint with input parameters extracted by gpt4 model from the chat conversation.
-
-    - **Transactions Agent**: Focuses on tasks related to querying user bank movements, including income and outcome payments. This agent accesses account mcp server to retrieve accountid and transaction history mcp server to search for transactions and present them to the user.
-
-    - **Payments Agent**: Focuses on managing tasks related to submitting payments. It interacts with multiple MCP servers and tools, such as ScanInvoice (backed by Azure Document Intelligence), Account Service to retrieve account and payment methods info, Payment Service to submit payment processing and Transaction History service to check for previous paid invoices.
-
-- **Existing Business APIs**: Interfaces with the backend systems to perform operations related to personal banking accounts, transactions, and invoice payments. These APIs are implemented as external spring boot microservices providing the necessary data and functionality consumed by agents to execute their tasks. They are exposed as MCP endpoints using [FastMCP](https://gofastmcp.com/getting-started/welcome) to be consumed by agents.
-    - **Account MCP Service (Microservice)**: Provides functionalities like retrieving account details by username, fetching payment methods, and getting registered beneficiaries. This microservice supports all 3 agents.
-
-    - **Payments MCP Service (Microservice)**: Offers capabilities to submit payments and notify transactions. It is a critical component for the Payments Agent to execute payment-related tasks efficiently.
-
-    - **Reporting MCP Service (Microservice)**: Enables searching transactions and retrieving transactions by recipient. This service supports the Transactions Agent in providing detailed transaction reports to the user and the Payment Agent as it needs to check if an invoice has not been already paid.
-
-- **Multi agent orchestration**: The supervisor pattern to orchestrate and delegate tasks to different domain specific agents is implemented using different approaches available for you to explore
-  - **Hand-off pattern + Chatkit**: This pattern is implemented using the [hand-off orchestration](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns#handoff-orchestration) available as pre-built orchestration in the Microsoft Agent Framework. Look here for code details [handoff_orchestrator_chatkit.py](app/backend/app/agents/azure_chat/handoff/chatkit/handoff_orchestrator_chatkit.py). Furthermore the chat ui and  agents interaction is implemented using [OpenAI chatkit protocol](https://platform.openai.com/docs/guides/chatkit) for better human in the loop experience supporting agents progress notification and tool approval widget streaming.
-  - **Hand-off pattern + custom UI-Agent protocol**: As the above but without using the chatkit protocol specification. This has limited support for HITL patterns and use a simple chat interface that's not integrated into an existing home banking app.Look here for code details [handoff_orchestrator_custom_protocol.py](app/backend/app/agents/azure_chat/handoff/handoff_orchestrator.py)
-  - **Domain agents as tools**: In this approach the domain specific agents are exposed as tools to the supervisor agent which can call them as tools when needed.That is based on Agent Framework Agent abstractions only. Look here for code details [supervisor_agent.py](app/backend/app/agents/azure_chat/agents_as_tools/supervisor_agent.py)
+<div align="center">
   
-## Getting Started
+[**BUSINESS SCENARIO**](#business-scenario)  \| [**SOLUTION OVERVIEW**](#solution-overview)  \| [**QUICK DEPLOY**](#quick-deploy)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation)
 
+</div>
+<br/>
+
+ **Note:** With any AI solutions you create using these templates, you are responsible for assessing all associated risks and for complying with all applicable laws and safety standards. Learn more in the transparency documents for [Agent Service](https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/agents/transparency-note) and [Agent Framework](https://github.com/microsoft/agent-framework/blob/main/TRANSPARENCY_FAQ.md).
+<br/>
+
+<h2><img src="./docs/assets/business-scenario.png" width="48" />
+Business scenario
+</h2>
+
+<div align="center">  
+<img src="./docs/assets/banking-web.gif" alt="Banking Web Demo">
+</div>
+<br/>
+
+Revolutionize the way users interact with their bank account information, transaction history, and payment functionalities. 
+Instead of navigating through traditional web interfaces and menus, users can simply converse with the AI-powered assistant to inquire about their account balances, credit cards, review recent transactions, or initiate payments. This approach not only enhances user experience by making financial management more intuitive and accessible but also leverages the existing workload data and APIs to ensure a reliable and secure service.
+
+Invoices samples are included in the data folder to make it easy to explore payments feature. The payment agent equipped with OCR tools ( Azure Document Intelligence) will lead the conversation with the user to extract the invoice data and initiate the payment process. Other account fake data as transactions, payment methods and account balance are also available to be queried by the user. All data and services are exposed as external REST APIs and MCP tools consumed by the agents to provide the user with the requested information.
+
+### Key Features
+<details open>
+  <summary>Click to learn more about the key features this solution enables</summary>
+ 
+ - **Add agentic conversational experience to your existing website** <br/>
+Chat component is implemented as reusable [React](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) widget with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
+- **Image data extraction** <br/> 
+Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model. 
+ - **Multi-agent supervisor architecture** <br/>
+ Use agents-as-tools or hand-off orchestration to implement supervisor agent to understand user intents and delegate tasks to specific domain agents. Agents are using **gpt-4.1** on [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry)
+ - **Reusing existing business APIs as MCP tools** <br/>
+ Business service logic is exposed to agents through MCP using [fastmcp](https://gofastmcp.com/getting-started/welcome) 
+ - **Microsoft Agent Framework First** <br/>
+ Use [MAF](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) chat agents to flexibly support AzureOpenAI or Foundry Agent Service based agents
+ - **Human-In-The-Loop (HITL) patterns** <br/>
+ Rich human-in-the-loop experience supporting agents progress notification and tool approval using [Open AI chatkit protocol](https://platform.openai.com/docs/guides/chatkit).
+- **Co-located agents architecture on scalable Azure Container Apps** <br/>
+Add an agentic app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
+- **Automated IaC and App build & Deployment**
+Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
+
+</details>
+<br/>
+
+<h2><img src="./docs/assets/solution-overview.png" width="48" />
+Solution overview
+</h2>
+
+### Solution architecture
+|![image](docs/assets/HLA-Agent-Framework.png)|
+|---|
+
+The home banking assistant is designed as conversational multi-agent system with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments).Business services logic is exposed to agents through MCP endpoint running on domain driven microservice.
+Agents-to-Chat communication protocol is based on [OpenAI Chatkit protocol]((https://github.com/openai/chatkit-js)) handling SSE streams from a unified POST endpoint; It extends original ChatKit Microsoft agent-framework implementation in order support client-managed widgets and multi-agent workflows.
+
+### Additional resources
+
+- [Technical Architecture](./docs/technical-architecture.md)
+- [Chat-to-Agent Conversational protocol implementation](./docs/chat-server-protocol.md)
+- For Semantic Kernel version check this [branch](https://github.com/Azure-Samples/agent-openai-python-banking-assistant/tree/semantic-kernel)
+
+
+<br /><br />
+<h2><img src="./docs/assets/quick-deploy.png" width="48" />
+Quick Deploy 
+</h2>
 
 ### Prerequisites
 
@@ -115,8 +119,7 @@ The home banking assistant is designed as conversational multi-agent system with
 > [!WARNING]
 > Your Azure Account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).  
 
-### Starting from scratch
-
+### Getting Started
 You can clone this repo and change directory to the root of the repo. Or you can run `azd init -t Azure-Samples/agent-openai-python-banking-assistant`.
 
 Once you have the project available locally, run the following commands if you don't have any pre-existing Azure services and want to start from a fresh deployment.
@@ -132,78 +135,32 @@ Once you have the project available locally, run the following commands if you d
     ```shell
     azd up
     ```
-    
-    * This will provision Azure resources and deploy this sample to those resources.
-    * The project has been tested with gpt-4o and gpt-4.1 model which is currently available with several deployment options these regions. The default is global standard. For more info on deployments and updated region availability check [here](https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/models-sold-directly-by-azure?pivots=azure-openai&tabs=global-standard-aoai%2Cstandard-chat-completions%2Cglobal-standard#model-summary-table-and-region-availability)
+For more info about deployment click [here](./docs/deployment-guide.md)
 
+🛠️ **Need Help?** Check our [Troubleshooting Guide](./docs/troubleshooting.md) for solutions to common deployment issues.
+<br/><br/>
 
-3. After the application has been successfully deployed you will see a web app URL printed to the console.  Click that URL to interact with the application in your browser.  
+### Prerequisites and costs
 
-It will look like the following:
+Pricing varies per region and usage, so it isn't possible to predict exact costs for your usage.
+However, you can try the [Azure pricing calculator](https://azure.com/e/8ffbe5b1919c4c72aed89b022294df76) for the resources below.
 
-!['Output from running azd up'](docs/assets/azd-success.png)
+- Azure Containers App: Consumption workload profile with 4 CPU core and 8 GB RAM. Pricing per vCPU and Memory. [Pricing](https://azure.microsoft.com/en-us/pricing/details/container-apps/)
+- Azure OpenAI: Standard tier, ChatGPT and Ada models. Pricing per 1K tokens used, and at least 1K tokens are used per question. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/)
+- Azure Document Intelligence: SO (Standard) tier using pre-built layout. [Pricing](https://azure.microsoft.com/pricing/details/form-recognizer/)
 
+- Azure Blob Storage: Standard tier with ZRS (Zone-redundant storage). Pricing per storage and read operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
+- Azure Monitor: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
 
-### Redeploying
+The first 180,000 vCPU-seconds, 360,000 GiB-seconds, and 2 million requests each month are free for ACA. To reduce costs, you can switch to free SKUs Document Intelligence by changing the parameters file under the `infra` folder. There are some limits to consider; for example, the free resource only analyzes the first 2 pages of each document. 
 
-If you've only changed the backend/frontend code in the `app` folder, then you don't need to re-provision the Azure resources. You can just run:
+⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
+either by deleting the resource group in the Portal or running `azd down`.
 
-```shell
-azd deploy
-```
+<h2><img src="./docs/assets/supporting-documentation.png" width="48" />
+Supporting documentation
+</h2>
 
-If you've changed the infrastructure files (`infra` folder or `azure.yaml`), then you'll need to re-provision the Azure resources. You can do that by running:
-
-```shell
-azd up
-```
- > [!WARNING]
- > When you run `azd up` multiple times to redeploy infrastructure, make sure to set the following parameters in `infra/main.parameters.json` to `true` to avoid container apps images from being overridden with default "mcr.microsoft.com/azuredocs/containerapps-helloworld" image:
-
-```json
- "copilotAppExists": {
-      "value": false
-    },
-    "webAppExists": {
-      "value": false
-    },
-    "accountAppExists": {
-      "value": false
-    },
-    "paymentAppExists": {
-      "value": false
-    },
-    "transactionAppExists": {
-      "value": false
-    }
-```
-
-### Running Agents locally
-Once you have created the Azure resources with `azd up` or `azd provision`, you can run all the apps locally (instead of using Azure Container Apps). For more details on how to run each app check:
--  the [README.md](app/backend/README.md) to run the agents backend and the front-end
--  the [README.md](app/business-api/python/README.md) to run the simulated banking mcp servers.
-
-
-## Guidance
-
-### Testing different gpt models, versions and sku.
-The default LLM used in this project is *gpt-4.1* deployed with global standard on Azure AI Foundry.
-You can test different models and versions by changing the model sections in the [infra/main.parameters.json](infra/main.parameters.json). An example:
-
-```shell
-"models": {
-      "value": [
-        {
-          "deploymentName": "gpt-4.1",
-          "name": "gpt-4.1",
-          "format": "OpenAI",
-          "version": "2025-04-14",
-          "skuName": "GlobalStandard",
-          "capacity": 80
-        }
-      ]
-    }
-```
 
 ### Restrict access to public webapp
 
@@ -212,7 +169,7 @@ By default, the web app on ACA will have no authentication or access restriction
 
 To then limit access to a specific set of users or groups, you can follow the steps from [Restrict your Microsoft Entra app to a set of users](https://learn.microsoft.com/entra/identity-platform/howto-restrict-your-app-to-a-set-of-users) by changing "Assignment Required?" option under the Enterprise Application, and then assigning users/groups access.  Users not granted explicit access will receive the error message -AADSTS50105: Your administrator has configured the application <app_name> to block users 
 
-### Security Considerations
+### Security guidelines
 
 > [!IMPORTANT]
 > **This sample is a proof-of-concept and does not implement app authentication or authorization**. 
@@ -231,102 +188,7 @@ When deploying to production with real customer data, consider implementing:
 - **Audit logging of all access and operations**
 - **Compliance with applicable regulations (PCI-DSS, GDPR, local banking regulations)**
 
-
-
-### UI selection
-
-This project provides two frontend options to choose from, each with different capabilities and backend integration requirements:
-
-#### 1. **banking-web** (Default - Chatkit Protocol)
-A fully-featured React Single Page Application built with React shadcn/ui that supports:
-- Rich human-in-the-loop (HITL) experience
-- Agent progress notifications
-- Tool approval widgets
-- Image upload support for invoices and receipts
-- Chatkit protocol compliance
-- Integrated into a banking app interface
-
-**To use this frontend:**
-- In `azure.yaml`: Ensure the `banking-web` service is **uncommented** and `simple-chat` is **commented out**
-- In `app/backend/Dockerfile`: Use the CMD line:
-  ```dockerfile
-  CMD ["uvicorn", "app.main_chatkit_server:app", "--host", "0.0.0.0", "--port", "8080"]
-  ```
-
-#### 2. **simple-chat** (Custom Protocol)
-A lightweight chat interface with basic conversational capabilities:
-- Simple chat UI without advanced HITL patterns
-- No tool approval widgets or progress notifications
-- Image upload support for invoices and receipts
-
-**To use this frontend:**
-- In `azure.yaml`: Ensure the `simple-chat` service is **uncommented** and `banking-web` is **commented out**
-- In `app/backend/Dockerfile`: Use the CMD line:
-  ```dockerfile
-  CMD ["uvicorn", "app.main_handoff:app", "--host", "0.0.0.0", "--port", "8080"]
-  ```
-
-> [!IMPORTANT]
-> When switching between frontends, you must update **both** the `azure.yaml` and `app/backend/Dockerfile` files to maintain compatibility. After making changes, redeploy using `azd deploy` or `azd up`.
-
-### Agent Framework - Chatkit protocol support
-
-This sample implements UI-to-agent communication approach built on top of the [OpenAI ChatKit protocol](https://platform.openai.com/docs/guides/chatkit) and [Microsoft Agent Framework](https://github.com/microsoft/agent-framework), specifically addressing key concerns around chatkit.js production deployment that are outlined in the [Agent Framework ChatKit integration documentation](https://github.com/microsoft/agent-framework/blob/main/python/packages/chatkit/README.md).
-
-**Key Challenges Addressed:**
-
-The ChatKit protocol provides a standardized chat communication pattern for AI agents, but the default implementation has several limitations for air gapped cloud:
-
-1. **Network Dependencies**: The ChatKit frontend requires connectivity to OpenAI's CDN (`cdn.platform.openai.com`) and external services, making it unsuitable for air-gapped or highly-regulated environments
-2. **Domain Registration**: Production deployments require manual domain registration at platform.openai.com
-
-**Our Solution:**
-
-This sample extends the Agent Framework's ChatKit integration:
-
-- **Chatkit Protocol Compliant**: supports ChatKit server protocol specification for rich human-in-the-loop (HITL) experiences including:
-  - Real-time agent progress notifications during task execution
-  - Tool approval widgets for user confirmation before sensitive operations
-  - Structured event streaming (thread.created, thread.item.done, etc.)
-  - Support for attachments and multi-modal content (invoice images, receipts)
-
-- **Extended Agent Framework**: Enhances the base `agent-framework-chatkit` package with:
-  - Custom handoff orchestration patterns optimized for multi-agent banking workflows
-  - Persistent checkpoint management for conversation state across sessions
-  - Seamless integration between Agent Framework's `HandoffBuilder` and ChatKit's event streaming
-
-- **Custom Reusable Chat Component**: Built a framework-agnostic React chat component (`banking-web/src/components/chat`) that:
-  - Supports the ChatKit protocol client-side specification
-  - Can be embedded into existing web applications (demonstrated in a banking app context)
-  - Provides a clean API for thread management, message and attachment handling, and event callbacks
-
-**Technical Implementation:**
-
-The backend uses `agent-framework-chatkit` to bridge Agent Framework agents with ChatKit's protocol, implementing a custom `ChatKitServer` subclass ([chatkit_server.py](app/backend/app/routers/chatkit/chatkit_server.py)) that handles thread persistence, message conversion, and event streaming. The frontend chat component consumes the ChatKit SSE stream and renders progress indicators, approval widgets, and conversation history in a banking-integrated interface.
-
-This approach demonstrates how to build production-grade agentic applications that combine the power of Agent Framework's orchestration capabilities with the user experience benefits of the ChatKit protocol, while maintaining full control over deployment, security, and customization requirements.
-
-More info on the implementation can be found in the [docs/chat-server-protocol.md](docs/chat-server-protocol.md).
-
-### Cost estimation
-
-Pricing varies per region and usage, so it isn't possible to predict exact costs for your usage.
-However, you can try the [Azure pricing calculator](https://azure.com/e/8ffbe5b1919c4c72aed89b022294df76) for the resources below.
-
-- Azure Containers App: Consumption workload profile with 4 CPU core and 8 GB RAM. Pricing per vCPU and Memory. [Pricing](https://azure.microsoft.com/en-us/pricing/details/container-apps/)
-- Azure OpenAI: Standard tier, ChatGPT and Ada models. Pricing per 1K tokens used, and at least 1K tokens are used per question. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/)
-- Azure Document Intelligence: SO (Standard) tier using pre-built layout. [Pricing](https://azure.microsoft.com/pricing/details/form-recognizer/)
-
-- Azure Blob Storage: Standard tier with ZRS (Zone-redundant storage). Pricing per storage and read operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
-- Azure Monitor: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
-
-The first 180,000 vCPU-seconds, 360,000 GiB-seconds, and 2 million requests each month are free for ACA. To reduce costs, you can switch to free SKUs Document Intelligence by changing the parameters file under the `infra` folder. There are some limits to consider; for example, the free resource only analyzes the first 2 pages of each document. 
-
-⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
-either by deleting the resource group in the Portal or running `azd down`.
-
-
-## Resources
+### Resources
 
 Here are some resources to learn more about multi-agent architectures and technologies used in this sample:
 
@@ -338,7 +200,7 @@ Here are some resources to learn more about multi-agent architectures and techno
 - [AI agent orchestration patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
 
 
-You can also find [more Azure Ai agents samples here](https://aka.ms/aiapps)
+You can also find [more Microsoft Foundry agents samples here](https://aka.ms/aiapps)
 
 
 ## Getting Help
@@ -377,5 +239,19 @@ trademarks or logos is subject to and must follow
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
 
-[Langchain4j]: https://github.com/langchain4j/langchain4j
+## Responsible AI Transparency
 
+This AI multi-agent Banking Assistant template is provided ‘as-is’ and ‘without warranty’ under the MIT license. Any AI solutions developed or deployed using these types of agentic templates require that you and your organization carefully evaluate all relevant requirements and risks, and ensure compliance with applicable laws, guidelines, and safety standards. Caution is strongly advised when utilizing this template—particularly in [sensitive domains](https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/agents/transparency-note?view=foundry-classic#disclaimer-about-agents-in-sensitive-domains)—to develop autonomous agentic AI actions that may be irreversible. For further details, please consult the transparency documents for [Agent Service](https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/agents/transparency-note?view=foundry-classic) and [Agent Framework](https://github.com/microsoft/agent-framework/blob/main/TRANSPARENCY_FAQ.md).”
+
+
+## Disclaimers
+
+To the extent that the Software includes components or code used in or derived from Microsoft products or services, including without limitation Microsoft Azure Services (collectively, “Microsoft Products and Services”), you must also comply with the Product Terms applicable to such Microsoft Products and Services. You acknowledge and agree that the license governing the Software does not grant you a license or other right to use Microsoft Products and Services. Nothing in the license or this ReadMe file will serve to supersede, amend, terminate or modify any terms in the Product Terms for any Microsoft Products and Services. 
+
+You must also comply with all domestic and international export laws and regulations that apply to the Software, which include restrictions on destinations, end users, and end use. For further information on export restrictions, visit https://aka.ms/exporting. 
+
+You acknowledge that the Software and Microsoft Products and Services (1) are not designed, intended or made available as a medical device(s), and (2) are not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgment and should not be used to replace or as a substitute for professional medical advice, diagnosis, treatment, or judgment. Customer is solely responsible for displaying and/or obtaining appropriate consents, warnings, disclaimers, and acknowledgements to end users of Customer’s implementation of the Online Services. 
+
+You acknowledge the Software is not subject to SOC 1 and SOC 2 compliance audits. No Microsoft technology, nor any of its component technologies, including the Software, is intended or made available as a substitute for the professional advice, opinion, or judgement of a certified financial services professional. Do not use the Software to replace, substitute, or provide professional financial advice or judgment.  
+
+BY ACCESSING OR USING THE SOFTWARE, YOU ACKNOWLEDGE THAT THE SOFTWARE IS NOT DESIGNED OR INTENDED TO SUPPORT ANY USE IN WHICH A SERVICE INTERRUPTION, DEFECT, ERROR, OR OTHER FAILURE OF THE SOFTWARE COULD RESULT IN THE DEATH OR SERIOUS BODILY INJURY OF ANY PERSON OR IN PHYSICAL OR ENVIRONMENTAL DAMAGE (COLLECTIVELY, “HIGH-RISK USE”), AND THAT YOU WILL ENSURE THAT, IN THE EVENT OF ANY INTERRUPTION, DEFECT, ERROR, OR OTHER FAILURE OF THE SOFTWARE, THE SAFETY OF PEOPLE, PROPERTY, AND THE ENVIRONMENT ARE NOT REDUCED BELOW A LEVEL THAT IS REASONABLY, APPROPRIATE, AND LEGAL, WHETHER IN GENERAL OR IN A SPECIFIC INDUSTRY. BY ACCESSING THE SOFTWARE, YOU FURTHER ACKNOWLEDGE THAT YOUR HIGH-RISK USE OF THE SOFTWARE IS AT YOUR OWN RISK.
