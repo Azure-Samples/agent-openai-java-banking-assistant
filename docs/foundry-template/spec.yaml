@@ -18,6 +18,7 @@ services:
  - "Azure Document Intelligence"
  - "Azure Container Apps"
  - "Azure Storage"
+ - "Microsoft Agent Framework"
 templateType: SolutionTemplate
 path: ./images
 license: MIT
