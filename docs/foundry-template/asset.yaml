@@ -1,0 +1,4 @@
+type: apptemplate
+spec: spec.yaml
+categories:
+- AppTemplate

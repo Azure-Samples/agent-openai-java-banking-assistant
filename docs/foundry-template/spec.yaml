@@ -1,0 +1,24 @@
+type: apptemplate
+name: home-banking-assistant
+version: 1
+display_name: Conversational multi-agent Home Banking Assistant
+description: Revolutionize the way users interact with their home banking digital services leveraging specialized agents for bank account information, credit cards, transaction history and payments functionalities.
+longDescription: "The home banking assistant is designed as conversational multi-agent system with each agent specializing in a specific functional domain (e.g., account management, transaction history, payments). Business services logic is exposed to agents through MCP endpoint running on domain driven microservices"
+
+repository: https://github.com/Azure-Samples/agent-openai-python-banking-assistant
+languages:
+ - Python
+author: Microsoft
+models:
+ - gpt-4.1
+ - gpt-4o
+services:
+ - "Microsoft Foundry"
+ - "Azure Open AI"
+ - "Azure Document Intelligence"
+ - "Azure Container Apps"
+ - "Azure Storage"
+templateType: SolutionTemplate
+path: ./images
+license: MIT
+disclaimer: "With any AI solutions you create using these templates, you are responsible for assessing all associated risks, and for complying with all applicable laws and safety standards."
