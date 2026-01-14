@@ -17,6 +17,7 @@ dependencies = [
     "agent-framework-azure-ai==1.0.0b251211",
     "agent-framework-devui==1.0.0b251211",
     "agent-framework-chatkit==1.0.0b251211",
+    "openai-chatkit==1.4.1",
     "azure-monitor-opentelemetry-exporter==1.0.0b46",
     "azure-monitor-opentelemetry==1.8.3"
 ]
