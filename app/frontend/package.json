@@ -23,7 +23,7 @@
     "ndjson-readablestream": "^1.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.18.0",
+    "react-router-dom": "^6.30.3",
     "scheduler": "^0.20.2"
   },
   "devDependencies": {
