@@ -18,18 +18,36 @@
             <artifactId>copilot-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>1.10.0</version>
+            <scope>compile</scope>
+        </dependency>
+                <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-mcp -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-mcp</artifactId>
-            <!-- <version>${project.version}</version>-->
-            <version>${langchain4j.version}</version>
+            <version>1.10.0-beta18</version>
+            <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-azure-open-ai -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-agentic</artifactId>
+            <version>1.10.0-beta18</version>
+            <scope>compile</scope>
+        </dependency>
+        
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-azure-open-ai</artifactId>
-            <version>${langchain4j.version}</version>
-            <scope>test</scope>
+            <version>1.10.0</version>
+            <scope>compile</scope>
         </dependency>
+        
+       
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>

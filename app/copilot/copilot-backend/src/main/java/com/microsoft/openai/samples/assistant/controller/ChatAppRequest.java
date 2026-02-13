@@ -9,4 +9,5 @@ public record ChatAppRequest(
         List<String> attachments,
         ChatAppRequestContext context,
         boolean stream,
-        String approach) {}
+        String approach,
+        String session_state) {}

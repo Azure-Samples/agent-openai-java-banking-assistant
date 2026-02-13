@@ -1,11 +1,8 @@
 package dev.langchain4j.openapi.mcp;
 
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.TransactionHistoryMCPAgent;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.TransactionHistoryMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.TransactionHistoryMCPAgentBuilder.TransactionHistoryAgent;
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-
-import java.util.ArrayList;
 
 public class TransactionHistoryMCPAgentIntegrationTest {
 
@@ -13,25 +10,23 @@ public class TransactionHistoryMCPAgentIntegrationTest {
 
         //Azure Open AI Chat Model
         var azureOpenAiChatModel = AzureOpenAiChatModel.builder()
+               
                 .apiKey(System.getenv("AZURE_OPENAI_KEY"))
                 .endpoint(System.getenv("AZURE_OPENAI_ENDPOINT"))
-                .deploymentName(System.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"))
-                .temperature(0.3)
+                .deploymentName("gpt-4.1")
                 .logRequestsAndResponses(true)
                 .build();
 
-        var transactionHistoryAgent = new TransactionHistoryMCPAgent(azureOpenAiChatModel,
+        TransactionHistoryAgent transactionHistoryAgent = (TransactionHistoryAgent) new TransactionHistoryMCPAgentBuilder(
+                azureOpenAiChatModel,
                 "bob.user@contoso.com",
                 "http://localhost:8090/sse",
-                "http://localhost:8070/sse");
+                "http://localhost:8070/sse").buildProgrammatic();
 
-        var chatHistory = new ArrayList<ChatMessage>();
+        String conversationId = "test-conversation-1";
 
-
-        chatHistory.add(UserMessage.from("When was last time I've paid contoso?"));
-        transactionHistoryAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-
+        String response = transactionHistoryAgent.chat(conversationId, "When was last time I've paid contoso?");
+        System.out.println(response);
 
     }
 }

@@ -33,7 +33,7 @@ public class AccountMCPClient {
 
 
 	public static void main(String[] args) {
-		var transport = new HttpClientSseClientTransport("http://localhost:8070");
+		var transport = new HttpClientSseClientTransport("http://account:8080/sse");
 
 		var client = McpClient.sync(transport).build();
 

@@ -4,13 +4,10 @@ import com.azure.ai.documentintelligence.DocumentIntelligenceClient;
 import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder;
 import com.azure.identity.AzureCliCredentialBuilder;
 import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.PaymentMCPAgent;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.PaymentMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.PaymentMCPAgentBuilder.PaymentAgent;
 import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-
-import java.util.ArrayList;
 
 public class PaymentMCPAgentIntegrationWithImageTest {
 
@@ -27,36 +24,26 @@ public class PaymentMCPAgentIntegrationWithImageTest {
 
         var documentIntelligenceInvoiceScanHelper = new DocumentIntelligenceInvoiceScanHelper(getDocumentIntelligenceClient(),getBlobStorageProxyClient());
 
-        var paymentAgent = new PaymentMCPAgent(azureOpenAiChatModel,
-                                                    documentIntelligenceInvoiceScanHelper,
-                                      "bob.user@contoso.com",
-                                      "http://localhost:8090",
-                                        "http://localhost:8070",
-                                        "http://localhost:8060");
+        PaymentAgent paymentAgent = (PaymentAgent) new PaymentMCPAgentBuilder(
+                azureOpenAiChatModel,
+                documentIntelligenceInvoiceScanHelper,
+                "bob.user@contoso.com",
+                "http://localhost:8060").buildProgrammatic();
 
-        var chatHistory = new ArrayList<ChatMessage>();
-        chatHistory.add(UserMessage.from("Please pay this bill gori.png"));
+        String conversationId = "test-conversation-1";
 
         //this flow should activate the scanInvoice tool
+        String response1 = paymentAgent.chat(conversationId, "Please pay this bill gori.png");
+        System.out.println(response1);
 
-        paymentAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response2 = paymentAgent.chat(conversationId, "yep, they are correct");
+        System.out.println(response2);
 
-        chatHistory.add(UserMessage.from("yep, they are correct"));
-        paymentAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response3 = paymentAgent.chat(conversationId, "use my visa");
+        System.out.println(response3);
 
-
-        chatHistory.add(UserMessage.from("use my visa"));
-        paymentAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-
-
-        chatHistory.add(UserMessage.from("yes please proceed with payment"));
-        paymentAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-
-
+        String response4 = paymentAgent.chat(conversationId, "yes please proceed with payment");
+        System.out.println(response4);
 
     }
 
