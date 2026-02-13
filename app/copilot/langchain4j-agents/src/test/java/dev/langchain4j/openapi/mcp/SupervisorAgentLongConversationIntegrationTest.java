@@ -5,16 +5,12 @@ import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder;
 import com.azure.identity.AzureCliCredentialBuilder;
 import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
 import com.microsoft.openai.samples.assistant.langchain4j.agent.SupervisorAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.AccountMCPAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.PaymentMCPAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.TransactionHistoryMCPAgent;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.AccountMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.PaymentMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.SupervisorAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.TransactionHistoryMCPAgentBuilder;
 import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SupervisorAgentLongConversationIntegrationTest {
 
@@ -31,62 +27,43 @@ public class SupervisorAgentLongConversationIntegrationTest {
 
         var documentIntelligenceInvoiceScanHelper = new DocumentIntelligenceInvoiceScanHelper(getDocumentIntelligenceClient(),getBlobStorageProxyClient());
 
-        var accountAgent = new AccountMCPAgent(azureOpenAiChatModel,
+        var accountAgent = new AccountMCPAgentBuilder(azureOpenAiChatModel,
                 "bob.user@contoso.com",
-                "http://localhost:8070/sse");
-        var transactionHistoryAgent = new TransactionHistoryMCPAgent(azureOpenAiChatModel,
+                "http://localhost:8070/sse").buildProgrammatic();
+        var transactionHistoryAgent = new TransactionHistoryMCPAgentBuilder(azureOpenAiChatModel,
                 "bob.user@contoso.com",
                 "http://localhost:8090/sse",
-                "http://localhost:8070/sse");
-        var paymentAgent = new PaymentMCPAgent(azureOpenAiChatModel,
+                "http://localhost:8070/sse").buildProgrammatic();
+        var paymentAgent = new PaymentMCPAgentBuilder(azureOpenAiChatModel,
                 documentIntelligenceInvoiceScanHelper,
                 "bob.user@contoso.com",
-                "http://localhost:8090/sse",
-                "http://localhost:8070/sse",
-                "http://localhost:8060/sse");
+                "http://localhost:8060/sse").buildProgrammatic();
 
-        var supervisorAgent = new SupervisorAgent(azureOpenAiChatModel, List.of(accountAgent,transactionHistoryAgent,paymentAgent));
-        var chatHistory = new ArrayList<ChatMessage>();
+        SupervisorAgent supervisorAgent = (SupervisorAgent) new SupervisorAgentBuilder(
+                azureOpenAiChatModel, accountAgent, transactionHistoryAgent, paymentAgent).buildProgrammatic();
 
+        String conversationId = "test-conversation-1";
 
-        chatHistory.add(UserMessage.from("How much money do I have in my account?"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response1 = supervisorAgent.chat(conversationId, "How much money do I have in my account?");
+        System.out.println(response1);
 
-        chatHistory.add(UserMessage.from("what about my visa"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response2 = supervisorAgent.chat(conversationId, "what about my visa");
+        System.out.println(response2);
 
-        chatHistory.add(UserMessage.from("When was last time I've paid contoso?"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response3 = supervisorAgent.chat(conversationId, "When was last time I've paid contoso?");
+        System.out.println(response3);
 
-        chatHistory.add(UserMessage.from("Please pay this bill gori.png"));
+        String response4 = supervisorAgent.chat(conversationId, "Please pay this bill gori.png");
+        System.out.println(response4);
 
-        //this flow should activate the scanInvoice tool
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response5 = supervisorAgent.chat(conversationId, "yep, they are correct");
+        System.out.println(response5);
 
-        chatHistory.add(UserMessage.from("yep, they are correct"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response6 = supervisorAgent.chat(conversationId, "use my visa");
+        System.out.println(response6);
 
-
-        chatHistory.add(UserMessage.from("use my visa"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-
-
-        chatHistory.add(UserMessage.from("yes please proceed with payment"));
-        System.out.println(chatHistory.get(chatHistory.size()-1));
-        supervisorAgent.invoke(chatHistory);
-        System.out.println(chatHistory.get(chatHistory.size()-1));
+        String response7 = supervisorAgent.chat(conversationId, "yes please proceed with payment");
+        System.out.println(response7);
     }
     private static BlobStorageProxy getBlobStorageProxyClient() {
 

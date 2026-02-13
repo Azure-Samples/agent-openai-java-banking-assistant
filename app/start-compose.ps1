@@ -4,13 +4,16 @@ foreach ($line in $output) {
   $name, $value = $line.Split("=")
   $value = $value -replace '^\"|\"$'
   [Environment]::SetEnvironmentVariable($name, $value)
+  Write-Host "Set environment variable: $name=$value"
 }
 
 Write-Host "Environment variables set."
 $roles = @(
     "a97b65f3-24c7-4388-baec-2e87135dc908",
     "5e0bd9bd-7b93-4f28-af87-19fc36ad61bd",
-    "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+    "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
+    "64702f94-c441-49e6-a78b-ef80e0188fee",
+    "53ca6127-db72-4b80-b1b0-d745d6d5456d"
 )
 
 # Check if service principal exists
@@ -48,4 +51,4 @@ Write-Host ""
 Write-Host "Starting solution locally using docker compose."
 Write-Host ""
 
-docker compose -f ./compose.yaml up
+docker compose -f ./compose.yaml up --build

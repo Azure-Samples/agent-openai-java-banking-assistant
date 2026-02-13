@@ -11,18 +11,26 @@
     "location": {
       "value": "${AZURE_LOCATION}"
     },
-    "openAiServiceName": {
+    "foundryServiceName": {
       "value": "${AZURE_OPENAI_SERVICE}"
     },
-    "openAiResourceGroupName": {
+    "foundryResourceGroupName": {
       "value": "${AZURE_OPENAI_RESOURCE_GROUP}"
     },
-    "openAiResourceGroupLocation": {
+    "foundryResourceGroupLocation": {
       "value": "${AZURE_OPENAI_SERVICE_LOCATION=eastus}"
     },
-    "openAiSkuName": {
+    "foundrySkuName": {
       "value": "S0"
     },
+    "foundryModelSkuName": {
+      "value": "GlobalStandard"
+    },
+    "foundryModelCapacity": {
+      "value": 200
+    },
+
+
     "documentIntelligenceServiceName": {
       "value": "${AZURE_DOCUMENT_INTELLIGENCE_SERVICE}"
     },
@@ -44,20 +52,11 @@
     "storageSkuName": {
       "value": "${AZURE_STORAGE_SKU=Standard_LRS}"
     },
-    "chatGptModelName": {
-      "value": "${AZURE_OPENAI_CHATGPT_MODEL=gpt-4o}"
-    },
-    "chatGptModelVersion": {
-      "value": "${AZURE_OPENAI_CHATGPT_VERSION=2024-11-20}"
-    },
     "chatGptDeploymentName": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=gpt-4o}"
+      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=gpt-4.1}"
     },
-    "chatGptDeploymentCapacity": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_CAPACITY=30}"
-    },
-    "chatGptDeploymentSkuName": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU_NAME=GlobalStandard}"
+    "chatGptModelName": {
+      "value": "${AZURE_OPENAI_CHATGPT_MODEL=gpt-4.1}"
     },
     "useApplicationInsights": {
       "value": "${AZURE_USE_APPLICATION_INSIGHTS=true}"

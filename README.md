@@ -60,11 +60,14 @@ Invoices samples are included in the data folder to make it easy to explore paym
 This project provides the following features and technical patterns:
  - Simple multi-agent supervisor architecture using **gpt-4o-mini** or **gpt-4o** on Azure Open AI.
  - Exposing your business API as MCP tools for your agents using [spring-ai-mcp](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html)
+ - **[NEW]** Using official **[langchain4j-agentic](https://github.com/langchain4j/langchain4j/tree/main/langchain4j-agentic)** module for multi-agent orchestration.
  - Agents tools configuration and automatic tools invocations with [Langchain4j](https://github.com/langchain4j/langchain4j).
  - Chat based conversation implemented as [React Single Page Application](https://react.fluentui.dev/?path=/docs/concepts-introduction--docs) with support for images upload.Supported images are invoices, receipts, bills jpeg/png files you want your virtual banking assistant to pay on your behalf.
  - Images scanning and data extraction with Azure Document Intelligence using [prebuilt-invoice](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-invoice?view=doc-intel-4.0.0) model.
  - Add a copilot app side-by-side to your existing business microservices hosted on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
  - Automated Azure resources creation and solution deployment leveraging [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
+
+> **Migration to langchain4j-agentic**: This project has been migrated from a custom agent framework to the official langchain4j-agentic module. See the [Migration Guide](./docs/MIGRATION_TO_AGENTIC.md) for details on the changes and benefits.
 
 For complex agents conversation implementation, read more about [Autogen framework](https://github.com/microsoft/autogen).
 

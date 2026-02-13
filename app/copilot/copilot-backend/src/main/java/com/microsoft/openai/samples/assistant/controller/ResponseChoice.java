@@ -2,4 +2,4 @@
 package com.microsoft.openai.samples.assistant.controller;
 
 public record ResponseChoice(
-        int index, ResponseMessage message, ResponseContext context, ResponseMessage delta) {}
+        int index, ResponseMessage message, ResponseContext context, ResponseMessage delta, String session_state) {}

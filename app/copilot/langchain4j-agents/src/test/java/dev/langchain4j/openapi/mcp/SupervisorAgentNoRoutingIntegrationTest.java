@@ -5,16 +5,12 @@ import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder;
 import com.azure.identity.AzureCliCredentialBuilder;
 import com.microsoft.openai.samples.assistant.invoice.DocumentIntelligenceInvoiceScanHelper;
 import com.microsoft.openai.samples.assistant.langchain4j.agent.SupervisorAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.AccountMCPAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.PaymentMCPAgent;
-import com.microsoft.openai.samples.assistant.langchain4j.agent.mcp.TransactionHistoryMCPAgent;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.AccountMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.PaymentMCPAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.SupervisorAgentBuilder;
+import com.microsoft.openai.samples.assistant.langchain4j.agent.builder.TransactionHistoryMCPAgentBuilder;
 import com.microsoft.openai.samples.assistant.proxy.BlobStorageProxy;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SupervisorAgentNoRoutingIntegrationTest {
 
@@ -31,38 +27,36 @@ public class SupervisorAgentNoRoutingIntegrationTest {
 
         var documentIntelligenceInvoiceScanHelper = new DocumentIntelligenceInvoiceScanHelper(getDocumentIntelligenceClient(),getBlobStorageProxyClient());
 
-        var accountAgent = new AccountMCPAgent(azureOpenAiChatModel,"bob.user@contoso.com/sse","http://localhost:8070/sse");
-        var transactionHistoryAgent = new TransactionHistoryMCPAgent(azureOpenAiChatModel,
+        var accountAgent = new AccountMCPAgentBuilder(azureOpenAiChatModel, "bob.user@contoso.com",
+                "http://localhost:8070/sse").buildProgrammatic();
+        var transactionHistoryAgent = new TransactionHistoryMCPAgentBuilder(azureOpenAiChatModel,
                 "bob.user@contoso.com",
                 "http://localhost:8090/sse",
-                "http://localhost:8070/sse");
-        var paymentAgent = new PaymentMCPAgent(azureOpenAiChatModel,
+                "http://localhost:8070/sse").buildProgrammatic();
+        var paymentAgent = new PaymentMCPAgentBuilder(azureOpenAiChatModel,
                 documentIntelligenceInvoiceScanHelper,
                 "bob.user@contoso.com",
-                "http://localhost:8090/sse",
-                "http://localhost:8070/sse",
-                "http://localhost:8060/sse");
+                "http://localhost:8060/sse").buildProgrammatic();
 
-        var supervisorAgent = new SupervisorAgent(azureOpenAiChatModel, List.of(accountAgent,transactionHistoryAgent,paymentAgent), false);
-        var chatHistory = new ArrayList<ChatMessage>();
+        SupervisorAgent supervisorAgent = (SupervisorAgent) new SupervisorAgentBuilder(
+                azureOpenAiChatModel, accountAgent, transactionHistoryAgent, paymentAgent).buildProgrammatic();
 
-        chatHistory.add(UserMessage.from("How much money do I have in my account?"));
-        supervisorAgent.invoke(chatHistory);
+        String conversationId = "test-conversation-1";
 
-        chatHistory.add(UserMessage.from("you have 1000 on your account"));
+        String response1 = supervisorAgent.chat(conversationId, "How much money do I have in my account?");
+        System.out.println(response1);
 
-        chatHistory.add(UserMessage.from("what about my visa"));
-        supervisorAgent.invoke(chatHistory);
-        chatHistory.add(UserMessage.from("these are the data for your visa card: id 1717171, expiration date 12/2023, cvv 123 balance 500"));
+        String response2 = supervisorAgent.chat(conversationId, "what about my visa");
+        System.out.println(response2);
 
-        chatHistory.add(UserMessage.from("When was last time I've paid contoso?"));
-        supervisorAgent.invoke(chatHistory);
+        String response3 = supervisorAgent.chat(conversationId, "When was last time I've paid contoso?");
+        System.out.println(response3);
 
-        chatHistory.add(UserMessage.from("Can you help me plan an investement?"));
-        supervisorAgent.invoke(chatHistory);
+        String response4 = supervisorAgent.chat(conversationId, "Can you help me plan an investement?");
+        System.out.println(response4);
 
-        chatHistory.add(UserMessage.from("Ok so can you pay this bill for me?"));
-        supervisorAgent.invoke(chatHistory);
+        String response5 = supervisorAgent.chat(conversationId, "Ok so can you pay this bill for me?");
+        System.out.println(response5);
 
     }
 
