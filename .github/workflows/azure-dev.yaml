@@ -27,9 +27,9 @@ jobs:
       build-payment-api: ${{ steps.changes.outputs.payment-api }}
       build-transaction-api: ${{ steps.changes.outputs.transaction-api }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
       - name: Filter Changes
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
         id: changes
         with:
             filters: |
