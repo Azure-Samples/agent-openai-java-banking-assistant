@@ -27,19 +27,19 @@ jobs:
         environment: ${{inputs.env-name}}
         steps:
         - name: Log in to Azure with service principal
-          uses: azure/login@v2
+          uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
           if: ${{ vars.AZURE_CLIENT_ID == '' }}
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
         - name: Log in with Azure (Federated Credentials)
           if: ${{ vars.AZURE_CLIENT_ID != '' }}
-          uses: azure/login@v2
+          uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
           with:
             client-id: ${{ vars.AZURE_CLIENT_ID }}
             tenant-id: ${{ vars.AZURE_TENANT_ID }}
             subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }} 
         - name: Build and deploy Container App
-          uses: azure/container-apps-deploy-action@v1
+          uses: azure/container-apps-deploy-action@29ee19866ec987ededd70b8412d9ee241a9102d1 # v1
           with:
               acrName: ${{vars.ACR_NAME}}
               containerAppName: ${{inputs.container-app-name}}
